@@ -1,0 +1,8 @@
+# Direct development dependencies for the project scaffold (Feature F01 / Epic E0).
+# This is the human-edited source of truth. Compile to a fully pinned, hashed
+# requirements.txt with:  make lock
+#
+# No runtime/domain dependencies belong here yet — later features add their own.
+pip-tools
+pytest
+ruff

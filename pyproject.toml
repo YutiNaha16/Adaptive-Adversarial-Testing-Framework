@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aatf"
+version = "0.1.0"
+description = "Adaptive Adversarial Testing Framework — a safe, simulation-based instrument for measuring IDS robustness against learning attackers."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+# No runtime dependencies yet; the scaffold adds none. Dev tooling lives in requirements.in.
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
