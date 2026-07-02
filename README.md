@@ -60,6 +60,7 @@ src/aatf/
 ├── config.py   # ExperimentConfig (Pydantic V2) + load_config()
 ├── seeding.py  # seed_everything() — sole RNG entry point
 ├── manifest.py # write_manifest() — timestamped JSON provenance record
+├── contracts.py # five frozen Pydantic V2 types: Action, DetectionResult, ContextVector, EpisodeRecord, RunManifest
 ├── live/       # Live experiment loop — added by later features
 │               #   MUST NOT import any concrete defence (constitution Principle III)
 └── analysis/   # Offline analysis pipeline — added by later features
