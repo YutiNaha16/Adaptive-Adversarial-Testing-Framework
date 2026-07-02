@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [X] No [NEEDS CLARIFICATION] markers remain
 - [X] Requirements are testable and unambiguous
 - [X] Success criteria are measurable
 - [X] Success criteria are technology-agnostic (no implementation details)
@@ -31,6 +31,8 @@
 
 ## Notes
 
-2 NEEDS CLARIFICATION markers remain — awaiting user answers before proceeding to `/sp.plan`.
-- Q1: Smoke test invocation (Makefile target vs pytest docker-marked test)
-- Q2: ET Open ruleset pinning strategy (baked into image vs downloaded to volume)
+All items pass. Clarifications resolved:
+- Q1: Smoke test → `make lab-smoke` Makefile target (shell script, matches F04 pattern)
+- Q2: ET Open pinning → baked into `lab/Dockerfile.suricata` (image tag pins both Suricata
+  version and ruleset snapshot; no internet needed at runtime)
+Spec is ready for `/sp.plan`.

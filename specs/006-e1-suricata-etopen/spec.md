@@ -175,11 +175,13 @@ confirm the SID reappears.
 
 ### Session 2026-07-02
 
-- Q: How is the smoke test invoked? → A: [NEEDS CLARIFICATION: dedicated Makefile target
-  (`make lab-smoke`) vs pytest `@pytest.mark.docker` test consistent with F06's approach]
-- Q: How is the ET Open ruleset pinned for reproducibility? → A: [NEEDS CLARIFICATION:
-  baked into a custom Suricata Dockerfile (most reproducible, requires image build) vs
-  downloaded from a pinned snapshot URL into a named volume at first `make lab-up`]
+- Q: How is the smoke test invoked? → A: Dedicated `make lab-smoke` Makefile target
+  (shell script). Matches the existing `make lab-check` pattern from F04. No pytest
+  dependency — runs from the host, straightforward to debug.
+- Q: How is the ET Open ruleset pinned for reproducibility? → A: Baked into a custom
+  Suricata Docker image via `lab/Dockerfile.suricata`. The image tag pins both the
+  Suricata version and the ruleset snapshot. Fully reproducible — same image tag yields
+  identical rules on every `make lab-up`, with no internet access needed at runtime.
 
 ## Assumptions
 
