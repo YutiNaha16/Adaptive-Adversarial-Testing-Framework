@@ -90,21 +90,21 @@ or network remain.
   ```
   Add `lab-down` to the `.PHONY` list.
 
-- [ ] T006 [US1] Verify T-LU1 and T-LU2 — run `make lab-up` and confirm:
+- [X] T006 [US1] Verify T-LU1 and T-LU2 — run `make lab-up` and confirm:
   - `docker ps --format "{{.Names}}"` shows `aatf-attacker`, `aatf-defender`, `aatf-environment`
   - `docker network inspect aatf-lab --format "{{.Internal}}"` prints `true`
 
-- [ ] T007 [US1] Verify T-LU3 — run `make lab-up` a second time while lab is already running;
+- [X] T007 [US1] Verify T-LU3 — run `make lab-up` a second time while lab is already running;
   confirm it exits 0 with no errors and container count remains exactly 3 (idempotent).
 
-- [ ] T008 [US1] Verify T-LD1 and T-LD2 — run `make lab-down` and confirm:
+- [X] T008 [US1] Verify T-LD1 and T-LD2 — run `make lab-down` and confirm:
   - `docker ps -a --format "{{.Names}}" | grep aatf` produces no output
   - `docker network ls --format "{{.Name}}" | grep aatf-lab` produces no output
 
-- [ ] T009 [US1] Verify T-LD3 — run `make lab-down` again (lab already stopped); confirm it
+- [X] T009 [US1] Verify T-LD3 — run `make lab-down` again (lab already stopped); confirm it
   exits 0 without errors (idempotent teardown).
 
-- [ ] T010 [US1] Verify T-LD4 — run the full `make lab-up && make lab-down` cycle 3 times in
+- [X] T010 [US1] Verify T-LD4 — run the full `make lab-up && make lab-down` cycle 3 times in
   succession; after the third teardown, confirm no `aatf-*` containers or `aatf-lab` network
   remain (cycle stability, SC-003).
 
@@ -160,17 +160,17 @@ Exits 0 if isolated, 1 if breach detected, 2 if lab is not running.
   ```
   Add `lab-check` to the `.PHONY` list. Note: NOT called by `make test` — standalone only.
 
-- [ ] T014 [US2] Verify T-LC1 — with lab running (`make lab-up` first): run `make lab-check`;
+- [X] T014 [US2] Verify T-LC1 — with lab running (`make lab-up` first): run `make lab-check`;
   confirm it exits 0 and prints a line containing "ISOLATED".
 
-- [ ] T015 [US2] Verify T-LC2 (breach detection) — temporarily comment out `internal: true`
+- [X] T015 [US2] Verify T-LC2 (breach detection) — temporarily comment out `internal: true`
   in `lab/docker-compose.yml`, run `make lab-down && make lab-up && make lab-check`; confirm
   it exits 1 and prints "BREACH" to stderr. Restore `internal: true` and run `make lab-down`.
 
-- [ ] T016 [US2] Verify T-LC3 — run `make lab-down` first, then `make lab-check`; confirm it
+- [X] T016 [US2] Verify T-LC3 — run `make lab-down` first, then `make lab-check`; confirm it
   exits 2 and prints the "lab not running" error message.
 
-- [ ] T017 [US2] Verify T-LC4 — with lab running, time `make lab-check`; confirm it completes
+- [X] T017 [US2] Verify T-LC4 — with lab running, time `make lab-check`; confirm it completes
   in under 10 seconds (should be near-instant with `internal: true` due to immediate ICMP
   unreachable).
 
@@ -229,13 +229,13 @@ exits with the appropriate code: 0 = running, 1 = stopped, 2 = degraded.
   ```
   Add `lab-status` to the `.PHONY` list.
 
-- [ ] T021 [US3] Verify T-LS1 — with lab stopped: run `make lab-status`; confirm it exits 1
+- [X] T021 [US3] Verify T-LS1 — with lab stopped: run `make lab-status`; confirm it exits 1
   and output includes "stopped".
 
-- [ ] T022 [US3] Verify T-LS2 — run `make lab-up`, then `make lab-status`; confirm it exits 0
+- [X] T022 [US3] Verify T-LS2 — run `make lab-up`, then `make lab-status`; confirm it exits 0
   and output lists all 3 containers as "running".
 
-- [ ] T023 [US3] Verify T-LS3 — with lab running, run `docker kill aatf-defender`, then
+- [X] T023 [US3] Verify T-LS3 — with lab running, run `docker kill aatf-defender`, then
   `make lab-status`; confirm it exits 2 and output identifies `aatf-defender` as non-running.
   Then run `make lab-down` to clean up.
 
@@ -265,7 +265,7 @@ verified. Lab is fully operational.
         └── lab-status.sh       # exits 0=running, 1=stopped, 2=degraded
     ```
 
-- [ ] T027 Validate `quickstart.md` SC-001 through SC-005 are all covered by the implemented
+- [X] T027 Validate `quickstart.md` SC-001 through SC-005 are all covered by the implemented
   targets and scripts (manual review — confirm each scenario produces the documented output).
 
 ---

@@ -43,6 +43,7 @@ lab-up:  ## Pull images and start the isolated lab (internal-only network)
 
 lab-down:  ## Stop and remove all lab containers and the lab network
 	$(COMPOSE) down --remove-orphans
+	@docker rm -f aatf-attacker aatf-defender aatf-environment 2>/dev/null; true
 
 lab-check:  ## Verify lab has no outbound internet access (exits 1 on breach)
 	@bash lab/scripts/check-isolation.sh
