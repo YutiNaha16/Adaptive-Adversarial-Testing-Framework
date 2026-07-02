@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # Report lab state: exits 0=running, 1=stopped, 2=degraded.
 
-CONTAINERS="aatf-attacker aatf-defender aatf-environment"
+CONTAINERS="aatf-attacker aatf-defender aatf-environment aatf-suricata"
 running=0
 total=0
 

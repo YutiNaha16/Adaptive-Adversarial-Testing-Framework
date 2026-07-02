@@ -64,14 +64,15 @@ make lab-smoke
 
 Expected (exit 0):
 ```
-Sending probe from aatf-attacker to aatf-defender...
-Waiting for SID <TARGET_SID> in eve.json (timeout 10s)...
-SMOKE PASS: SID <TARGET_SID> detected at <timestamp>
+Sending probe from aatf-attacker to aatf-defender (6 SYN probes to port 22)...
+Waiting for SID 2001219 in eve.json (timeout 30s)...
+SMOKE PASS: SID 2001219 (ET SCAN Potential SSH Scan) detected at <timestamp>
 ```
 
-The target SID is hardcoded in `lab/scripts/lab-smoke.sh` as `TARGET_SID=<N>`.
-The fired rule is: **"<ET SCAN rule message>"** — a mass TCP SYN scan detection rule
-from the ET Open ruleset, reliably triggered by the nmap probe without real exploit payloads.
+The target SID is hardcoded in `lab/scripts/lab-smoke.sh` as `TARGET_SID=2001219`.
+The fired rule is: **"ET SCAN Potential SSH Scan"** (SID 2001219) — a threshold-based
+SSH SYN scan detection rule from the ET Open ruleset (`emerging-scan.rules`), triggered
+by 6 successive nmap SYN probes to port 22. No real exploit payloads involved.
 
 ### Step 5 — Stop the lab
 
