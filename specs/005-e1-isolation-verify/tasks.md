@@ -360,7 +360,7 @@ stdout. Skips gracefully when the lab is not running.
   `"lab not running — run 'make lab-up' first"`. Total: 78 passed, 1 skipped.
 
 - [ ] T011 [US3] Verify live probe (lab up): run `make lab-up`, then
-  `./venv/bin/pytest tests/test_isolation.py -m docker -v` (or `.venv/bin/pytest`). Confirm:
+  `.venv/bin/pytest tests/test_isolation.py -m docker -v`. Confirm:
   - `test_live_egress_blocked` PASSED
   - Completes in under 10 seconds
   Then run `make lab-down` to clean up.

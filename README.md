@@ -12,7 +12,8 @@ Development follows a spec-driven workflow. The governing principles live in
 ## Status
 
 E0 complete (F01–F03): config loading, seeding, run-manifest provenance, and core data
-contracts are operational. E1 in progress: isolated Docker lab (F04) is operational.
+contracts are operational. E1 in progress: isolated Docker lab (F04) operational;
+isolation verification (F06) automated — Constitution Principle I enforced in `make test`.
 No experiment loop yet.
 
 ## Requirements
