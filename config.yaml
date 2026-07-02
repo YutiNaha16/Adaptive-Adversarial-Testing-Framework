@@ -1,0 +1,5 @@
+episodes: 100
+seed: 42
+output_dir: outputs/run_001
+ruleset_path: /etc/suricata/rules
+detection_threshold: 0.5
