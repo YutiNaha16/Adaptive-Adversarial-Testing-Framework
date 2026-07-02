@@ -1,0 +1,34 @@
+name: aatf-lab
+
+networks:
+  lab:
+    name: aatf-lab
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+services:
+  attacker:
+    image: alpine:3.19
+    container_name: aatf-attacker
+    networks:
+      - lab
+    command: ["sleep", "infinity"]
+    restart: "no"
+
+  defender:
+    image: alpine:3.19
+    container_name: aatf-defender
+    networks:
+      - lab
+    command: ["sleep", "infinity"]
+    restart: "no"
+
+  environment:
+    image: alpine:3.19
+    container_name: aatf-environment
+    networks:
+      - lab
+    command: ["sleep", "infinity"]
+    restart: "no"

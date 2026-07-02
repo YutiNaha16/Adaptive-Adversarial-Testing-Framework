@@ -7,7 +7,9 @@ PY     := $(VENV)/bin/python
 PIP    := $(VENV)/bin/pip
 
 .DEFAULT_GOAL := help
-.PHONY: help setup lock test run lint
+.PHONY: help setup lock test run lint lab-up lab-down lab-check lab-status
+
+COMPOSE := docker compose -f lab/docker-compose.yml
 
 help:  ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -34,3 +36,17 @@ lint:  ## Check lint + formatting (ruff); non-zero exit on any violation
 
 run:  ## Run the experiment entrypoint (stub)
 	$(PY) -m aatf
+
+lab-up:  ## Pull images and start the isolated lab (internal-only network)
+	$(COMPOSE) pull
+	$(COMPOSE) up -d
+
+lab-down:  ## Stop and remove all lab containers and the lab network
+	$(COMPOSE) down --remove-orphans
+	@docker rm -f aatf-attacker aatf-defender aatf-environment 2>/dev/null; true
+
+lab-check:  ## Verify lab has no outbound internet access (exits 1 on breach)
+	@bash lab/scripts/check-isolation.sh
+
+lab-status:  ## Show current lab container states (exits 0=running, 1=stopped, 2=degraded)
+	@bash lab/scripts/lab-status.sh
