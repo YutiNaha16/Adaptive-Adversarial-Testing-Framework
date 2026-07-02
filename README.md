@@ -11,8 +11,8 @@ Development follows a spec-driven workflow. The governing principles live in
 
 ## Status
 
-Early scaffold (Feature F01). No experiment logic yet — this repository currently provides the
-reproducible project foundation that later features build on.
+F01 + F02 complete (Epic E0 — Foundation & Reproducibility). Config loading, seeding, and
+run-manifest provenance are operational. No experiment loop yet.
 
 ## Requirements
 
@@ -36,14 +36,35 @@ Dependencies are pinned and hash-verified. `requirements.in` is the human-edited
 `requirements.txt` is the generated, fully pinned + hashed lock installed into a project-local
 `.venv`. To change dependencies, edit `requirements.in` then run `make lock` and commit both files.
 
+## Configuration
+
+Edit `config.yaml` at the repo root to tune experiment parameters:
+
+```yaml
+episodes: 100            # number of experiment episodes
+seed: 42                 # global RNG seed — same seed → same results
+output_dir: outputs/run_001   # where run outputs and manifests are written
+ruleset_path: /etc/suricata/rules  # Suricata ET Open ruleset directory (used by E1+)
+detection_threshold: 0.5  # minimum detection score (used by E6+ evaluator)
+```
+
+Before running an experiment, call `seed_everything(cfg.seed)` once — this is the **sole
+randomness entry point**; no other code may seed RNGs directly. After each run, `write_manifest()`
+produces a timestamped `run_manifest_<ISO>.json` in `output_dir` capturing seed, dependency
+versions, git commit, and the full config snapshot for reproducibility auditing.
+
 ## Project layout
 
 ```
 src/aatf/
-├── live/       # Live experiment loop (attacker, executor, feedback) — added by later features
+├── config.py   # ExperimentConfig (Pydantic V2) + load_config()
+├── seeding.py  # seed_everything() — sole RNG entry point
+├── manifest.py # write_manifest() — timestamped JSON provenance record
+├── live/       # Live experiment loop — added by later features
 │               #   MUST NOT import any concrete defence (constitution Principle III)
-└── analysis/   # Offline analysis (evaluator, explainability, report) — added by later features
-tests/          # pytest suite
+└── analysis/   # Offline analysis pipeline — added by later features
+tests/          # pytest suite (29 tests)
+config.yaml     # example configuration (edit to tune experiments)
 ```
 
 ## License / use
