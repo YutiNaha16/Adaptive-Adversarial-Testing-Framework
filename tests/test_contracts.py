@@ -341,6 +341,31 @@ def test_run_manifest_from_f02_file(tmp_path):
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# DetectionResult invariant — C-004 (rule_ids must be empty when alerted=False)
+# ---------------------------------------------------------------------------
+
+
+def test_detection_result_rule_ids_require_alert():
+    with pytest.raises(ValidationError):
+        DetectionResult(
+            alerted=False,
+            rule_ids=["2001219"],
+            anomaly_score=0.0,
+            coverage="covered",
+        )
+
+
+def test_detection_result_rule_ids_valid_when_alerted():
+    result = DetectionResult(
+        alerted=True,
+        rule_ids=["2001219"],
+        anomaly_score=0.5,
+        coverage="covered",
+    )
+    assert result.rule_ids == ["2001219"]
+
+
 def test_no_forbidden_imports():
     source = pathlib.Path("src/aatf/contracts.py").read_text()
     # Check for import statements only — field names like "suricata_version" are fine
