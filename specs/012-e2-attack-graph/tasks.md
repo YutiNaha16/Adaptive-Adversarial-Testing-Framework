@@ -22,8 +22,8 @@
 
 **Purpose**: Record baseline, create importable stub.
 
-- [ ] T001 Record pytest baseline: run `python -m pytest --tb=no -q` from repo root (with venv activated) → confirm 148 passed, 4 skipped
-- [ ] T002 Create `src/aatf/attack_graph.py` stub — empty module with `from __future__ import annotations` and a docstring; verify `python -c "import aatf.attack_graph"` prints nothing and exits 0
+- [X] T001 Record pytest baseline: run `python -m pytest --tb=no -q` from repo root (with venv activated) → confirm 148 passed, 4 skipped
+- [X] T002 Create `src/aatf/attack_graph.py` stub — empty module with `from __future__ import annotations` and a docstring; verify `python -c "import aatf.attack_graph"` prints nothing and exits 0
 
 ---
 
@@ -33,11 +33,11 @@
 
 **⚠️ CRITICAL**: Complete T003–T005 before any user story phase.
 
-- [ ] T003 Add `AttackGraph` frozen dataclass to `src/aatf/attack_graph.py`: `@dataclass(frozen=True)` decorator, two fields — `entry_points: frozenset[str]` and `edges: dict[str, frozenset[str]]`; imports: `from __future__ import annotations`, `from collections.abc import Callable`, `from dataclasses import dataclass`
-- [ ] T004 Add `AttackGraph.__post_init__` validation to `src/aatf/attack_graph.py`: import `REGISTRY` from `aatf.action_library`; collect all action_ids referenced (entry_points + all values in edges); for each unknown id raise `ValueError(f"unknown action_id in attack graph: {id!r}")`; also verify every REGISTRY action_id appears in entry_points or in at least one frozenset in edges.values(), raising `ValueError` if not
-- [ ] T005 Add `AttackGraph.available_actions(self, completed: set[str]) -> list[str]` to `src/aatf/attack_graph.py`: `return sorted(self.entry_points | {s for aid in completed for s in self.edges.get(aid, frozenset())})`
-- [ ] T006 Add `ATTACK_GRAPH` module-level constant to `src/aatf/attack_graph.py` with the canonical v1 topology: `entry_points=frozenset({"tcp_port_scan", "udp_sweep", "icmp_ping_sweep", "dns_subdomain_enum"})`, `edges={"tcp_port_scan": frozenset({"ssh_brute_force", "ftp_brute_force", "http_dir_scan", "ssh_user_enum"}), "udp_sweep": frozenset({"dns_zone_transfer"}), "icmp_ping_sweep": frozenset({"ssh_version_probe"}), "dns_subdomain_enum": frozenset({"dns_zone_transfer"}), "ssh_brute_force": frozenset({"ssh_version_probe"}), "http_dir_scan": frozenset({"http_sqli_probe", "http_xss_probe", "http_basic_brute"}), "http_sqli_probe": frozenset({"http_exfil"}), "dns_zone_transfer": frozenset({"dns_exfil"})}`
-- [ ] T007 Verify import: `python -c "from aatf.attack_graph import ATTACK_GRAPH, AttackGraph; print('OK')"` → must print `OK`
+- [X] T003 Add `AttackGraph` frozen dataclass to `src/aatf/attack_graph.py`: `@dataclass(frozen=True)` decorator, two fields — `entry_points: frozenset[str]` and `edges: dict[str, frozenset[str]]`; imports: `from __future__ import annotations`, `from collections.abc import Callable`, `from dataclasses import dataclass`
+- [X] T004 Add `AttackGraph.__post_init__` validation to `src/aatf/attack_graph.py`: import `REGISTRY` from `aatf.action_library`; collect all action_ids referenced (entry_points + all values in edges); for each unknown id raise `ValueError(f"unknown action_id in attack graph: {id!r}")`; also verify every REGISTRY action_id appears in entry_points or in at least one frozenset in edges.values(), raising `ValueError` if not
+- [X] T005 Add `AttackGraph.available_actions(self, completed: set[str]) -> list[str]` to `src/aatf/attack_graph.py`: `return sorted(self.entry_points | {s for aid in completed for s in self.edges.get(aid, frozenset())})`
+- [X] T006 Add `ATTACK_GRAPH` module-level constant to `src/aatf/attack_graph.py` with the canonical v1 topology: `entry_points=frozenset({"tcp_port_scan", "udp_sweep", "icmp_ping_sweep", "dns_subdomain_enum"})`, `edges={"tcp_port_scan": frozenset({"ssh_brute_force", "ftp_brute_force", "http_dir_scan", "ssh_user_enum"}), "udp_sweep": frozenset({"dns_zone_transfer"}), "icmp_ping_sweep": frozenset({"ssh_version_probe"}), "dns_subdomain_enum": frozenset({"dns_zone_transfer"}), "ssh_brute_force": frozenset({"ssh_version_probe"}), "http_dir_scan": frozenset({"http_sqli_probe", "http_xss_probe", "http_basic_brute"}), "http_sqli_probe": frozenset({"http_exfil"}), "dns_zone_transfer": frozenset({"dns_exfil"})}`
+- [X] T007 Verify import: `python -c "from aatf.attack_graph import ATTACK_GRAPH, AttackGraph; print('OK')"` → must print `OK`
 
 **Checkpoint**: Foundation ready — `AttackGraph` importable, `ATTACK_GRAPH` constructed and validated.
 
@@ -53,11 +53,11 @@
 
 > **Write all tests below, run pytest, verify they PASS (implementation already in place from Phase 2).**
 
-- [ ] T008 [US1] Write `test_empty_completed_returns_entry_points` in `tests/test_attack_graph.py` — C-001: `assert set(ATTACK_GRAPH.available_actions(set())) == {"tcp_port_scan", "udp_sweep", "icmp_ping_sweep", "dns_subdomain_enum"}`
-- [ ] T009 [US1] Write `test_empty_completed_returns_only_entry_points` in `tests/test_attack_graph.py` — C-002: `result = ATTACK_GRAPH.available_actions(set())`; assert no id in result that is not one of the 4 entry-points (e.g. `"ssh_brute_force" not in result`)
-- [ ] T010 [US1] Write `test_available_actions_is_sorted` in `tests/test_attack_graph.py` — C-011: `result = ATTACK_GRAPH.available_actions(set())`; `assert result == sorted(result)`
-- [ ] T011 [US1] Write `test_attack_graph_is_module_level_constant` in `tests/test_attack_graph.py` — C-012: `from aatf.attack_graph import ATTACK_GRAPH, AttackGraph`; `assert isinstance(ATTACK_GRAPH, AttackGraph)`
-- [ ] T012 [US1] Run `python -m pytest tests/test_attack_graph.py -v` — confirm T008–T011 (4 tests) PASS
+- [X] T008 [US1] Write `test_empty_completed_returns_entry_points` in `tests/test_attack_graph.py` — C-001: `assert set(ATTACK_GRAPH.available_actions(set())) == {"tcp_port_scan", "udp_sweep", "icmp_ping_sweep", "dns_subdomain_enum"}`
+- [X] T009 [US1] Write `test_empty_completed_returns_only_entry_points` in `tests/test_attack_graph.py` — C-002: `result = ATTACK_GRAPH.available_actions(set())`; assert no id in result that is not one of the 4 entry-points (e.g. `"ssh_brute_force" not in result`)
+- [X] T010 [US1] Write `test_available_actions_is_sorted` in `tests/test_attack_graph.py` — C-011: `result = ATTACK_GRAPH.available_actions(set())`; `assert result == sorted(result)`
+- [X] T011 [US1] Write `test_attack_graph_is_module_level_constant` in `tests/test_attack_graph.py` — C-012: `from aatf.attack_graph import ATTACK_GRAPH, AttackGraph`; `assert isinstance(ATTACK_GRAPH, AttackGraph)`
+- [X] T012 [US1] Run `python -m pytest tests/test_attack_graph.py -v` — confirm T008–T011 (4 tests) PASS
 
 **Checkpoint**: Entry-point baseline verified.
 
@@ -71,13 +71,13 @@
 
 ### Tests for US2 ⚠️
 
-- [ ] T013 [US2] Write `test_tcp_port_scan_unlocks_successors` in `tests/test_attack_graph.py` — C-003: `result = ATTACK_GRAPH.available_actions({"tcp_port_scan"})`; assert all of `{"ssh_brute_force", "ftp_brute_force", "http_dir_scan", "ssh_user_enum"}` are in `result`
-- [ ] T014 [US2] Write `test_dns_subdomain_enum_unlocks_dns_zone_transfer` in `tests/test_attack_graph.py` — C-004: `assert "dns_zone_transfer" in ATTACK_GRAPH.available_actions({"dns_subdomain_enum"})`
-- [ ] T015 [US2] Write `test_http_sqli_probe_unlocks_http_exfil` in `tests/test_attack_graph.py` — C-005: `assert "http_exfil" in ATTACK_GRAPH.available_actions({"http_sqli_probe"})`
-- [ ] T016 [US2] Write `test_dns_zone_transfer_unlocks_dns_exfil` in `tests/test_attack_graph.py` — C-006: `assert "dns_exfil" in ATTACK_GRAPH.available_actions({"dns_zone_transfer"})`
-- [ ] T017 [US2] Write `test_unknown_completed_id_ignored` in `tests/test_attack_graph.py` — C-008: `result_unknown = ATTACK_GRAPH.available_actions({"nonexistent_xyz"})`; `result_empty = ATTACK_GRAPH.available_actions(set())`; `assert result_unknown == result_empty` (no exception raised)
-- [ ] T018 [US2] Write `test_available_actions_is_non_destructive` in `tests/test_attack_graph.py` — C-010: call `ATTACK_GRAPH.available_actions({"tcp_port_scan"})` twice; assert both calls return identical lists
-- [ ] T019 [US2] Run `python -m pytest tests/test_attack_graph.py -v` — confirm T013–T018 (6 new tests) PASS
+- [X] T013 [US2] Write `test_tcp_port_scan_unlocks_successors` in `tests/test_attack_graph.py` — C-003: `result = ATTACK_GRAPH.available_actions({"tcp_port_scan"})`; assert all of `{"ssh_brute_force", "ftp_brute_force", "http_dir_scan", "ssh_user_enum"}` are in `result`
+- [X] T014 [US2] Write `test_dns_subdomain_enum_unlocks_dns_zone_transfer` in `tests/test_attack_graph.py` — C-004: `assert "dns_zone_transfer" in ATTACK_GRAPH.available_actions({"dns_subdomain_enum"})`
+- [X] T015 [US2] Write `test_http_sqli_probe_unlocks_http_exfil` in `tests/test_attack_graph.py` — C-005: `assert "http_exfil" in ATTACK_GRAPH.available_actions({"http_sqli_probe"})`
+- [X] T016 [US2] Write `test_dns_zone_transfer_unlocks_dns_exfil` in `tests/test_attack_graph.py` — C-006: `assert "dns_exfil" in ATTACK_GRAPH.available_actions({"dns_zone_transfer"})`
+- [X] T017 [US2] Write `test_unknown_completed_id_ignored` in `tests/test_attack_graph.py` — C-008: `result_unknown = ATTACK_GRAPH.available_actions({"nonexistent_xyz"})`; `result_empty = ATTACK_GRAPH.available_actions(set())`; `assert result_unknown == result_empty` (no exception raised)
+- [X] T018 [US2] Write `test_available_actions_is_non_destructive` in `tests/test_attack_graph.py` — C-010: call `ATTACK_GRAPH.available_actions({"tcp_port_scan"})` twice; assert both calls return identical lists
+- [X] T019 [US2] Run `python -m pytest tests/test_attack_graph.py -v` — confirm T013–T018 (6 new tests) PASS
 
 **Checkpoint**: Unlock semantics verified. Entry-points + unlocks both green.
 
@@ -91,9 +91,9 @@
 
 ### Tests for US3 ⚠️
 
-- [ ] T020 [US3] Write `test_all_15_actions_available_when_all_completed` in `tests/test_attack_graph.py` — C-007: `from aatf.action_library import REGISTRY`; `all_ids = {d.action_id for d in REGISTRY.list_actions()}`; `assert set(ATTACK_GRAPH.available_actions(all_ids)) == all_ids`
-- [ ] T021 [US3] Write `test_invalid_action_id_raises_at_construction` in `tests/test_attack_graph.py` — C-009: `with pytest.raises(ValueError, match="unknown action_id"): AttackGraph(entry_points=frozenset({"nonexistent_id"}), edges={})`
-- [ ] T022 [US3] Run `python -m pytest tests/test_attack_graph.py -v` — confirm T020–T021 (2 new tests) PASS
+- [X] T020 [US3] Write `test_all_15_actions_available_when_all_completed` in `tests/test_attack_graph.py` — C-007: `from aatf.action_library import REGISTRY`; `all_ids = {d.action_id for d in REGISTRY.list_actions()}`; `assert set(ATTACK_GRAPH.available_actions(all_ids)) == all_ids`
+- [X] T021 [US3] Write `test_invalid_action_id_raises_at_construction` in `tests/test_attack_graph.py` — C-009: `with pytest.raises(ValueError, match="unknown action_id"): AttackGraph(entry_points=frozenset({"nonexistent_id"}), edges={})`
+- [X] T022 [US3] Run `python -m pytest tests/test_attack_graph.py -v` — confirm T020–T021 (2 new tests) PASS
 
 **Checkpoint**: All 12 tests green. All 3 user stories verified.
 
@@ -103,10 +103,10 @@
 
 **Purpose**: Lint, format, final count, commit.
 
-- [ ] T023 Run `ruff check src/aatf/attack_graph.py tests/test_attack_graph.py` — fix any issues (UP035: use `collections.abc` instead of `typing`; F401: remove unused imports; E501: wrap long lines)
-- [ ] T024 Run `ruff format src/aatf/attack_graph.py tests/test_attack_graph.py` — apply formatting
-- [ ] T025 Run full test suite `python -m pytest --tb=short -q` — confirm ≥160 passed, 4 skipped
-- [ ] T026 Commit: `git add src/aatf/attack_graph.py tests/test_attack_graph.py && git commit -m "feat(F09): add AttackGraph with v1 topology, ATTACK_GRAPH constant, import-time validation"`
+- [X] T023 Run `ruff check src/aatf/attack_graph.py tests/test_attack_graph.py` — fix any issues (UP035: use `collections.abc` instead of `typing`; F401: remove unused imports; E501: wrap long lines)
+- [X] T024 Run `ruff format src/aatf/attack_graph.py tests/test_attack_graph.py` — apply formatting
+- [X] T025 Run full test suite `python -m pytest --tb=short -q` — confirm ≥160 passed, 4 skipped
+- [X] T026 Commit: `git add src/aatf/attack_graph.py tests/test_attack_graph.py && git commit -m "feat(F09): add AttackGraph with v1 topology, ATTACK_GRAPH constant, import-time validation"`
 
 ---
 
