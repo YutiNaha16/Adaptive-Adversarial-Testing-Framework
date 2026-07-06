@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Action(BaseModel):
@@ -22,6 +22,12 @@ class DetectionResult(BaseModel):
     rule_ids: list[str]
     anomaly_score: float = Field(ge=0.0, le=1.0)
     coverage: Literal["covered", "uncovered", "unknown"]
+
+    @model_validator(mode="after")
+    def _rule_ids_require_alert(self) -> DetectionResult:
+        if self.rule_ids and not self.alerted:
+            raise ValueError("rule_ids must be empty when alerted is False")
+        return self
 
 
 class ContextVector(BaseModel):

@@ -21,11 +21,15 @@ def test_live_layer_imports_no_concrete_defence():
     for name in [m for m in list(sys.modules) if m.startswith("aatf.live")]:
         del sys.modules[name]
 
+    # Snapshot before import — only newly loaded modules are checked, so prior test
+    # imports of aatf.defence (the abstract interface) don't produce false positives.
+    before = set(sys.modules)
     importlib.import_module("aatf.live")
+    newly_loaded = set(sys.modules) - before
 
     offenders = [
         name
-        for name in sys.modules
+        for name in newly_loaded
         if name.startswith("aatf.")
         and ("defence" in name.lower() or "defense" in name.lower() or "suricata" in name.lower())
     ]
