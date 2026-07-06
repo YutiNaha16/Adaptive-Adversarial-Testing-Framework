@@ -1,0 +1,32 @@
+FROM jasonish/suricata:7.0.5
+
+LABEL suricata_version="7.0.5"
+LABEL ruleset_version_note="see /etc/suricata/ruleset-version.txt for build-date stamp"
+
+# Bake ET Open rules at image build time — no internet access needed at runtime.
+# sha256 of the tarball is recorded after first build and added below for reproducibility.
+RUN set -eux; \
+    apt-get update -qq && apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*; \
+    curl -fsSL \
+        https://rules.emergingthreats.net/open/suricata-7.0.5/emerging.rules.tar.gz \
+        -o /tmp/emerging.rules.tar.gz; \
+    echo "60ac9364a5fdd27c548dc39c81adcef23e38d8e1e5fba26c05cb9451e3b816c1  /tmp/emerging.rules.tar.gz" | sha256sum -c -; \
+    mkdir -p /etc/suricata/rules /etc/suricata/threshold.d; \
+    tar -xzf /tmp/emerging.rules.tar.gz -C /etc/suricata/rules --strip-components=1; \
+    rm /tmp/emerging.rules.tar.gz; \
+    RULESET_DATE=$(date +%Y%m%d); \
+    echo "ruleset_date=${RULESET_DATE}" > /etc/suricata/ruleset-version.txt; \
+    echo "suricata_version=7.0.5" >> /etc/suricata/ruleset-version.txt
+
+# Overwrite default Suricata config with our lab-specific config
+COPY lab/suricata/suricata.yaml /etc/suricata/suricata.yaml
+
+# Install entrypoint script
+COPY lab/suricata/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Seed an empty disabled.conf inside the image (overridden at runtime via volume mount)
+RUN mkdir -p /lab-rules && touch /lab-rules/disabled.conf
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
