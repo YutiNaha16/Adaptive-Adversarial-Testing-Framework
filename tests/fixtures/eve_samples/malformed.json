@@ -1,0 +1,2 @@
+{"event_type":"alert","timestamp":"2026-07-06T10:00:00.000000+0000","alert":{"signature_id":9999,"signature":"ET TEST Malformed Test"},"src_ip":"172.28.0.3","dest_ip":"172.28.0.2"}
+NOT_JSON
