@@ -124,9 +124,7 @@ def test_second_call_no_new_lines_returns_not_alerted(
     action: Action, tmp_path: Path
 ) -> None:  # C-008
     eve = tmp_path / "eve.json"
-    eve.write_text(
-        '{"event_type":"alert","alert":{"signature_id":2001219}}\n'
-    )
+    eve.write_text('{"event_type":"alert","alert":{"signature_id":2001219}}\n')
     defence = SuricataDefence(eve)
     r1 = defence.observe(action)
     assert r1.alerted is True
@@ -136,9 +134,7 @@ def test_second_call_no_new_lines_returns_not_alerted(
     assert r2.coverage == "uncovered"
 
 
-def test_new_line_between_calls_picked_up(
-    action: Action, tmp_path: Path
-) -> None:  # C-009
+def test_new_line_between_calls_picked_up(action: Action, tmp_path: Path) -> None:  # C-009
     eve = tmp_path / "eve.json"
     eve.write_text("")
     defence = SuricataDefence(eve)
@@ -151,9 +147,7 @@ def test_new_line_between_calls_picked_up(
     assert "7777" in r2.rule_ids
 
 
-def test_file_truncation_resets_cursor(
-    action: Action, tmp_path: Path
-) -> None:  # C-010
+def test_file_truncation_resets_cursor(action: Action, tmp_path: Path) -> None:  # C-010
     eve = tmp_path / "eve.json"
     # Write 3 copies of the alert line so the cursor ends up well past 52 bytes
     alert_line = '{"event_type":"alert","alert":{"signature_id":1111}}\n'

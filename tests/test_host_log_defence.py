@@ -143,9 +143,7 @@ def test_second_call_no_new_lines_returns_not_alerted(
     assert r2.coverage == "uncovered"
 
 
-def test_new_line_between_calls_picked_up(
-    action: Action, tmp_path: Path
-) -> None:  # C-009
+def test_new_line_between_calls_picked_up(action: Action, tmp_path: Path) -> None:  # C-009
     log = tmp_path / "auth.log"
     log.write_text("")
     defence = HostLogDefence(log, ["sshd"])
@@ -158,9 +156,7 @@ def test_new_line_between_calls_picked_up(
     assert "sshd" in r2.rule_ids
 
 
-def test_file_truncation_resets_cursor(
-    action: Action, tmp_path: Path
-) -> None:  # C-010
+def test_file_truncation_resets_cursor(action: Action, tmp_path: Path) -> None:  # C-010
     log = tmp_path / "auth.log"
     # Write 3 copies so cursor ends up well past 50 bytes
     line = "Jul  6 10:00:00 host sshd[1]: Connection from 172.28.0.3\n"
@@ -198,9 +194,12 @@ def test_live_lab_ssh_probe(action: Action, tmp_path: Path) -> None:  # C-013
             "exec",
             "aatf-attacker",
             "ssh",
-            "-o", "StrictHostKeyChecking=no",
-            "-o", "BatchMode=yes",
-            "-o", "ConnectTimeout=3",
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "BatchMode=yes",
+            "-o",
+            "ConnectTimeout=3",
             "root@aatf-defender",
         ],
         capture_output=True,
