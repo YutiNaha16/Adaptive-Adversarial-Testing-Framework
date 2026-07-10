@@ -23,6 +23,8 @@ Auto-generated from all feature plans. Last updated: 2026-06-30
 - N/A — pure function (014-e4-reward-function)
 - Python 3.12 (pinned per F01) + stdlib only — `dataclasses`; existing project deps: `aatf.attack_graph` (F09), `aatf.context_vector` (F13) (015-e4-feedback-collector)
 - N/A — pure in-memory mutation; no persistence (015-e4-feedback-collector)
+- Python 3.12 (pinned per F01) + stdlib only — `dataclasses`, `datetime`, `typing`; existing project deps: Pydantic V2 (for `Action` construction), numpy (unused here) (016-e4-episode-loop)
+- N/A — pure in-memory orchestration; no persistence (016-e4-episode-loop)
 
 - Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available) + pip-tools (dependency compilation/pinning), pytest (test harness). No (001-e0-project-scaffold)
 
@@ -42,9 +44,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available): Follow standard conventions
 
 ## Recent Changes
+- 016-e4-episode-loop: Added Python 3.12 (pinned per F01) + stdlib only — `dataclasses`, `datetime`, `typing`; existing project deps: Pydantic V2 (for `Action` construction), numpy (unused here)
 - 015-e4-feedback-collector: Added Python 3.12 (pinned per F01) + stdlib only — `dataclasses`; existing project deps: `aatf.attack_graph` (F09), `aatf.context_vector` (F13)
 - 014-e4-reward-function: Added Python 3.12 (pinned per F01) + stdlib only — no imports required
-- 013-e4-context-vector: Added Python 3.12 (pinned per F01) + numpy (already in requirements); stdlib: dataclasses, time
 
 
 <!-- MANUAL ADDITIONS START -->
