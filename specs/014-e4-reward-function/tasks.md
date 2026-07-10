@@ -17,10 +17,10 @@
 
 **Purpose**: Record baseline, write tests red, create stub.
 
-- [ ] T001 Record pytest baseline: run `python -m pytest --tb=no -q` → confirm 176 passed, 4 skipped
-- [ ] T002 [P] Write `tests/test_reward.py` with all 6 tests (C-001 to C-006) — import `from aatf.reward import compute_reward, REWARD_DETECTED, REWARD_PROGRESS, REWARD_STALL`; test bodies as specified in contracts/reward-contract.md (see Phase 3 for exact test bodies)
-- [ ] T003 Create `src/aatf/reward.py` stub — `from __future__ import annotations` + docstring only; verify `python -c "import aatf.reward"` exits 0
-- [ ] T004 Run `python -m pytest tests/test_reward.py --tb=short` → confirm all 6 tests FAIL with ImportError or AttributeError (red phase verified)
+- [X] T001 Record pytest baseline: run `python -m pytest --tb=no -q` → confirm 176 passed, 4 skipped
+- [X] T002 [P] Write `tests/test_reward.py` with all 6 tests (C-001 to C-006) — import `from aatf.reward import compute_reward, REWARD_DETECTED, REWARD_PROGRESS, REWARD_STALL`; test bodies as specified in contracts/reward-contract.md (see Phase 3 for exact test bodies)
+- [X] T003 Create `src/aatf/reward.py` stub — `from __future__ import annotations` + docstring only; verify `python -c "import aatf.reward"` exits 0
+- [X] T004 Run `python -m pytest tests/test_reward.py --tb=short` → confirm all 6 tests FAIL with ImportError or AttributeError (red phase verified)
 
 ---
 
@@ -28,8 +28,8 @@
 
 **Purpose**: Add constants and implement `compute_reward` — the complete implementation is ~10 lines.
 
-- [ ] T005 Add `REWARD_DETECTED = -1.0`, `REWARD_PROGRESS = 1.0`, `REWARD_STALL = -0.1` and `compute_reward(detected: bool, stage_progress: bool) -> float` to `src/aatf/reward.py`: `if detected: return REWARD_DETECTED`; `if stage_progress: return REWARD_PROGRESS`; `return REWARD_STALL`
-- [ ] T006 Verify import: `python -c "from aatf.reward import compute_reward, REWARD_DETECTED, REWARD_PROGRESS, REWARD_STALL; print(compute_reward(True, False))"` → must print `-1.0`
+- [X] T005 Add `REWARD_DETECTED = -1.0`, `REWARD_PROGRESS = 1.0`, `REWARD_STALL = -0.1` and `compute_reward(detected: bool, stage_progress: bool) -> float` to `src/aatf/reward.py`: `if detected: return REWARD_DETECTED`; `if stage_progress: return REWARD_PROGRESS`; `return REWARD_STALL`
+- [X] T006 Verify import: `python -c "from aatf.reward import compute_reward, REWARD_DETECTED, REWARD_PROGRESS, REWARD_STALL; print(compute_reward(True, False))"` → must print `-1.0`
 
 ---
 
@@ -41,9 +41,9 @@
 
 ### Tests for US1
 
-- [ ] T007 [US1] Write `test_detected_no_progress` in `tests/test_reward.py` — C-001: `assert compute_reward(detected=True, stage_progress=False) == REWARD_DETECTED`; `assert compute_reward(detected=True, stage_progress=False) == -1.0`
-- [ ] T008 [US1] Write `test_detected_with_progress` in `tests/test_reward.py` — C-002: `assert compute_reward(detected=True, stage_progress=True) == REWARD_DETECTED`; `assert compute_reward(detected=True, stage_progress=True) == -1.0` (detection wins over progress)
-- [ ] T009 [US1] Run `python -m pytest tests/test_reward.py -k "detected" -v` → confirm T007–T008 PASS
+- [X] T007 [US1] Write `test_detected_no_progress` in `tests/test_reward.py` — C-001: `assert compute_reward(detected=True, stage_progress=False) == REWARD_DETECTED`; `assert compute_reward(detected=True, stage_progress=False) == -1.0`
+- [X] T008 [US1] Write `test_detected_with_progress` in `tests/test_reward.py` — C-002: `assert compute_reward(detected=True, stage_progress=True) == REWARD_DETECTED`; `assert compute_reward(detected=True, stage_progress=True) == -1.0` (detection wins over progress)
+- [X] T009 [US1] Run `python -m pytest tests/test_reward.py -k "detected" -v` → confirm T007–T008 PASS
 
 ---
 
@@ -55,8 +55,8 @@
 
 ### Tests for US2
 
-- [ ] T010 [US2] Write `test_undetected_with_progress` in `tests/test_reward.py` — C-003: `assert compute_reward(detected=False, stage_progress=True) == REWARD_PROGRESS`; `assert compute_reward(detected=False, stage_progress=True) == 1.0`
-- [ ] T011 [US2] Run `python -m pytest tests/test_reward.py -k "progress" -v` → confirm T010 PASS
+- [X] T010 [US2] Write `test_undetected_with_progress` in `tests/test_reward.py` — C-003: `assert compute_reward(detected=False, stage_progress=True) == REWARD_PROGRESS`; `assert compute_reward(detected=False, stage_progress=True) == 1.0`
+- [X] T011 [US2] Run `python -m pytest tests/test_reward.py -k "progress" -v` → confirm T010 PASS
 
 ---
 
@@ -68,10 +68,10 @@
 
 ### Tests for US3
 
-- [ ] T012 [US3] Write `test_undetected_no_progress` in `tests/test_reward.py` — C-004: `assert compute_reward(detected=False, stage_progress=False) == REWARD_STALL`; `assert abs(compute_reward(detected=False, stage_progress=False) - (-0.1)) < 1e-9`
-- [ ] T013 [US3] Write `test_return_type_is_float` in `tests/test_reward.py` — C-005: `result = compute_reward(detected=False, stage_progress=True)`; `assert isinstance(result, float)`
-- [ ] T014 [US3] Write `test_named_constants` in `tests/test_reward.py` — C-006: `assert REWARD_DETECTED == -1.0`; `assert REWARD_PROGRESS == 1.0`; `assert abs(REWARD_STALL - (-0.1)) < 1e-9`
-- [ ] T015 [US3] Run `python -m pytest tests/test_reward.py -v` → confirm all 6 tests PASS
+- [X] T012 [US3] Write `test_undetected_no_progress` in `tests/test_reward.py` — C-004: `assert compute_reward(detected=False, stage_progress=False) == REWARD_STALL`; `assert abs(compute_reward(detected=False, stage_progress=False) - (-0.1)) < 1e-9`
+- [X] T013 [US3] Write `test_return_type_is_float` in `tests/test_reward.py` — C-005: `result = compute_reward(detected=False, stage_progress=True)`; `assert isinstance(result, float)`
+- [X] T014 [US3] Write `test_named_constants` in `tests/test_reward.py` — C-006: `assert REWARD_DETECTED == -1.0`; `assert REWARD_PROGRESS == 1.0`; `assert abs(REWARD_STALL - (-0.1)) < 1e-9`
+- [X] T015 [US3] Run `python -m pytest tests/test_reward.py -v` → confirm all 6 tests PASS
 
 ---
 
@@ -79,10 +79,10 @@
 
 **Purpose**: Lint, format, final count, commit.
 
-- [ ] T016 Run `ruff check src/aatf/reward.py tests/test_reward.py` — fix any issues
-- [ ] T017 Run `ruff format src/aatf/reward.py tests/test_reward.py` — apply formatting
-- [ ] T018 Run full test suite `python -m pytest --tb=short -q` → confirm ≥182 passed, 4 skipped
-- [ ] T019 Commit: `git add src/aatf/reward.py tests/test_reward.py && git commit -m "feat(F14): add compute_reward — 3-branch Phase 1 reward function with named constants"`
+- [X] T016 Run `ruff check src/aatf/reward.py tests/test_reward.py` — fix any issues
+- [X] T017 Run `ruff format src/aatf/reward.py tests/test_reward.py` — apply formatting
+- [X] T018 Run full test suite `python -m pytest --tb=short -q` → confirm ≥182 passed, 4 skipped
+- [X] T019 Commit: `git add src/aatf/reward.py tests/test_reward.py && git commit -m "feat(F14): add compute_reward — 3-branch Phase 1 reward function with named constants"`
 
 ---
 
