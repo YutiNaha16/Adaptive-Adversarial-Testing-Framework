@@ -19,9 +19,9 @@
 
 **Purpose**: Record baseline and create the two new files as stubs.
 
-- [ ] T001 Record baseline in terminal: `source .venv/bin/activate && cd src && pytest --tb=no -q 2>&1 | tail -3` — confirm 192 passed, 4 skipped
-- [ ] T002 Create stub `src/aatf/episode.py` with module docstring and `from __future__ import annotations` only (no classes, no functions yet)
-- [ ] T003 Create empty `tests/test_episode.py` with `from __future__ import annotations` only
+- [X] T001 Record baseline in terminal: `source .venv/bin/activate && cd src && pytest --tb=no -q 2>&1 | tail -3` — confirm 192 passed, 4 skipped
+- [X] T002 Create stub `src/aatf/episode.py` with module docstring and `from __future__ import annotations` only (no classes, no functions yet)
+- [X] T003 Create empty `tests/test_episode.py` with `from __future__ import annotations` only
 
 ---
 
@@ -31,7 +31,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_episode.py --tb=short -q` collects 12 tests and all fail.
 
-- [ ] T004 Add shared fixtures/helpers to `tests/test_episode.py`:
+- [X] T004 Add shared fixtures/helpers to `tests/test_episode.py`:
   ```python
   from __future__ import annotations
   from aatf.action_library import REGISTRY
@@ -51,7 +51,7 @@
           return DetectionResult(alerted=self._alert, rule_ids=[], anomaly_score=0.0, coverage="unknown")
   ```
 
-- [ ] T005 Write C-001 in `tests/test_episode.py` — StepRecord.action_id is one of the 4 entry point ids after 1 step on fresh state with max_steps=1:
+- [X] T005 Write C-001 in `tests/test_episode.py` — StepRecord.action_id is one of the 4 entry point ids after 1 step on fresh state with max_steps=1:
   ```python
   def test_c001_step_record_action_id() -> None:
       state = EpisodeState()
@@ -61,7 +61,7 @@
       assert result.steps[0].action_id in entry_points
   ```
 
-- [ ] T006 Write C-002 in `tests/test_episode.py` — detected=False + reward=-0.1 when no alert and terminal action (ssh_version_probe, all others pre-completed):
+- [X] T006 Write C-002 in `tests/test_episode.py` — detected=False + reward=-0.1 when no alert and terminal action (ssh_version_probe, all others pre-completed):
   ```python
   def test_c002_no_alert_terminal_reward() -> None:
       state = EpisodeState(completed_actions=set(_ALL_IDS - {"ssh_version_probe"}))
@@ -73,7 +73,7 @@
       assert step.reward == -0.1
   ```
 
-- [ ] T007 Write C-003 in `tests/test_episode.py` — detected=True + reward=-1.0 when alert fires:
+- [X] T007 Write C-003 in `tests/test_episode.py` — detected=True + reward=-1.0 when alert fires:
   ```python
   def test_c003_alert_detected_reward() -> None:
       state = EpisodeState(completed_actions=set(_ALL_IDS - {"ssh_version_probe"}))
@@ -83,7 +83,7 @@
       assert step.reward == -1.0
   ```
 
-- [ ] T008 Write C-004 in `tests/test_episode.py` — stage_progress=True + reward=+1.0 for entry-point action with successors (tcp_port_scan):
+- [X] T008 Write C-004 in `tests/test_episode.py` — stage_progress=True + reward=+1.0 for entry-point action with successors (tcp_port_scan):
   ```python
   def test_c004_stage_progress_true_entry_point() -> None:
       state = EpisodeState()
@@ -93,7 +93,7 @@
       assert result.steps[0].reward == 1.0
   ```
 
-- [ ] T009 Write C-005 in `tests/test_episode.py` — EpisodeState.step, completed_actions, alert_history mutated in-place:
+- [X] T009 Write C-005 in `tests/test_episode.py` — EpisodeState.step, completed_actions, alert_history mutated in-place:
   ```python
   def test_c005_episode_state_mutated() -> None:
       state = EpisodeState()
@@ -104,7 +104,7 @@
       assert len(state.completed_actions) == 1
   ```
 
-- [ ] T010 Write C-006 in `tests/test_episode.py` — completed=True + exactly 1 step when final action is terminal (ssh_version_probe):
+- [X] T010 Write C-006 in `tests/test_episode.py` — completed=True + exactly 1 step when final action is terminal (ssh_version_probe):
   ```python
   def test_c006_completed_true_terminal_exhausted() -> None:
       state = EpisodeState(completed_actions=set(_ALL_IDS - {"ssh_version_probe"}))
@@ -113,7 +113,7 @@
       assert len(result.steps) == 1
   ```
 
-- [ ] T011 Write C-007 in `tests/test_episode.py` — completed=True + 0 steps when all actions pre-completed:
+- [X] T011 Write C-007 in `tests/test_episode.py` — completed=True + 0 steps when all actions pre-completed:
   ```python
   def test_c007_completed_true_zero_steps_preloaded() -> None:
       state = EpisodeState(completed_actions=set(_ALL_IDS))
@@ -123,7 +123,7 @@
       assert result.total_reward == 0.0
   ```
 
-- [ ] T012 Write C-008 in `tests/test_episode.py` — completed=False + exactly max_steps=3 steps when step limit reached:
+- [X] T012 Write C-008 in `tests/test_episode.py` — completed=False + exactly max_steps=3 steps when step limit reached:
   ```python
   def test_c008_completed_false_step_limit() -> None:
       state = EpisodeState()
@@ -132,7 +132,7 @@
       assert len(result.steps) == 3
   ```
 
-- [ ] T013 Write C-009 in `tests/test_episode.py` — FR-003: no-actions wins over step-limit when both conditions simultaneously true:
+- [X] T013 Write C-009 in `tests/test_episode.py` — FR-003: no-actions wins over step-limit when both conditions simultaneously true:
   ```python
   def test_c009_fr003_no_actions_wins_over_step_limit() -> None:
       # Both true: available=[] AND step(5) >= max_steps(5)
@@ -142,7 +142,7 @@
       assert result.steps == []
   ```
 
-- [ ] T014 Write C-010 in `tests/test_episode.py` — max_steps=0 → 0 steps, completed=False:
+- [X] T014 Write C-010 in `tests/test_episode.py` — max_steps=0 → 0 steps, completed=False:
   ```python
   def test_c010_max_steps_zero() -> None:
       state = EpisodeState()
@@ -152,7 +152,7 @@
       assert result.total_reward == 0.0
   ```
 
-- [ ] T015 Write C-011 in `tests/test_episode.py` — total_reward is arithmetic sum (abs tolerance < 1e-9):
+- [X] T015 Write C-011 in `tests/test_episode.py` — total_reward is arithmetic sum (abs tolerance < 1e-9):
   ```python
   def test_c011_total_reward_arithmetic_sum() -> None:
       # 3 entry-point actions in order; first alerts (-1.0), next two don't + progress (+1.0 each)
@@ -175,7 +175,7 @@
       assert abs(result.total_reward - (-1.0 + 1.0 + 1.0)) < 1e-9
   ```
 
-- [ ] T016 Write C-012 in `tests/test_episode.py` — state.step == len(result.steps) for any episode:
+- [X] T016 Write C-012 in `tests/test_episode.py` — state.step == len(result.steps) for any episode:
   ```python
   def test_c012_state_step_equals_steps_length() -> None:
       state = EpisodeState()
@@ -183,7 +183,7 @@
       assert state.step == len(result.steps)
   ```
 
-- [ ] T017 Verify red phase: `cd src && pytest ../tests/test_episode.py --tb=short -q 2>&1 | tail -6` — expect 12 tests collected, all failing (ImportError from `from aatf.episode import EpisodeResult, StepRecord, run_episode`)
+- [X] T017 Verify red phase: `cd src && pytest ../tests/test_episode.py --tb=short -q 2>&1 | tail -6` — expect 12 tests collected, all failing (ImportError from `from aatf.episode import EpisodeResult, StepRecord, run_episode`)
 
 ---
 
@@ -193,7 +193,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_episode.py::test_c001_step_record_action_id ../tests/test_episode.py::test_c002_no_alert_terminal_reward ../tests/test_episode.py::test_c003_alert_detected_reward ../tests/test_episode.py::test_c004_stage_progress_true_entry_point ../tests/test_episode.py::test_c005_episode_state_mutated -v` → 5 PASS.
 
-- [ ] T018 [US1] Add `StepRecord` and `EpisodeResult` frozen dataclasses to `src/aatf/episode.py`:
+- [X] T018 [US1] Add `StepRecord` and `EpisodeResult` frozen dataclasses to `src/aatf/episode.py`:
   ```python
   @dataclass(frozen=True)
   class StepRecord:
@@ -210,7 +210,7 @@
       completed: bool
   ```
 
-- [ ] T019 [US1] Add full `run_episode` function to `src/aatf/episode.py` with complete per-step logic:
+- [X] T019 [US1] Add full `run_episode` function to `src/aatf/episode.py` with complete per-step logic:
 
   Imports block:
   ```python
@@ -266,7 +266,7 @@
           total_reward += reward
   ```
 
-- [ ] T020 [US1] Verify C-001 to C-005 green: `cd src && pytest ../tests/test_episode.py::test_c001_step_record_action_id ../tests/test_episode.py::test_c002_no_alert_terminal_reward ../tests/test_episode.py::test_c003_alert_detected_reward ../tests/test_episode.py::test_c004_stage_progress_true_entry_point ../tests/test_episode.py::test_c005_episode_state_mutated -v` → 5 PASS
+- [X] T020 [US1] Verify C-001 to C-005 green: `cd src && pytest ../tests/test_episode.py::test_c001_step_record_action_id ../tests/test_episode.py::test_c002_no_alert_terminal_reward ../tests/test_episode.py::test_c003_alert_detected_reward ../tests/test_episode.py::test_c004_stage_progress_true_entry_point ../tests/test_episode.py::test_c005_episode_state_mutated -v` → 5 PASS
 
 ---
 
@@ -276,7 +276,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_episode.py::test_c006_completed_true_terminal_exhausted ../tests/test_episode.py::test_c007_completed_true_zero_steps_preloaded -v` → 2 PASS.
 
-- [ ] T021 [US2] Verify C-006 and C-007 green (no additional code needed — termination logic already in run_episode from T019): `cd src && pytest ../tests/test_episode.py::test_c006_completed_true_terminal_exhausted ../tests/test_episode.py::test_c007_completed_true_zero_steps_preloaded -v` → 2 PASS
+- [X] T021 [US2] Verify C-006 and C-007 green (no additional code needed — termination logic already in run_episode from T019): `cd src && pytest ../tests/test_episode.py::test_c006_completed_true_terminal_exhausted ../tests/test_episode.py::test_c007_completed_true_zero_steps_preloaded -v` → 2 PASS
 
 ---
 
@@ -286,7 +286,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_episode.py::test_c008_completed_false_step_limit ../tests/test_episode.py::test_c009_fr003_no_actions_wins_over_step_limit ../tests/test_episode.py::test_c010_max_steps_zero -v` → 3 PASS.
 
-- [ ] T022 [US3] Verify C-008, C-009, C-010 green (no additional code needed — step-limit check and FR-003 ordering already in run_episode from T019): `cd src && pytest ../tests/test_episode.py::test_c008_completed_false_step_limit ../tests/test_episode.py::test_c009_fr003_no_actions_wins_over_step_limit ../tests/test_episode.py::test_c010_max_steps_zero -v` → 3 PASS
+- [X] T022 [US3] Verify C-008, C-009, C-010 green (no additional code needed — step-limit check and FR-003 ordering already in run_episode from T019): `cd src && pytest ../tests/test_episode.py::test_c008_completed_false_step_limit ../tests/test_episode.py::test_c009_fr003_no_actions_wins_over_step_limit ../tests/test_episode.py::test_c010_max_steps_zero -v` → 3 PASS
 
 ---
 
@@ -296,7 +296,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_episode.py::test_c011_total_reward_arithmetic_sum ../tests/test_episode.py::test_c012_state_step_equals_steps_length -v` → 2 PASS.
 
-- [ ] T023 [US4] Verify C-011 and C-012 green (no additional code needed — reward accumulation and state.step mutation already in run_episode from T019): `cd src && pytest ../tests/test_episode.py::test_c011_total_reward_arithmetic_sum ../tests/test_episode.py::test_c012_state_step_equals_steps_length -v` → 2 PASS
+- [X] T023 [US4] Verify C-011 and C-012 green (no additional code needed — reward accumulation and state.step mutation already in run_episode from T019): `cd src && pytest ../tests/test_episode.py::test_c011_total_reward_arithmetic_sum ../tests/test_episode.py::test_c012_state_step_equals_steps_length -v` → 2 PASS
 
 ---
 
@@ -304,11 +304,11 @@
 
 **Purpose**: Lint, format, full suite verification, commit, merge.
 
-- [ ] T024 Run `ruff check src/aatf/episode.py tests/test_episode.py` and fix any issues with `ruff check --fix src/aatf/episode.py tests/test_episode.py`
-- [ ] T025 Run `ruff format src/aatf/episode.py tests/test_episode.py` to normalise formatting
-- [ ] T026 Run full test suite: `cd src && pytest --tb=short -q 2>&1 | tail -5` — verify ≥204 passed, 4 skipped, 0 failed
-- [ ] T027 Stage and commit: `git add src/aatf/episode.py tests/test_episode.py && git commit -m "Add episode loop: run_episode, StepRecord, EpisodeResult (F16)"`
-- [ ] T028 Merge to main: `git checkout main && git merge --no-ff 016-e4-episode-loop -m "Merge F16 episode loop"`
+- [X] T024 Run `ruff check src/aatf/episode.py tests/test_episode.py` and fix any issues with `ruff check --fix src/aatf/episode.py tests/test_episode.py`
+- [X] T025 Run `ruff format src/aatf/episode.py tests/test_episode.py` to normalise formatting
+- [X] T026 Run full test suite: `cd src && pytest --tb=short -q 2>&1 | tail -5` — verify ≥204 passed, 4 skipped, 0 failed
+- [X] T027 Stage and commit: `git add src/aatf/episode.py tests/test_episode.py && git commit -m "Add episode loop: run_episode, StepRecord, EpisodeResult (F16)"`
+- [X] T028 Merge to main: `git checkout main && git merge --no-ff 016-e4-episode-loop -m "Merge F16 episode loop"`
 
 ---
 
