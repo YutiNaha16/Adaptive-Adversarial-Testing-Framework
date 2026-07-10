@@ -17,10 +17,10 @@
 
 **Purpose**: Record baseline, write all tests red, create stub, verify red.
 
-- [ ] T001 Record pytest baseline: run `python -m pytest --tb=no -q` → confirm 182 passed, 4 skipped
-- [ ] T002 Write `tests/test_feedback.py` with all 10 tests (C-001 to C-010): import `from aatf.feedback import FeedbackResult, collect_feedback`; define `_TEST_GRAPH = AttackGraph(entry_points=frozenset({"recon-syn-scan"}), edges={"recon-syn-scan": frozenset({"exploit-vsftpd-backdoor"}), "exploit-vsftpd-backdoor": frozenset({"lateral-move-smb"})})` as module-level fixture; implement all 10 test functions per contracts/feedback-contract.md
-- [ ] T003 Create `src/aatf/feedback.py` stub — `from __future__ import annotations`, module docstring, `from dataclasses import dataclass`, `from aatf.attack_graph import ATTACK_GRAPH, AttackGraph`, `from aatf.context_vector import EpisodeState` — no FeedbackResult class, no collect_feedback yet; verify `python -c "import aatf.feedback"` exits 0
-- [ ] T004 Run `python -m pytest tests/test_feedback.py --tb=short -q` → confirm all 10 tests FAIL with ImportError or NameError (red phase verified)
+- [X] T001 Record pytest baseline: run `python -m pytest --tb=no -q` → confirm 182 passed, 4 skipped
+- [X] T002 Write `tests/test_feedback.py` with all 10 tests (C-001 to C-010): import `from aatf.feedback import FeedbackResult, collect_feedback`; define `_TEST_GRAPH = AttackGraph(entry_points=frozenset({"recon-syn-scan"}), edges={"recon-syn-scan": frozenset({"exploit-vsftpd-backdoor"}), "exploit-vsftpd-backdoor": frozenset({"lateral-move-smb"})})` as module-level fixture; implement all 10 test functions per contracts/feedback-contract.md
+- [X] T003 Create `src/aatf/feedback.py` stub — `from __future__ import annotations`, module docstring, `from dataclasses import dataclass`, `from aatf.attack_graph import ATTACK_GRAPH, AttackGraph`, `from aatf.context_vector import EpisodeState` — no FeedbackResult class, no collect_feedback yet; verify `python -c "import aatf.feedback"` exits 0
+- [X] T004 Run `python -m pytest tests/test_feedback.py --tb=short -q` → confirm all 10 tests FAIL with ImportError or NameError (red phase verified)
 
 ---
 
@@ -28,8 +28,8 @@
 
 **Purpose**: Add FeedbackResult dataclass — prerequisite for all user story implementations.
 
-- [ ] T005 Add `@dataclass(frozen=True)\nclass FeedbackResult:\n    detected: bool\n    stage_progress: bool` to `src/aatf/feedback.py`
-- [ ] T006 Verify: `python -c "from aatf.feedback import FeedbackResult; r = FeedbackResult(detected=True, stage_progress=False); print(r)"` → must print `FeedbackResult(detected=True, stage_progress=False)`
+- [X] T005 Add `@dataclass(frozen=True)\nclass FeedbackResult:\n    detected: bool\n    stage_progress: bool` to `src/aatf/feedback.py`
+- [X] T006 Verify: `python -c "from aatf.feedback import FeedbackResult; r = FeedbackResult(detected=True, stage_progress=False); print(r)"` → must print `FeedbackResult(detected=True, stage_progress=False)`
 
 ---
 
@@ -41,7 +41,7 @@
 
 ### Implementation for US1
 
-- [ ] T007 [US1] Implement `collect_feedback` skeleton in `src/aatf/feedback.py` with the 5 EpisodeState mutations and placeholder `stage_progress=False`:
+- [X] T007 [US1] Implement `collect_feedback` skeleton in `src/aatf/feedback.py` with the 5 EpisodeState mutations and placeholder `stage_progress=False`:
   ```
   def collect_feedback(episode_state, action_id, alert_fired, *, attack_graph=ATTACK_GRAPH, category=None):
       episode_state.alert_history.append(alert_fired)
@@ -53,7 +53,7 @@
       return FeedbackResult(detected=alert_fired, stage_progress=False)  # placeholder
   ```
   Add full type annotations: `(episode_state: EpisodeState, action_id: str, alert_fired: bool, *, attack_graph: AttackGraph = ATTACK_GRAPH, category: str | None = None) -> FeedbackResult`
-- [ ] T008 [US1] Run `python -m pytest tests/test_feedback.py -k "alert_history or detection_history or completed or step" -v` → confirm C-001 to C-004 PASS (4 tests)
+- [X] T008 [US1] Run `python -m pytest tests/test_feedback.py -k "alert_history or detection_history or completed or step" -v` → confirm C-001 to C-004 PASS (4 tests)
 
 **Checkpoint**: US1 — all 5 EpisodeState mutation fields verified correct.
 
@@ -67,12 +67,12 @@
 
 ### Implementation for US2
 
-- [ ] T009 [US2] Replace `stage_progress=False` placeholder in `collect_feedback` in `src/aatf/feedback.py` with real logic (FR-009 — snapshot BEFORE mutation):
+- [X] T009 [US2] Replace `stage_progress=False` placeholder in `collect_feedback` in `src/aatf/feedback.py` with real logic (FR-009 — snapshot BEFORE mutation):
   - Add `before_actions = set(attack_graph.available_actions(episode_state.completed_actions))` as the FIRST line of the function (before any mutation)
   - After all 5 mutations, add `after_actions = set(attack_graph.available_actions(episode_state.completed_actions))`
   - Add `stage_progress = bool(after_actions - before_actions)`
   - Update return to `FeedbackResult(detected=alert_fired, stage_progress=stage_progress)`
-- [ ] T010 [US2] Run `python -m pytest tests/test_feedback.py -k "stage_progress or detected" -v` → confirm C-005 to C-007 PASS (3 tests)
+- [X] T010 [US2] Run `python -m pytest tests/test_feedback.py -k "stage_progress or detected" -v` → confirm C-005 to C-007 PASS (3 tests)
 
 **Checkpoint**: US2 — stage_progress correctly computed via set-difference before/after snapshot.
 
@@ -86,7 +86,7 @@
 
 ### Verification for US3
 
-- [ ] T011 [US3] Run `python -m pytest tests/test_feedback.py -k "category" -v` → confirm C-008 to C-010 PASS (3 tests) — `fired_categories` conditional already implemented in T007
+- [X] T011 [US3] Run `python -m pytest tests/test_feedback.py -k "category" -v` → confirm C-008 to C-010 PASS (3 tests) — `fired_categories` conditional already implemented in T007
 
 **Checkpoint**: US3 — all 3 category branches verified (alert+category, no-alert, no-category).
 
@@ -96,11 +96,11 @@
 
 **Purpose**: Full verification, lint, format, final count, commit.
 
-- [ ] T012 Run `python -m pytest tests/test_feedback.py -v` → confirm all 10 tests PASS
-- [ ] T013 Run `ruff check src/aatf/feedback.py tests/test_feedback.py` — fix any E501/F401/I001 issues
-- [ ] T014 Run `ruff format src/aatf/feedback.py tests/test_feedback.py` — apply formatting
-- [ ] T015 Run full test suite `python -m pytest --tb=short -q` → confirm ≥192 passed, 4 skipped
-- [ ] T016 Commit: `git add src/aatf/feedback.py tests/test_feedback.py && git commit -m "feat(F15): add collect_feedback + FeedbackResult — in-place EpisodeState mutator with stage progress"`
+- [X] T012 Run `python -m pytest tests/test_feedback.py -v` → confirm all 10 tests PASS
+- [X] T013 Run `ruff check src/aatf/feedback.py tests/test_feedback.py` — fix any E501/F401/I001 issues
+- [X] T014 Run `ruff format src/aatf/feedback.py tests/test_feedback.py` — apply formatting
+- [X] T015 Run full test suite `python -m pytest --tb=short -q` → confirm ≥192 passed, 4 skipped
+- [X] T016 Commit: `git add src/aatf/feedback.py tests/test_feedback.py && git commit -m "feat(F15): add collect_feedback + FeedbackResult — in-place EpisodeState mutator with stage progress"`
 
 ---
 
