@@ -13,6 +13,16 @@ Auto-generated from all feature plans. Last updated: 2026-06-30
 - N/A — reads `lab/docker-compose.yml` (owned by F04); writes nothing (005-e1-isolation-verify)
 - Shell (bash/sh) for all new scripts; YAML for Docker Compose and + Docker Engine (≥ 20); Docker Compose V2; `jasonish/suricata:7.0.5` (006-e1-suricata-etopen)
 - Named Docker volume `aatf-eve` for eve.json; `lab/rules/disabled.conf` (006-e1-suricata-etopen)
+- Python 3.12 (pinned per F01) + stdlib only — `dataclasses`, `ipaddress`, `typing`; Pydantic V2 (already in `.venv`) for `Action` contract via F03 (010-e2-action-library)
+- N/A — pure in-memory module-level constant (010-e2-action-library)
+- Python 3.12 (pinned per F01) + stdlib only — `socket`, `http.client`, `random`, `ipaddress`, `struct`, `dataclasses`, `time`; Pydantic V2 (already in `.venv`) for `Action` via F03 (011-e2-action-executor)
+- N/A — stateless per-call execution; no persistence (011-e2-action-executor)
+- Python 3.12 (pinned per F01) + numpy (already in requirements); stdlib: dataclasses, time (013-e4-context-vector)
+- N/A — pure in-memory function (013-e4-context-vector)
+- Python 3.12 (pinned per F01) + stdlib only — no imports required (014-e4-reward-function)
+- N/A — pure function (014-e4-reward-function)
+- Python 3.12 (pinned per F01) + stdlib only — `dataclasses`; existing project deps: `aatf.attack_graph` (F09), `aatf.context_vector` (F13) (015-e4-feedback-collector)
+- N/A — pure in-memory mutation; no persistence (015-e4-feedback-collector)
 
 - Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available) + pip-tools (dependency compilation/pinning), pytest (test harness). No (001-e0-project-scaffold)
 
@@ -32,9 +42,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available): Follow standard conventions
 
 ## Recent Changes
-- 006-e1-suricata-etopen: Added Shell (bash/sh) for all new scripts; YAML for Docker Compose and + Docker Engine (≥ 20); Docker Compose V2; `jasonish/suricata:7.0.5`
-- 005-e1-isolation-verify: Added Python 3.12 (pinned per F01) + PyYAML (already in requirements.txt — for parsing docker-compose.yml);
-- 004-e1-docker-lab: Added Shell (bash/sh) for scripts; YAML for Compose config; no Python changes + Docker Engine (host prerequisite); Docker Compose V2 plugin; `alpine:3.19` (pinned stub image)
+- 015-e4-feedback-collector: Added Python 3.12 (pinned per F01) + stdlib only — `dataclasses`; existing project deps: `aatf.attack_graph` (F09), `aatf.context_vector` (F13)
+- 014-e4-reward-function: Added Python 3.12 (pinned per F01) + stdlib only — no imports required
+- 013-e4-context-vector: Added Python 3.12 (pinned per F01) + numpy (already in requirements); stdlib: dataclasses, time
 
 
 <!-- MANUAL ADDITIONS START -->
