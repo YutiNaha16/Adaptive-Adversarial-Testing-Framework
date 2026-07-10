@@ -19,9 +19,9 @@
 
 **Purpose**: Record baseline and create stub files.
 
-- [ ] T001 Record baseline: `source .venv/bin/activate && cd src && pytest ../tests/ --tb=no -q 2>&1 | tail -3` — confirm 198 passed, 4 skipped, 6 failed
-- [ ] T002 Create stub `src/aatf/linucb.py` with module docstring and `from __future__ import annotations` only
-- [ ] T003 Create stub `tests/test_linucb.py` with `from __future__ import annotations` only
+- [X] T001 Record baseline: `source .venv/bin/activate && cd src && pytest ../tests/ --tb=no -q 2>&1 | tail -3` — confirm 198 passed, 4 skipped, 6 failed
+- [X] T002 Create stub `src/aatf/linucb.py` with module docstring and `from __future__ import annotations` only
+- [X] T003 Create stub `tests/test_linucb.py` with `from __future__ import annotations` only
 
 ---
 
@@ -31,7 +31,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_linucb.py --tb=short -q` collects 10 tests, all fail with ImportError or AttributeError.
 
-- [ ] T004 Write imports + shared setup in `tests/test_linucb.py`:
+- [X] T004 Write imports + shared setup in `tests/test_linucb.py`:
   ```python
   from __future__ import annotations
 
@@ -43,7 +43,7 @@
   from aatf.linucb import LinUCBModel
   ```
 
-- [ ] T005 Write C-001 in `tests/test_linucb.py` — A_inv correct after one update (d=1, analytic ground truth):
+- [X] T005 Write C-001 in `tests/test_linucb.py` — A_inv correct after one update (d=1, analytic ground truth):
   ```python
   def test_c001_update_a_inv_analytic() -> None:
       model = LinUCBModel(d=1, alpha=1.0)
@@ -53,7 +53,7 @@
       assert abs(A_inv[0, 0] - 0.5) < 1e-9
   ```
 
-- [ ] T006 Write C-002 in `tests/test_linucb.py` — b correct after one update (d=1):
+- [X] T006 Write C-002 in `tests/test_linucb.py` — b correct after one update (d=1):
   ```python
   def test_c002_update_b_analytic() -> None:
       model = LinUCBModel(d=1, alpha=1.0)
@@ -63,7 +63,7 @@
       assert abs(b[0] - 2.0) < 1e-9
   ```
 
-- [ ] T007 Write C-003 in `tests/test_linucb.py` — lazy init creates eye(d) + zeros(d) on first reference:
+- [X] T007 Write C-003 in `tests/test_linucb.py` — lazy init creates eye(d) + zeros(d) on first reference:
   ```python
   def test_c003_update_lazy_init() -> None:
       model = LinUCBModel(d=2, alpha=1.0)
@@ -74,7 +74,7 @@
       assert np.allclose(b, np.zeros(2))
   ```
 
-- [ ] T008 Write C-004 in `tests/test_linucb.py` — A_inv and b correct after two sequential updates (d=2):
+- [X] T008 Write C-004 in `tests/test_linucb.py` — A_inv and b correct after two sequential updates (d=2):
   ```python
   def test_c004_update_two_steps() -> None:
       model = LinUCBModel(d=2, alpha=1.0)
@@ -87,7 +87,7 @@
       assert np.allclose(b, np.array([1.0, 0.5]), atol=1e-9)
   ```
 
-- [ ] T009 Write C-005 in `tests/test_linucb.py` — trained action beats untrained after 5 positive updates:
+- [X] T009 Write C-005 in `tests/test_linucb.py` — trained action beats untrained after 5 positive updates:
   ```python
   def test_c005_select_trained_over_untrained() -> None:
       model = LinUCBModel(d=1, alpha=1.0)
@@ -97,7 +97,7 @@
       assert model.select_action(["a_action", "b_action"], ctx) == "b_action"
   ```
 
-- [ ] T010 Write C-006 in `tests/test_linucb.py` — alphabetical tie-break when all arms unseen:
+- [X] T010 Write C-006 in `tests/test_linucb.py` — alphabetical tie-break when all arms unseen:
   ```python
   def test_c006_select_alphabetical_tie_break() -> None:
       model = LinUCBModel(d=2, alpha=1.0)
@@ -106,7 +106,7 @@
       assert winner == "a_action"
   ```
 
-- [ ] T011 Write C-007 in `tests/test_linucb.py` — alpha=0 gives pure greedy (no exploration bonus):
+- [X] T011 Write C-007 in `tests/test_linucb.py` — alpha=0 gives pure greedy (no exploration bonus):
   ```python
   def test_c007_select_alpha_zero_pure_greedy() -> None:
       model = LinUCBModel(d=1, alpha=0.0)
@@ -117,7 +117,7 @@
       assert model.select_action(["good", "other"], ctx) == "good"
   ```
 
-- [ ] T012 Write C-008 in `tests/test_linucb.py` — to_dict() output passes json.dumps without error:
+- [X] T012 Write C-008 in `tests/test_linucb.py` — to_dict() output passes json.dumps without error:
   ```python
   def test_c008_to_dict_json_serialisable() -> None:
       model = LinUCBModel(d=2, alpha=1.5)
@@ -129,7 +129,7 @@
       assert d["d"] == 2
   ```
 
-- [ ] T013 Write C-009 in `tests/test_linucb.py` — from_dict() round-trip produces identical select_action():
+- [X] T013 Write C-009 in `tests/test_linucb.py` — from_dict() round-trip produces identical select_action():
   ```python
   def test_c009_round_trip_identical_scores() -> None:
       model = LinUCBModel(d=2, alpha=1.0)
@@ -141,7 +141,7 @@
       assert model.select_action(available, ctx) == restored.select_action(available, ctx)
   ```
 
-- [ ] T014 Write C-010 in `tests/test_linucb.py` — from_dict() of fresh model behaves like new LinUCBModel:
+- [X] T014 Write C-010 in `tests/test_linucb.py` — from_dict() of fresh model behaves like new LinUCBModel:
   ```python
   def test_c010_round_trip_fresh_model() -> None:
       original = LinUCBModel(d=2, alpha=1.0)
@@ -151,7 +151,7 @@
       assert restored.select_action(["a", "b"], ctx) == "a"
   ```
 
-- [ ] T015 Verify red phase: `cd src && pytest ../tests/test_linucb.py --tb=short -q 2>&1 | tail -4` — expect ImportError, 10 tests fail
+- [X] T015 Verify red phase: `cd src && pytest ../tests/test_linucb.py --tb=short -q 2>&1 | tail -4` — expect ImportError, 10 tests fail
 
 ---
 
@@ -161,7 +161,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_linucb.py::test_c001_update_a_inv_analytic ../tests/test_linucb.py::test_c002_update_b_analytic ../tests/test_linucb.py::test_c003_update_lazy_init ../tests/test_linucb.py::test_c004_update_two_steps -v` → 4 PASS.
 
-- [ ] T016 [US1] Write `src/aatf/linucb.py` with full class skeleton, `__init__`, and `_get_or_init_arm`:
+- [X] T016 [US1] Write `src/aatf/linucb.py` with full class skeleton, `__init__`, and `_get_or_init_arm`:
   ```python
   """LinUCB contextual-bandit attacker — per-action belief update and UCB selection."""
 
@@ -197,7 +197,7 @@
           return self._arms[action_id]
   ```
 
-- [ ] T017 [US1] Add `update()` method to `LinUCBModel` in `src/aatf/linucb.py`:
+- [X] T017 [US1] Add `update()` method to `LinUCBModel` in `src/aatf/linucb.py`:
   ```python
       def update(
           self, action_id: str, context: np.ndarray, reward: float
@@ -209,7 +209,7 @@
           self._arms[action_id] = (A_inv, b)
   ```
 
-- [ ] T018 [US1] Verify C-001 to C-004 green: `cd src && pytest ../tests/test_linucb.py::test_c001_update_a_inv_analytic ../tests/test_linucb.py::test_c002_update_b_analytic ../tests/test_linucb.py::test_c003_update_lazy_init ../tests/test_linucb.py::test_c004_update_two_steps -v` → 4 PASS
+- [X] T018 [US1] Verify C-001 to C-004 green: `cd src && pytest ../tests/test_linucb.py::test_c001_update_a_inv_analytic ../tests/test_linucb.py::test_c002_update_b_analytic ../tests/test_linucb.py::test_c003_update_lazy_init ../tests/test_linucb.py::test_c004_update_two_steps -v` → 4 PASS
 
 ---
 
@@ -219,7 +219,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_linucb.py::test_c005_select_trained_over_untrained ../tests/test_linucb.py::test_c006_select_alphabetical_tie_break ../tests/test_linucb.py::test_c007_select_alpha_zero_pure_greedy -v` → 3 PASS.
 
-- [ ] T019 [US2] Add `select_action()` method to `LinUCBModel` in `src/aatf/linucb.py`:
+- [X] T019 [US2] Add `select_action()` method to `LinUCBModel` in `src/aatf/linucb.py`:
   ```python
       def select_action(
           self, available: list[str], context: np.ndarray
@@ -238,7 +238,7 @@
           return best_id
   ```
 
-- [ ] T020 [US2] Verify C-005 to C-007 green: `cd src && pytest ../tests/test_linucb.py::test_c005_select_trained_over_untrained ../tests/test_linucb.py::test_c006_select_alphabetical_tie_break ../tests/test_linucb.py::test_c007_select_alpha_zero_pure_greedy -v` → 3 PASS
+- [X] T020 [US2] Verify C-005 to C-007 green: `cd src && pytest ../tests/test_linucb.py::test_c005_select_trained_over_untrained ../tests/test_linucb.py::test_c006_select_alphabetical_tie_break ../tests/test_linucb.py::test_c007_select_alpha_zero_pure_greedy -v` → 3 PASS
 
 ---
 
@@ -248,7 +248,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_linucb.py::test_c008_to_dict_json_serialisable ../tests/test_linucb.py::test_c009_round_trip_identical_scores ../tests/test_linucb.py::test_c010_round_trip_fresh_model -v` → 3 PASS.
 
-- [ ] T021 [US3] Add `to_dict()` and `from_dict()` to `LinUCBModel` in `src/aatf/linucb.py`:
+- [X] T021 [US3] Add `to_dict()` and `from_dict()` to `LinUCBModel` in `src/aatf/linucb.py`:
   ```python
       def to_dict(self) -> dict:
           return {
@@ -275,7 +275,7 @@
           return cls(d=data["d"], alpha=data["alpha"], _arms=arms)
   ```
 
-- [ ] T022 [US3] Verify C-008 to C-010 green: `cd src && pytest ../tests/test_linucb.py::test_c008_to_dict_json_serialisable ../tests/test_linucb.py::test_c009_round_trip_identical_scores ../tests/test_linucb.py::test_c010_round_trip_fresh_model -v` → 3 PASS
+- [X] T022 [US3] Verify C-008 to C-010 green: `cd src && pytest ../tests/test_linucb.py::test_c008_to_dict_json_serialisable ../tests/test_linucb.py::test_c009_round_trip_identical_scores ../tests/test_linucb.py::test_c010_round_trip_fresh_model -v` → 3 PASS
 
 ---
 
@@ -283,11 +283,11 @@
 
 **Purpose**: Lint, format, full suite verification, commit, merge.
 
-- [ ] T023 Run `cd /path/to/repo && ruff check src/aatf/linucb.py tests/test_linucb.py` and fix any issues with `ruff check --fix src/aatf/linucb.py tests/test_linucb.py`
-- [ ] T024 Run `ruff format src/aatf/linucb.py tests/test_linucb.py`
-- [ ] T025 Run full suite: `cd src && pytest ../tests/ --tb=short -q 2>&1 | tail -5` — verify ≥208 passed, 4 skipped, 6 failed (same pre-existing failures)
-- [ ] T026 Stage and commit: `git add src/aatf/linucb.py tests/test_linucb.py && git commit -m "Add LinUCB attacker model: update, select_action, serialisation (F17)"`
-- [ ] T027 Merge to main: `git checkout main && git merge --no-ff 017-e4-attacker-update -m "Merge F17 LinUCB attacker (017-e4-attacker-update)"`
+- [X] T023 Run `cd /path/to/repo && ruff check src/aatf/linucb.py tests/test_linucb.py` and fix any issues with `ruff check --fix src/aatf/linucb.py tests/test_linucb.py`
+- [X] T024 Run `ruff format src/aatf/linucb.py tests/test_linucb.py`
+- [X] T025 Run full suite: `cd src && pytest ../tests/ --tb=short -q 2>&1 | tail -5` — verify ≥208 passed, 4 skipped, 6 failed (same pre-existing failures)
+- [X] T026 Stage and commit: `git add src/aatf/linucb.py tests/test_linucb.py && git commit -m "Add LinUCB attacker model: update, select_action, serialisation (F17)"`
+- [X] T027 Merge to main: `git checkout main && git merge --no-ff 017-e4-attacker-update -m "Merge F17 LinUCB attacker (017-e4-attacker-update)"`
 
 ---
 
