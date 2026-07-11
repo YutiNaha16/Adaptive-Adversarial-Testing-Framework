@@ -12,6 +12,8 @@ from aatf.config import load_config
 from aatf.context_vector import EpisodeState, build_context
 from aatf.defence import NullDefence
 from aatf.episode import run_episode
+from aatf.gate import phase1_gate
+from aatf.ground_truth import ValidationResult
 from aatf.linucb import LinUCBModel
 from aatf.manifest import write_manifest
 from aatf.metrics import EpisodeRecord, detection_rate, robustness_score
@@ -95,16 +97,48 @@ def main(config_path: str | Path = "config.yaml") -> None:
     window = min(10, len(records))
     rs = robustness_score(records, window=window)
 
+    validation_result = ValidationResult(
+        blind_spot_precision=0.0,
+        true_positives=0,
+        false_positives=0,
+        total_reported=0,
+        disabled_sid_count=0,
+    )
+    gate_result = phase1_gate(records, validation_result)
+
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
     report_path = output_dir / f"report_{ts}.md"
     generate_report(records, REGISTRY, report_path)
-    manifest_path = write_manifest(config, config.seed)
+    manifest_path = write_manifest(
+        config,
+        config.seed,
+        extra_metadata={
+            "phase1_gate": {
+                "passed": gate_result.passed,
+                "summary": gate_result.summary,
+                "criteria": [
+                    {
+                        "name": c.name,
+                        "passed": c.passed,
+                        "value": c.value,
+                        "threshold": c.threshold,
+                    }
+                    for c in gate_result.criteria
+                ],
+            }
+        },
+    )
 
     print("-" * 38)
     print(f"Detection Rate   : {dr:.4f}")
     print(f"Robustness Score : {rs:.4f}")
     print(f"Report written   : {report_path}")
     print(f"Manifest written : {manifest_path}")
+    print("-" * 38)
+    for c in gate_result.criteria:
+        status = "PASS" if c.passed else "FAIL"
+        print(f"  {c.name:<22}: {c.value:.4f} (≥{c.threshold:.4f}) [{status}]")
+    print(gate_result.summary)
 
 
 if __name__ == "__main__":
