@@ -19,9 +19,9 @@
 
 **Purpose**: Record baseline and create stub files.
 
-- [ ] T001 Record baseline: `cd /home/yuti/Adaptive-Adversarial-Testing-Framework && source .venv/bin/activate && cd src && pytest ../tests/ --tb=no -q 2>&1 | tail -3` — confirm 208 passed, 4 skipped, 6 failed
-- [ ] T002 Create stub `src/aatf/attacker.py` with module docstring and `from __future__ import annotations` only
-- [ ] T003 Create stub `tests/test_attacker.py` with `from __future__ import annotations` only
+- [X] T001 Record baseline: `cd /home/yuti/Adaptive-Adversarial-Testing-Framework && source .venv/bin/activate && cd src && pytest ../tests/ --tb=no -q 2>&1 | tail -3` — confirm 208 passed, 4 skipped, 6 failed
+- [X] T002 Create stub `src/aatf/attacker.py` with module docstring and `from __future__ import annotations` only
+- [X] T003 Create stub `tests/test_attacker.py` with `from __future__ import annotations` only
 
 ---
 
@@ -31,7 +31,7 @@
 
 **Red criteria**: `cd src && pytest ../tests/test_attacker.py --tb=short -q` → ImportError, 12 tests fail.
 
-- [ ] T004 Write imports in `tests/test_attacker.py`:
+- [X] T004 Write imports in `tests/test_attacker.py`:
   ```python
   from __future__ import annotations
 
@@ -42,7 +42,7 @@
   from aatf.linucb import LinUCBModel
   ```
 
-- [ ] T005 Write C-001 in `tests/test_attacker.py` — all three classes are instances of Attacker:
+- [X] T005 Write C-001 in `tests/test_attacker.py` — all three classes are instances of Attacker:
   ```python
   def test_c001_all_classes_are_attacker_instances() -> None:
       model = LinUCBModel(d=1)
@@ -51,7 +51,7 @@
       assert isinstance(LinUCBAttacker(model), Attacker)
   ```
 
-- [ ] T006 Write C-002 in `tests/test_attacker.py` — choose_action returns value from available:
+- [X] T006 Write C-002 in `tests/test_attacker.py` — choose_action returns value from available:
   ```python
   def test_c002_choose_action_returns_from_available() -> None:
       available = ["tcp_port_scan", "icmp_ping_sweep", "dns_subdomain_enum"]
@@ -62,7 +62,7 @@
           assert result in available
   ```
 
-- [ ] T007 Write C-003 in `tests/test_attacker.py` — observe completes without error on all:
+- [X] T007 Write C-003 in `tests/test_attacker.py` — observe completes without error on all:
   ```python
   def test_c003_observe_no_error_all_implementations() -> None:
       ctx = np.array([1.0])
@@ -71,7 +71,7 @@
           attacker.observe("tcp_port_scan", ctx, reward=1.0)
   ```
 
-- [ ] T008 Write C-004 in `tests/test_attacker.py` — RandomAttacker seeded determinism:
+- [X] T008 Write C-004 in `tests/test_attacker.py` — RandomAttacker seeded determinism:
   ```python
   def test_c004_random_attacker_seeded_determinism() -> None:
       available = ["a", "b", "c"]
@@ -82,7 +82,7 @@
       assert seq1 == seq2
   ```
 
-- [ ] T009 Write C-005 in `tests/test_attacker.py` — RandomAttacker single-element available:
+- [X] T009 Write C-005 in `tests/test_attacker.py` — RandomAttacker single-element available:
   ```python
   def test_c005_random_attacker_single_element() -> None:
       attacker = RandomAttacker(seed=0)
@@ -90,7 +90,7 @@
           assert attacker.choose_action(["only_action"], np.zeros(1)) == "only_action"
   ```
 
-- [ ] T010 Write C-006 in `tests/test_attacker.py` — RandomAttacker raises ValueError on empty:
+- [X] T010 Write C-006 in `tests/test_attacker.py` — RandomAttacker raises ValueError on empty:
   ```python
   def test_c006_random_attacker_empty_available_raises() -> None:
       attacker = RandomAttacker()
@@ -98,7 +98,7 @@
           attacker.choose_action([], np.zeros(1))
   ```
 
-- [ ] T011 Write C-007 in `tests/test_attacker.py` — RandomAttacker observe is a no-op (RNG unaffected):
+- [X] T011 Write C-007 in `tests/test_attacker.py` — RandomAttacker observe is a no-op (RNG unaffected):
   ```python
   def test_c007_random_attacker_observe_noop() -> None:
       r1 = RandomAttacker(seed=7)
@@ -113,7 +113,7 @@
       assert r1.choose_action(available, ctx) == r2.choose_action(available, ctx)
   ```
 
-- [ ] T012 Write C-008 in `tests/test_attacker.py` — FixedScriptAttacker explicit cycle:
+- [X] T012 Write C-008 in `tests/test_attacker.py` — FixedScriptAttacker explicit cycle:
   ```python
   def test_c008_fixed_script_attacker_explicit_cycle() -> None:
       attacker = FixedScriptAttacker(script=["x", "y"])
@@ -122,7 +122,7 @@
       assert results == ["x", "y", "x", "y"]
   ```
 
-- [ ] T013 Write C-009 in `tests/test_attacker.py` — FixedScriptAttacker default alphabetical script:
+- [X] T013 Write C-009 in `tests/test_attacker.py` — FixedScriptAttacker default alphabetical script:
   ```python
   def test_c009_fixed_script_attacker_default_alphabetical() -> None:
       attacker = FixedScriptAttacker()
@@ -134,7 +134,7 @@
       assert attacker.choose_action(["c_action", "a_action", "b_action"], ctx) == "a_action"
   ```
 
-- [ ] T014 Write C-010 in `tests/test_attacker.py` — FixedScriptAttacker single-element repeats:
+- [X] T014 Write C-010 in `tests/test_attacker.py` — FixedScriptAttacker single-element repeats:
   ```python
   def test_c010_fixed_script_attacker_single_element() -> None:
       attacker = FixedScriptAttacker(script=["only"])
@@ -143,7 +143,7 @@
           assert attacker.choose_action(["only"], ctx) == "only"
   ```
 
-- [ ] T015 Write C-011 in `tests/test_attacker.py` — LinUCBAttacker observe delegates to model.update:
+- [X] T015 Write C-011 in `tests/test_attacker.py` — LinUCBAttacker observe delegates to model.update:
   ```python
   def test_c011_linucb_attacker_observe_mutates_model() -> None:
       model = LinUCBModel(d=1, alpha=1.0)
@@ -155,7 +155,7 @@
       assert abs(b[0] - 1.0) < 1e-9
   ```
 
-- [ ] T016 Write C-012 in `tests/test_attacker.py` — LinUCBAttacker choose_action matches model.select_action:
+- [X] T016 Write C-012 in `tests/test_attacker.py` — LinUCBAttacker choose_action matches model.select_action:
   ```python
   def test_c012_linucb_attacker_choose_action_matches_model() -> None:
       model = LinUCBModel(d=1, alpha=1.0)
@@ -165,7 +165,7 @@
       assert attacker.choose_action(available, ctx) == model.select_action(available, ctx)
   ```
 
-- [ ] T017 Verify red phase: `cd src && pytest ../tests/test_attacker.py --tb=short -q 2>&1 | tail -4` — expect ImportError, 12 tests fail
+- [X] T017 Verify red phase: `cd src && pytest ../tests/test_attacker.py --tb=short -q 2>&1 | tail -4` — expect ImportError, 12 tests fail
 
 ---
 
@@ -175,7 +175,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_attacker.py::test_c001_all_classes_are_attacker_instances ../tests/test_attacker.py::test_c002_choose_action_returns_from_available ../tests/test_attacker.py::test_c003_observe_no_error_all_implementations -v` → 3 PASS.
 
-- [ ] T018 [US1] Write `src/aatf/attacker.py` with full module structure — Attacker ABC + all three implementations:
+- [X] T018 [US1] Write `src/aatf/attacker.py` with full module structure — Attacker ABC + all three implementations:
   ```python
   """Attacker policy interface and baseline implementations."""
 
@@ -239,7 +239,7 @@
           self._model.update(action_id, context, reward)
   ```
 
-- [ ] T019 [US1] Verify C-001 to C-003 green: `cd src && pytest ../tests/test_attacker.py::test_c001_all_classes_are_attacker_instances ../tests/test_attacker.py::test_c002_choose_action_returns_from_available ../tests/test_attacker.py::test_c003_observe_no_error_all_implementations -v` → 3 PASS
+- [X] T019 [US1] Verify C-001 to C-003 green: `cd src && pytest ../tests/test_attacker.py::test_c001_all_classes_are_attacker_instances ../tests/test_attacker.py::test_c002_choose_action_returns_from_available ../tests/test_attacker.py::test_c003_observe_no_error_all_implementations -v` → 3 PASS
 
 ---
 
@@ -249,7 +249,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_attacker.py::test_c004_random_attacker_seeded_determinism ../tests/test_attacker.py::test_c005_random_attacker_single_element ../tests/test_attacker.py::test_c006_random_attacker_empty_available_raises ../tests/test_attacker.py::test_c007_random_attacker_observe_noop ../tests/test_attacker.py::test_c008_fixed_script_attacker_explicit_cycle ../tests/test_attacker.py::test_c009_fixed_script_attacker_default_alphabetical ../tests/test_attacker.py::test_c010_fixed_script_attacker_single_element -v` → 7 PASS.
 
-- [ ] T020 [US2] Verify C-004 to C-010 green (no new code needed — all implemented in T018): `cd src && pytest ../tests/test_attacker.py::test_c004_random_attacker_seeded_determinism ../tests/test_attacker.py::test_c005_random_attacker_single_element ../tests/test_attacker.py::test_c006_random_attacker_empty_available_raises ../tests/test_attacker.py::test_c007_random_attacker_observe_noop ../tests/test_attacker.py::test_c008_fixed_script_attacker_explicit_cycle ../tests/test_attacker.py::test_c009_fixed_script_attacker_default_alphabetical ../tests/test_attacker.py::test_c010_fixed_script_attacker_single_element -v` → 7 PASS
+- [X] T020 [US2] Verify C-004 to C-010 green (no new code needed — all implemented in T018): `cd src && pytest ../tests/test_attacker.py::test_c004_random_attacker_seeded_determinism ../tests/test_attacker.py::test_c005_random_attacker_single_element ../tests/test_attacker.py::test_c006_random_attacker_empty_available_raises ../tests/test_attacker.py::test_c007_random_attacker_observe_noop ../tests/test_attacker.py::test_c008_fixed_script_attacker_explicit_cycle ../tests/test_attacker.py::test_c009_fixed_script_attacker_default_alphabetical ../tests/test_attacker.py::test_c010_fixed_script_attacker_single_element -v` → 7 PASS
 
 ---
 
@@ -259,7 +259,7 @@
 
 **Independent test criteria**: `cd src && pytest ../tests/test_attacker.py::test_c011_linucb_attacker_observe_mutates_model ../tests/test_attacker.py::test_c012_linucb_attacker_choose_action_matches_model -v` → 2 PASS.
 
-- [ ] T021 [US3] Verify C-011 to C-012 green (no new code needed — implemented in T018): `cd src && pytest ../tests/test_attacker.py::test_c011_linucb_attacker_observe_mutates_model ../tests/test_attacker.py::test_c012_linucb_attacker_choose_action_matches_model -v` → 2 PASS
+- [X] T021 [US3] Verify C-011 to C-012 green (no new code needed — implemented in T018): `cd src && pytest ../tests/test_attacker.py::test_c011_linucb_attacker_observe_mutates_model ../tests/test_attacker.py::test_c012_linucb_attacker_choose_action_matches_model -v` → 2 PASS
 
 ---
 
@@ -267,11 +267,11 @@
 
 **Purpose**: Lint, format, full suite verification, commit, merge.
 
-- [ ] T022 Run `ruff check src/aatf/attacker.py tests/test_attacker.py` — fix any issues with `ruff check --fix src/aatf/attacker.py tests/test_attacker.py`
-- [ ] T023 [P] Run `ruff format src/aatf/attacker.py tests/test_attacker.py`
-- [ ] T024 Run full suite: `cd src && pytest ../tests/ --tb=short -q 2>&1 | tail -5` — verify ≥220 passed, 4 skipped, 6 failed (same pre-existing failures)
-- [ ] T025 Stage and commit: `git add src/aatf/attacker.py tests/test_attacker.py specs/018-e5-attacker-baselines/tasks.md && git commit -m "Add Attacker ABC + RandomAttacker, FixedScriptAttacker, LinUCBAttacker (F18)"`
-- [ ] T026 Merge to main: `git checkout main && git merge --no-ff 018-e5-attacker-baselines -m "Merge F18 Attacker interface + baselines (018-e5-attacker-baselines)"`
+- [X] T022 Run `ruff check src/aatf/attacker.py tests/test_attacker.py` — fix any issues with `ruff check --fix src/aatf/attacker.py tests/test_attacker.py`
+- [X] T023 [P] Run `ruff format src/aatf/attacker.py tests/test_attacker.py`
+- [X] T024 Run full suite: `cd src && pytest ../tests/ --tb=short -q 2>&1 | tail -5` — verify ≥220 passed, 4 skipped, 6 failed (same pre-existing failures)
+- [X] T025 Stage and commit: `git add src/aatf/attacker.py tests/test_attacker.py specs/018-e5-attacker-baselines/tasks.md && git commit -m "Add Attacker ABC + RandomAttacker, FixedScriptAttacker, LinUCBAttacker (F18)"`
+- [X] T026 Merge to main: `git checkout main && git merge --no-ff 018-e5-attacker-baselines -m "Merge F18 Attacker interface + baselines (018-e5-attacker-baselines)"`
 
 ---
 
