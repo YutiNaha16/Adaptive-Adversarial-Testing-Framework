@@ -13,9 +13,9 @@
 
 **Purpose**: Install new dependency, create stub module, record baseline.
 
-- [ ] T001 Record baseline test count: `cd src && source ../.venv/bin/activate && pytest ../tests/ -q 2>&1 | tail -3` — expect "237 passed, 4 skipped, 6 failed"
-- [ ] T002 Add `scipy>=1.12` to `requirements.in`, recompile with `pip-compile requirements.in -o requirements.txt`, then `pip install -r requirements.txt` in the venv — verify with `python -c "from scipy import stats; print('scipy ok')"`
-- [ ] T003 Create stub `src/aatf/statistics.py` with `MultiSeedResult` frozen dataclass + `raise NotImplementedError` stubs for all 4 functions — all 5 names must be importable to prevent ImportError during test collection
+- [X] T001 Record baseline test count: `cd src && source ../.venv/bin/activate && pytest ../tests/ -q 2>&1 | tail -3` — expect "237 passed, 4 skipped, 6 failed"
+- [X] T002 Add `scipy>=1.12` to `requirements.in`, recompile with `pip-compile requirements.in -o requirements.txt`, then `pip install -r requirements.txt` in the venv — verify with `python -c "from scipy import stats; print('scipy ok')"`
+- [X] T003 Create stub `src/aatf/statistics.py` with `MultiSeedResult` frozen dataclass + `raise NotImplementedError` stubs for all 4 functions — all 5 names must be importable to prevent ImportError during test collection
 
 Stub content for T003:
 
@@ -62,8 +62,8 @@ def summarise_metric(name, values, ci_level=0.95):
 
 **⚠️ CRITICAL**: Do NOT implement any logic until this phase is complete and pytest confirms failures.
 
-- [ ] T004 Write test helpers and all 20 contracts in `tests/test_statistics.py` — full file per spec below
-- [ ] T005 Run `cd src && pytest ../tests/test_statistics.py -v 2>&1 | tail -30` — confirm exactly 20 failures/errors (NotImplementedError), 0 passes
+- [X] T004 Write test helpers and all 20 contracts in `tests/test_statistics.py` — full file per spec below
+- [X] T005 Run `cd src && pytest ../tests/test_statistics.py -v 2>&1 | tail -30` — confirm exactly 20 failures/errors (NotImplementedError), 0 passes
 
 **Complete test file for T004** (`tests/test_statistics.py`):
 
@@ -312,8 +312,8 @@ def test_c020_empty_values_raises_value_error():
 
 **Independent Test**: `cd src && pytest ../tests/test_statistics.py::test_c001_construction_fields ../tests/test_statistics.py::test_c002_default_ci_level ../tests/test_statistics.py::test_c003_frozen_raises_on_set -v`
 
-- [ ] T006 [US1] Implement `MultiSeedResult` frozen dataclass in `src/aatf/statistics.py` — already present in stub; verify C-001, C-002, C-003 pass (they should pass even from stub since dataclass is already complete)
-- [ ] T007 [US1] Run `cd src && pytest ../tests/test_statistics.py::test_c001_construction_fields ../tests/test_statistics.py::test_c002_default_ci_level ../tests/test_statistics.py::test_c003_frozen_raises_on_set -v` — expect 3 PASSED
+- [X] T006 [US1] Implement `MultiSeedResult` frozen dataclass in `src/aatf/statistics.py` — already present in stub; verify C-001, C-002, C-003 pass (they should pass even from stub since dataclass is already complete)
+- [X] T007 [US1] Run `cd src && pytest ../tests/test_statistics.py::test_c001_construction_fields ../tests/test_statistics.py::test_c002_default_ci_level ../tests/test_statistics.py::test_c003_frozen_raises_on_set -v` — expect 3 PASSED
 
 **Checkpoint**: 3/20 green. Remaining 17 still fail on NotImplementedError.
 
@@ -325,7 +325,7 @@ def test_c020_empty_values_raises_value_error():
 
 **Independent Test**: `cd src && pytest ../tests/test_statistics.py -k "c004 or c005 or c006 or c007" -v`
 
-- [ ] T008 [US2] Implement `run_multi_seed` in `src/aatf/statistics.py`:
+- [X] T008 [US2] Implement `run_multi_seed` in `src/aatf/statistics.py`:
   ```python
   def run_multi_seed(
       runner: Callable[[int], list[EpisodeRecord]],
@@ -338,7 +338,7 @@ def test_c020_empty_values_raises_value_error():
       return result
   ```
   Key: `dataclasses.replace(record, seed=seed)` — NOT `record.seed = seed` (frozen).
-- [ ] T009 [US2] Run `cd src && pytest ../tests/test_statistics.py -k "c004 or c005 or c006 or c007" -v` — expect 4 PASSED
+- [X] T009 [US2] Run `cd src && pytest ../tests/test_statistics.py -k "c004 or c005 or c006 or c007" -v` — expect 4 PASSED
 
 **Checkpoint**: 7/20 green.
 
@@ -350,7 +350,7 @@ def test_c020_empty_values_raises_value_error():
 
 **Independent Test**: `cd src && pytest ../tests/test_statistics.py -k "c008 or c009 or c010 or c011 or c012 or c013" -v`
 
-- [ ] T010 [US3] Implement `bootstrap_ci` in `src/aatf/statistics.py`:
+- [X] T010 [US3] Implement `bootstrap_ci` in `src/aatf/statistics.py`:
   ```python
   def bootstrap_ci(
       values: list[float],
@@ -374,7 +374,7 @@ def test_c020_empty_values_raises_value_error():
       return float(np.percentile(means, lo)), float(np.percentile(means, hi))
   ```
   Key: `np.random.default_rng(rng_seed)` — NOT `np.random.seed()` (isolates global state).
-- [ ] T011 [US3] Run `cd src && pytest ../tests/test_statistics.py -k "c008 or c009 or c010 or c011 or c012 or c013" -v` — expect 6 PASSED (note: C-013 tests 3 invalid ci_level values in one test — all 3 must raise)
+- [X] T011 [US3] Run `cd src && pytest ../tests/test_statistics.py -k "c008 or c009 or c010 or c011 or c012 or c013" -v` — expect 6 PASSED (note: C-013 tests 3 invalid ci_level values in one test — all 3 must raise)
 
 **Checkpoint**: 13/20 green.
 
@@ -386,7 +386,7 @@ def test_c020_empty_values_raises_value_error():
 
 **Independent Test**: `cd src && pytest ../tests/test_statistics.py -k "c014 or c015 or c016 or c017" -v`
 
-- [ ] T012 [US4] Implement `significance_test` in `src/aatf/statistics.py`:
+- [X] T012 [US4] Implement `significance_test` in `src/aatf/statistics.py`:
   ```python
   def significance_test(
       group_a: list[float],
@@ -396,7 +396,7 @@ def test_c020_empty_values_raises_value_error():
       return float(result.pvalue), bool(result.pvalue < 0.05)
   ```
   Key: `alternative="two-sided"` is required — not "greater" or "less".
-- [ ] T013 [US4] Run `cd src && pytest ../tests/test_statistics.py -k "c014 or c015 or c016 or c017" -v` — expect 4 PASSED (analytic: p_ab≈0.0079 for C-014, p=1.0 for C-015)
+- [X] T013 [US4] Run `cd src && pytest ../tests/test_statistics.py -k "c014 or c015 or c016 or c017" -v` — expect 4 PASSED (analytic: p_ab≈0.0079 for C-014, p=1.0 for C-015)
 
 **Checkpoint**: 17/20 green.
 
@@ -408,7 +408,7 @@ def test_c020_empty_values_raises_value_error():
 
 **Independent Test**: `cd src && pytest ../tests/test_statistics.py -k "c018 or c019 or c020" -v`
 
-- [ ] T014 [US5] Implement `summarise_metric` in `src/aatf/statistics.py`:
+- [X] T014 [US5] Implement `summarise_metric` in `src/aatf/statistics.py`:
   ```python
   def summarise_metric(
       name: str,
@@ -429,7 +429,7 @@ def test_c020_empty_values_raises_value_error():
       )
   ```
   Key: `ddof=1` for Bessel-corrected sample std (not population std).
-- [ ] T015 [US5] Run `cd src && pytest ../tests/test_statistics.py -k "c018 or c019 or c020" -v` — expect 3 PASSED
+- [X] T015 [US5] Run `cd src && pytest ../tests/test_statistics.py -k "c018 or c019 or c020" -v` — expect 3 PASSED
 
 **Checkpoint**: 20/20 green on test_statistics.py.
 
@@ -439,11 +439,11 @@ def test_c020_empty_values_raises_value_error():
 
 **Purpose**: Code quality, full-suite verification, commit, merge.
 
-- [ ] T016 Run `ruff check src/aatf/statistics.py tests/test_statistics.py --fix` — fix any lint issues (unused imports, line-too-long)
-- [ ] T017 Run `ruff format src/aatf/statistics.py tests/test_statistics.py` — auto-format
-- [ ] T018 Run full suite `cd src && pytest ../tests/ -q 2>&1 | tail -5` — confirm ≥257 passed, 4 skipped, 6 failed (pre-existing Docker tests only)
-- [ ] T019 Commit all changes: `src/aatf/statistics.py`, `tests/test_statistics.py`, `requirements.in`, `requirements.txt` with message "feat(statistics): add F21 statistical rigor layer — MultiSeedResult + bootstrap_ci + significance_test"
-- [ ] T020 Merge branch `021-e6-statistical-rigor` to `main` (fast-forward)
+- [X] T016 Run `ruff check src/aatf/statistics.py tests/test_statistics.py --fix` — fix any lint issues (unused imports, line-too-long)
+- [X] T017 Run `ruff format src/aatf/statistics.py tests/test_statistics.py` — auto-format
+- [X] T018 Run full suite `cd src && pytest ../tests/ -q 2>&1 | tail -5` — confirm ≥257 passed, 4 skipped, 6 failed (pre-existing Docker tests only)
+- [X] T019 Commit all changes: `src/aatf/statistics.py`, `tests/test_statistics.py`, `requirements.in`, `requirements.txt` with message "feat(statistics): add F21 statistical rigor layer — MultiSeedResult + bootstrap_ci + significance_test"
+- [X] T020 Merge branch `021-e6-statistical-rigor` to `main` (fast-forward)
 
 ---
 
