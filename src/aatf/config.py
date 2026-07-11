@@ -12,6 +12,7 @@ class ExperimentConfig(BaseModel):
     output_dir: Path
     ruleset_path: Path
     detection_threshold: float = Field(ge=0.0, le=1.0)
+    attacker_class: str = "RandomAttacker"
 
 
 def load_config(path: Path | str = "config.yaml") -> ExperimentConfig:

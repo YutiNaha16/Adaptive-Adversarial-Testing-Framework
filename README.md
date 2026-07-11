@@ -9,6 +9,28 @@ Development follows a spec-driven workflow. The governing principles live in
 [`.specify/memory/constitution.md`](.specify/memory/constitution.md); the feature roadmap is in
 [`docs/backlog.md`](docs/backlog.md).
 
+## Quick Start
+
+```bash
+# 1. Set up the Python environment (once)
+make setup
+
+# 2. (Optional) Start the Docker lab for live traffic capture
+make lab-up
+
+# 3. Run the full experiment
+make run
+```
+
+**Expected outputs** in `outputs/run_001/` after `make run`:
+- `report_<timestamp>.md` — Markdown blind-spot report with detection rate, robustness score, and blind-spot table
+- `run_manifest_<timestamp>.json` — Provenance record (seed, git commit, packages, config snapshot)
+
+**Key config** (`config.yaml`):
+- `seed: 42` — change for a different random run; same seed → identical results
+- `episodes: 100` — number of attack episodes to simulate
+- `attacker_class: RandomAttacker` — or `LinUCBAttacker`, `FixedScriptAttacker`
+
 ## Status
 
 E0 complete (F01–F03): config loading, seeding, run-manifest provenance, and core data

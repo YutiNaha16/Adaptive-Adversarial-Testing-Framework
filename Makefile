@@ -34,8 +34,8 @@ lint:  ## Check lint + formatting (ruff); non-zero exit on any violation
 	$(PY) -m ruff check .
 	$(PY) -m ruff format --check .
 
-run:  ## Run the experiment entrypoint (stub)
-	$(PY) -m aatf
+run:  ## Run the full experiment end-to-end (requires: make setup; optionally: make lab-up)
+	$(PY) src/run_experiment.py
 
 lab-up:  ## Build/pull images and start the isolated lab (internal-only network)
 	$(COMPOSE) build
