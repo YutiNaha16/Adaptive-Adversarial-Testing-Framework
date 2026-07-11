@@ -1,0 +1,35 @@
+# Blind-Spot Report
+
+## Run Metadata
+
+- **Attacker**: {{ attacker_classes | join(", ") if attacker_classes else "N/A" }}
+- **Seeds**: {{ seeds | join(", ") if seeds else "N/A" }}
+- **Episodes**: {{ episode_count }}
+- **Generated**: {{ generated_at }}
+
+## Headline Metrics
+
+| Metric | Value |
+|--------|-------|
+| Detection Rate | {{ "%.1f%%" | format(detection_rate * 100) }} |
+| Robustness Score (last {{ robustness_window }} ep.) | {{ "%.1f%%" | format(robustness_score * 100) }} |
+{% if reward_mean is not none %}
+| Mean Total Reward | {{ "%.4f" | format(reward_mean) }} ± {{ "%.4f" | format(reward_std) }} (95% CI: {{ "%.4f" | format(reward_ci_low) }}–{{ "%.4f" | format(reward_ci_high) }}) |
+{% else %}
+| Mean Total Reward | N/A |
+{% endif %}
+
+## Blind Spots
+
+{% if explanations %}
+| Action | Category | Evasion Rate | Evaded | Total | Remediation |
+|--------|----------|--------------|--------|-------|-------------|
+{% for ex in explanations %}
+| {{ ex.action_id }} | {{ ex.suricata_category }} | {{ "%.1f%%" | format(ex.evasion_rate * 100) }} | {{ ex.evasion_count }} | {{ ex.total_count }} | {{ ex.remediation }} |
+{% endfor %}
+{% else %}
+_No blind spots detected — all actions were detected on every step._
+{% endif %}
+
+---
+*Generated from logged episode records. No live defence systems were accessed.*
