@@ -18,8 +18,8 @@
 
 **Purpose**: Confirm environment, record baseline, verify dependencies.
 
-- [ ] T001 Record baseline suite state: `source /home/yuti/Adaptive-Adversarial-Testing-Framework/.venv/bin/activate && cd src && pytest --tb=no -q 2>&1 | tail -5` — confirm 257 passed, 4 skipped, 6 failed
-- [ ] T002 Verify imports available: `python -c "from aatf.metrics import EpisodeRecord; from aatf.action_library import ActionRegistry, REGISTRY; print('OK')"` in venv — confirm no ImportError
+- [X] T001 Record baseline suite state: `source /home/yuti/Adaptive-Adversarial-Testing-Framework/.venv/bin/activate && cd src && pytest --tb=no -q 2>&1 | tail -5` — confirm 257 passed, 4 skipped, 6 failed
+- [X] T002 Verify imports available: `python -c "from aatf.metrics import EpisodeRecord; from aatf.action_library import ActionRegistry, REGISTRY; print('OK')"` in venv — confirm no ImportError
 
 ---
 
@@ -29,7 +29,7 @@
 
 **⚠️ CRITICAL**: Both names (`ActionExplanation`, `explain_evasions`) must be importable from `aatf.explainability` BEFORE writing the test file, or pytest collection will fail with ImportError.
 
-- [ ] T003 Create stub `src/aatf/explainability.py` with:
+- [X] T003 Create stub `src/aatf/explainability.py` with:
   ```python
   """Explainability engine — maps evaded actions to ranked remediation hints."""
   from __future__ import annotations
@@ -56,7 +56,7 @@
   ```
   Verify: `python -c "from aatf.explainability import ActionExplanation, explain_evasions; print('OK')"` in `src/` (with venv active)
 
-- [ ] T004 Write all 12 contracts C-001..C-012 in `tests/test_explainability.py` (~150 LOC):
+- [X] T004 Write all 12 contracts C-001..C-012 in `tests/test_explainability.py` (~150 LOC):
 
   **Helpers at module top:**
   ```python
@@ -261,7 +261,7 @@
       assert a.false_positive_risk == b.false_positive_risk
   ```
 
-- [ ] T005 Verify red phase: `cd src && pytest ../tests/test_explainability.py -v --tb=short 2>&1 | tail -20` — confirm C-001..C-003 PASS (ActionExplanation stub is complete), C-004..C-012 FAIL (explain_evasions raises NotImplementedError). If C-001..C-003 fail, fix the ActionExplanation stub in explainability.py before proceeding.
+- [X] T005 Verify red phase: `cd src && pytest ../tests/test_explainability.py -v --tb=short 2>&1 | tail -20` — confirm C-001..C-003 PASS (ActionExplanation stub is complete), C-004..C-012 FAIL (explain_evasions raises NotImplementedError). If C-001..C-003 fail, fix the ActionExplanation stub in explainability.py before proceeding.
 
   **Note on _reg helper**: If `ActionRegistry.__new__(ActionRegistry)` + `reg._registry = {}` doesn't work with the actual class (check action_library.py internals), use an alternative approach: subclass ActionRegistry or build ActionDefinition objects and register them via the real add/register method. Check the actual class implementation before writing the helper.
 
@@ -275,7 +275,7 @@
 
 **Independent Test**: `pytest ../tests/test_explainability.py::test_c001_action_explanation_field_access ../tests/test_explainability.py::test_c002_action_explanation_immutable ../tests/test_explainability.py::test_c003_importable -v`
 
-- [ ] T006 [US1] Verify `ActionExplanation` in `src/aatf/explainability.py` is complete (all 8 typed fields, `frozen=True`) — the stub from T003 should already satisfy US1; run C-001..C-003 and confirm all 3 pass. If any fail, fix the dataclass definition.
+- [X] T006 [US1] Verify `ActionExplanation` in `src/aatf/explainability.py` is complete (all 8 typed fields, `frozen=True`) — the stub from T003 should already satisfy US1; run C-001..C-003 and confirm all 3 pass. If any fail, fix the dataclass definition.
 
 **Checkpoint**: C-001, C-002, C-003 green. ActionExplanation usable as a value type by F24.
 
@@ -287,7 +287,7 @@
 
 **Independent Test**: `pytest ../tests/test_explainability.py -k "c004 or c005 or c006 or c007 or c008 or c009" -v`
 
-- [ ] T007 [US2] Implement `explain_evasions` body (without remediation table yet) in `src/aatf/explainability.py`:
+- [X] T007 [US2] Implement `explain_evasions` body (without remediation table yet) in `src/aatf/explainability.py`:
   - Step-level accumulator: `counts: dict[str, list[int]] = {}` → `{action_id: [evaded, total]}`
   - Walk `records` → each `record.steps` → `counts[step.action_id][1] += 1`; `if not step.detected: counts[step.action_id][0] += 1`
   - Filter: `if evaded == 0: continue`
@@ -297,7 +297,7 @@
   - Sort: `sorted(result, key=lambda x: (-x.evasion_rate, x.action_id))`
   - Return sorted list
 
-- [ ] T008 [US2] Run pytest C-004..C-009: `cd src && pytest ../tests/test_explainability.py -k "c004 or c005 or c006 or c007 or c008 or c009" -v` — verify all 6 green. Fix any failures before proceeding.
+- [X] T008 [US2] Run pytest C-004..C-009: `cd src && pytest ../tests/test_explainability.py -k "c004 or c005 or c006 or c007 or c008 or c009" -v` — verify all 6 green. Fix any failures before proceeding.
 
 **Checkpoint**: C-004..C-009 green. Evasion ranking and filtering verified.
 
@@ -309,7 +309,7 @@
 
 **Independent Test**: `pytest ../tests/test_explainability.py -k "c010 or c011 or c012" -v`
 
-- [ ] T009 [US3] Add `_FALLBACK` and `REMEDIATION_TABLE` module-level constants to `src/aatf/explainability.py` (above `ActionExplanation`), and update `explain_evasions` to replace the `remediation=""` placeholder:
+- [X] T009 [US3] Add `_FALLBACK` and `REMEDIATION_TABLE` module-level constants to `src/aatf/explainability.py` (above `ActionExplanation`), and update `explain_evasions` to replace the `remediation=""` placeholder:
 
   ```python
   _FALLBACK: tuple[str, str] = (
@@ -379,7 +379,7 @@
   ```
   and set `false_positive_risk=fpr` in the `ActionExplanation` constructor.
 
-- [ ] T010 [US3] Run pytest C-010..C-012: `cd src && pytest ../tests/test_explainability.py -k "c010 or c011 or c012" -v` — verify all pass (C-010 runs 8 parametrized cases). Fix any failures.
+- [X] T010 [US3] Run pytest C-010..C-012: `cd src && pytest ../tests/test_explainability.py -k "c010 or c011 or c012" -v` — verify all pass (C-010 runs 8 parametrized cases). Fix any failures.
 
 **Checkpoint**: C-010..C-012 green. All 3 user stories complete.
 
@@ -389,12 +389,12 @@
 
 **Purpose**: Code quality, suite integrity, commit.
 
-- [ ] T011 Run ruff check: `cd src && ruff check ../tests/test_explainability.py aatf/explainability.py` — fix any reported issues (unused imports, wrong import sources, etc.)
-- [ ] T012 Run ruff format: `cd src && ruff format ../tests/test_explainability.py aatf/explainability.py` — apply formatting
-- [ ] T013 Run full suite: `cd src && pytest --tb=no -q 2>&1 | tail -5` — verify ≥269 passed, 4 skipped, 6 failed. The 6 pre-existing failures MUST remain unchanged.
-- [ ] T014 Update tasks.md: mark all completed tasks [X]
-- [ ] T015 Commit: `git add src/aatf/explainability.py tests/test_explainability.py specs/022-e6-explainability-engine/tasks.md && git commit -m "Add F23 explainability engine (022-e6-explainability-engine)"`
-- [ ] T016 Merge to main: `git checkout main && git merge 022-e6-explainability-engine`
+- [X] T011 Run ruff check: `cd src && ruff check ../tests/test_explainability.py aatf/explainability.py` — fix any reported issues (unused imports, wrong import sources, etc.)
+- [X] T012 Run ruff format: `cd src && ruff format ../tests/test_explainability.py aatf/explainability.py` — apply formatting
+- [X] T013 Run full suite: `cd src && pytest --tb=no -q 2>&1 | tail -5` — verify ≥269 passed, 4 skipped, 6 failed. The 6 pre-existing failures MUST remain unchanged.
+- [X] T014 Update tasks.md: mark all completed tasks [X]
+- [X] T015 Commit: `git add src/aatf/explainability.py tests/test_explainability.py specs/022-e6-explainability-engine/tasks.md && git commit -m "Add F23 explainability engine (022-e6-explainability-engine)"`
+- [X] T016 Merge to main: `git checkout main && git merge 022-e6-explainability-engine`
 
 ---
 
