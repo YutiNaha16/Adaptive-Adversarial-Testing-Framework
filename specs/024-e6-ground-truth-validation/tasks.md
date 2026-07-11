@@ -312,11 +312,11 @@
   git add src/aatf/ground_truth.py tests/test_ground_truth.py specs/024-e6-ground-truth-validation/tasks.md
   git commit -m "feat(F22): add aatf.ground_truth — ValidationResult + validate_blind_spots (12 contracts green)"
   ```
-- [ ] T012 Merge to main:
+- [X] T012 Merge to main:
   ```bash
   git checkout main && git merge --no-ff 024-e6-ground-truth-validation -m "merge: F22 ground-truth validation (E6 complete)"
   ```
-- [ ] T013 Verify suite on main: `cd src && pytest --tb=no -q 2>&1 | tail -3` — confirm ≥298 passed
+- [X] T013 Verify suite on main: `cd src && pytest --tb=no -q 2>&1 | tail -3` — confirm ≥298 passed
 
 **Checkpoint**: F22 complete. E6 (F20, F21, F23, F24, F22) all merged to main.
 
