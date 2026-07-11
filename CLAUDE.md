@@ -31,6 +31,8 @@ Auto-generated from all feature plans. Last updated: 2026-06-30
 - Python 3.12 (pinned per F01) + stdlib only — `dataclasses`; `aatf.episode.StepRecord` (from F16, already in codebase). No new pip dependencies. (020-e6-evaluator-metrics)
 - Python 3.12 (pinned per F01 scaffold) + numpy (already in venv), scipy>=1.12 (NEW — must add to requirements.in), dataclasses + typing (stdlib) (021-e6-statistical-rigor)
 - Python 3.12 (pinned per F01 scaffold) + stdlib only (`dataclasses`); `aatf.metrics` (F20), `aatf.action_library` (F10) (022-e6-explainability-engine)
+- Python 3.12 (pinned per F01 scaffold) + `jinja2>=3.1` (NEW); stdlib: `pathlib`, `datetime`; `aatf.metrics` (F20), `aatf.statistics` (F21), `aatf.explainability` (F23), `aatf.action_library` (F10) (023-e6-report-generator)
+- Local filesystem — writes `output_path` (caller-supplied); reads template from `src/aatf/templates/report.md.j2` (023-e6-report-generator)
 
 - Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available) + pip-tools (dependency compilation/pinning), pytest (test harness). No (001-e0-project-scaffold)
 
@@ -50,9 +52,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available): Follow standard conventions
 
 ## Recent Changes
+- 023-e6-report-generator: Added Python 3.12 (pinned per F01 scaffold) + `jinja2>=3.1` (NEW); stdlib: `pathlib`, `datetime`; `aatf.metrics` (F20), `aatf.statistics` (F21), `aatf.explainability` (F23), `aatf.action_library` (F10)
 - 022-e6-explainability-engine: Added Python 3.12 (pinned per F01 scaffold) + stdlib only (`dataclasses`); `aatf.metrics` (F20), `aatf.action_library` (F10)
 - 021-e6-statistical-rigor: Added Python 3.12 (pinned per F01 scaffold) + numpy (already in venv), scipy>=1.12 (NEW — must add to requirements.in), dataclasses + typing (stdlib)
-- 020-e6-evaluator-metrics: Added Python 3.12 (pinned per F01) + stdlib only — `dataclasses`; `aatf.episode.StepRecord` (from F16, already in codebase). No new pip dependencies.
 
 
 <!-- MANUAL ADDITIONS START -->
