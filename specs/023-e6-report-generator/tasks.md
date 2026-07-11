@@ -51,10 +51,10 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
 
 **Purpose**: Install new pip dependency, create templates directory, confirm baseline
 
-- [ ] T001 Add `jinja2>=3.1` to `requirements.in` under a `# Templating` comment section
-- [ ] T002 Install jinja2 in venv: `source /home/yuti/Adaptive-Adversarial-Testing-Framework/.venv/bin/activate && pip install "jinja2>=3.1"`
-- [ ] T003 Create directory `src/aatf/templates/` (touch a `.gitkeep` or leave empty — the template file will be created in Phase 3)
-- [ ] T004 Record baseline: `source .venv/bin/activate && cd src && pytest --tb=no -q 2>&1 | tail -3` — confirm 276 passed, 4 skipped, 6 failed
+- [X] T001 Add `jinja2>=3.1` to `requirements.in` under a `# Templating` comment section
+- [X] T002 Install jinja2 in venv: `source /home/yuti/Adaptive-Adversarial-Testing-Framework/.venv/bin/activate && pip install "jinja2>=3.1"`
+- [X] T003 Create directory `src/aatf/templates/` (touch a `.gitkeep` or leave empty — the template file will be created in Phase 3)
+- [X] T004 Record baseline: `source .venv/bin/activate && cd src && pytest --tb=no -q 2>&1 | tail -3` — confirm 276 passed, 4 skipped, 6 failed
 
 ---
 
@@ -64,7 +64,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
 
 ⚠️ CRITICAL: No user story work can begin until this phase is complete
 
-- [ ] T005 Verify all imports resolve: run `source .venv/bin/activate && python -c "from aatf.metrics import EpisodeRecord, detection_rate, robustness_score; from aatf.statistics import summarise_metric; from aatf.explainability import explain_evasions; from aatf.action_library import ActionRegistry; from jinja2 import Environment, FileSystemLoader; print('OK')"` — must print OK with no errors
+- [X] T005 Verify all imports resolve: run `source .venv/bin/activate && python -c "from aatf.metrics import EpisodeRecord, detection_rate, robustness_score; from aatf.statistics import summarise_metric; from aatf.explainability import explain_evasions; from aatf.action_library import ActionRegistry; from jinja2 import Environment, FileSystemLoader; print('OK')"` — must print OK with no errors
 
 **Checkpoint**: All upstream deps available — can now implement per story
 
@@ -78,7 +78,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
 
 ### Tests for User Story 1
 
-- [ ] T006 [US1] Write `tests/test_report.py` with helpers (FIXED_TS, _step, _ep, _defn, _reg — see Key facts above) and contracts C-001..C-004:
+- [X] T006 [US1] Write `tests/test_report.py` with helpers (FIXED_TS, _step, _ep, _defn, _reg — see Key facts above) and contracts C-001..C-004:
 
   **C-001** (`test_c001_importable`):
   ```python
@@ -119,7 +119,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Create `src/aatf/templates/report.md.j2` with the full Jinja2 template skeleton (all sections — metadata, headline metrics with `{% if reward_mean is not none %}` guard, blind spots with `{% if explanations %}` guard, footer):
+- [X] T007 [US1] Create `src/aatf/templates/report.md.j2` with the full Jinja2 template skeleton (all sections — metadata, headline metrics with `{% if reward_mean is not none %}` guard, blind spots with `{% if explanations %}` guard, footer):
 
   ```jinja2
   # Blind-Spot Report
@@ -159,7 +159,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
   *Generated from logged episode records. No live defence systems were accessed.*
   ```
 
-- [ ] T008 [US1] Create `src/aatf/report.py` with the complete `generate_report` function:
+- [X] T008 [US1] Create `src/aatf/report.py` with the complete `generate_report` function:
 
   ```python
   """Report generator — renders blind-spot Markdown report from episode logs."""
@@ -229,7 +229,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
       return rendered
   ```
 
-- [ ] T009 [US1] Verify C-001..C-004 green: `source /home/yuti/Adaptive-Adversarial-Testing-Framework/.venv/bin/activate && cd src && pytest ../tests/test_report.py::test_c001_importable ../tests/test_report.py::test_c002_returns_string_and_writes_file ../tests/test_report.py::test_c003_determinism ../tests/test_report.py::test_c004_empty_records -v`
+- [X] T009 [US1] Verify C-001..C-004 green: `source /home/yuti/Adaptive-Adversarial-Testing-Framework/.venv/bin/activate && cd src && pytest ../tests/test_report.py::test_c001_importable ../tests/test_report.py::test_c002_returns_string_and_writes_file ../tests/test_report.py::test_c003_determinism ../tests/test_report.py::test_c004_empty_records -v`
 
 **Checkpoint**: Core generation works — returns string, writes file, deterministic, empty-safe
 
@@ -243,7 +243,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
 
 ### Tests for User Story 2
 
-- [ ] T010 [US2] Append tests C-005..C-006 to `tests/test_report.py`:
+- [X] T010 [US2] Append tests C-005..C-006 to `tests/test_report.py`:
 
   **C-005** (`test_c005_detection_rate_in_report`):
   ```python
@@ -264,7 +264,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
       assert "0.0000" in result
   ```
 
-- [ ] T011 [US2] Verify C-005..C-006 green: `cd src && pytest ../tests/test_report.py::test_c005_detection_rate_in_report ../tests/test_report.py::test_c006_mean_reward_in_report -v`
+- [X] T011 [US2] Verify C-005..C-006 green: `cd src && pytest ../tests/test_report.py::test_c005_detection_rate_in_report ../tests/test_report.py::test_c006_mean_reward_in_report -v`
 
 **Checkpoint**: Headline metrics rendered correctly
 
@@ -278,7 +278,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
 
 ### Tests for User Story 3
 
-- [ ] T012 [US3] Append tests C-007..C-008 to `tests/test_report.py`:
+- [X] T012 [US3] Append tests C-007..C-008 to `tests/test_report.py`:
 
   **C-007** (`test_c007_blind_spots_ranked`):
   ```python
@@ -305,7 +305,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
       assert "No blind spots detected" in result
   ```
 
-- [ ] T013 [US3] Verify C-007..C-008 green: `cd src && pytest ../tests/test_report.py::test_c007_blind_spots_ranked ../tests/test_report.py::test_c008_no_blind_spots_message -v`
+- [X] T013 [US3] Verify C-007..C-008 green: `cd src && pytest ../tests/test_report.py::test_c007_blind_spots_ranked ../tests/test_report.py::test_c008_no_blind_spots_message -v`
 
 **Checkpoint**: Blind-spots table ranked correctly; empty case handled
 
@@ -319,7 +319,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
 
 ### Tests for User Story 4
 
-- [ ] T014 [US4] Append tests C-009..C-010 to `tests/test_report.py`:
+- [X] T014 [US4] Append tests C-009..C-010 to `tests/test_report.py`:
 
   **C-009** (`test_c009_metadata_fields`):
   ```python
@@ -343,7 +343,7 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
           generate_report([], reg, "/nonexistent_dir_xyz/report.md", generated_at=FIXED_TS)
   ```
 
-- [ ] T015 [US4] Verify C-009..C-010 green: `cd src && pytest ../tests/test_report.py::test_c009_metadata_fields ../tests/test_report.py::test_c010_missing_parent_raises -v`
+- [X] T015 [US4] Verify C-009..C-010 green: `cd src && pytest ../tests/test_report.py::test_c009_metadata_fields ../tests/test_report.py::test_c010_missing_parent_raises -v`
 
 **Checkpoint**: All 10 contracts green
 
@@ -351,10 +351,10 @@ def _reg(*defs: ActionDefinition) -> ActionRegistry:
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T016 Run ruff check on new files and fix any issues: `source /home/yuti/Adaptive-Adversarial-Testing-Framework/.venv/bin/activate && cd src && ruff check ../tests/test_report.py aatf/report.py --fix`
-- [ ] T017 Run full test suite and confirm ≥286 passed, 4 skipped, 6 failed: `cd src && pytest --tb=short -q 2>&1 | tail -5`
-- [ ] T018 Stage and commit all new files: `git add src/aatf/report.py src/aatf/templates/report.md.j2 tests/test_report.py requirements.in && git commit -m "Add F24 report generator: generate_report + Jinja2 template (10 contracts green)"`
-- [ ] T019 Merge to main: `git checkout main && git merge 023-e6-report-generator --no-ff -m "Merge F24 023-e6-report-generator"`
+- [X] T016 Run ruff check on new files and fix any issues: `source /home/yuti/Adaptive-Adversarial-Testing-Framework/.venv/bin/activate && cd src && ruff check ../tests/test_report.py aatf/report.py --fix`
+- [X] T017 Run full test suite and confirm ≥286 passed, 4 skipped, 6 failed: `cd src && pytest --tb=short -q 2>&1 | tail -5`
+- [X] T018 Stage and commit all new files: `git add src/aatf/report.py src/aatf/templates/report.md.j2 tests/test_report.py requirements.in && git commit -m "Add F24 report generator: generate_report + Jinja2 template (10 contracts green)"`
+- [X] T019 Merge to main: `git checkout main && git merge 023-e6-report-generator --no-ff -m "Merge F24 023-e6-report-generator"`
 
 ---
 
