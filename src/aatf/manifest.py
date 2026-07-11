@@ -45,6 +45,7 @@ def write_manifest(
     *,
     suricata_version: str = "unknown",
     ruleset_version: str = "unknown",
+    extra_metadata: dict | None = None,
 ) -> Path:
     timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
     config.output_dir.mkdir(parents=True, exist_ok=True)
@@ -60,6 +61,9 @@ def write_manifest(
         "config_snapshot": config.model_dump(mode="json"),
         "timestamp": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
+
+    if extra_metadata:
+        manifest.update(extra_metadata)
 
     out_path = config.output_dir / f"run_manifest_{timestamp}.json"
     out_path.write_text(json.dumps(manifest, indent=2))
