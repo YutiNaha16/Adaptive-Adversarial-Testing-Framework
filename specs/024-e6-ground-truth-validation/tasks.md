@@ -16,8 +16,8 @@
 
 **Purpose**: Record baseline and verify upstream imports are available.
 
-- [ ] T001 Record test baseline: `cd src && pytest --tb=no -q 2>&1 | tail -3` — confirm 286 passed, 4 skipped, 6 failed
-- [ ] T002 Verify upstream import available: `python -c "from aatf.explainability import ActionExplanation; print(ActionExplanation.__dataclass_fields__.keys())"` from within venv — confirm all 8 fields present (action_id, suricata_category, description, evasion_count, total_count, evasion_rate, remediation, false_positive_risk)
+- [X] T001 Record test baseline: `cd src && pytest --tb=no -q 2>&1 | tail -3` — confirm 286 passed, 4 skipped, 6 failed
+- [X] T002 Verify upstream import available: `python -c "from aatf.explainability import ActionExplanation; print(ActionExplanation.__dataclass_fields__.keys())"` from within venv — confirm all 8 fields present (action_id, suricata_category, description, evasion_count, total_count, evasion_rate, remediation, false_positive_risk)
 
 **Checkpoint**: Baseline recorded; ActionExplanation confirmed importable with all 8 fields.
 
@@ -29,7 +29,7 @@
 
 **⚠️ CRITICAL**: All tests must be written and confirmed RED before any implementation begins.
 
-- [ ] T003 Create `tests/test_ground_truth.py` with the `_expl` helper and all 12 contract tests (C-001..C-012) as described below:
+- [X] T003 Create `tests/test_ground_truth.py` with the `_expl` helper and all 12 contract tests (C-001..C-012) as described below:
 
   **File header and helper**:
   ```python
@@ -202,7 +202,7 @@
       assert required <= set(SURICATA_SID_CATEGORIES.values())
   ```
 
-- [ ] T004 Run tests to confirm RED state: `cd src && pytest ../tests/test_ground_truth.py -v 2>&1 | tail -20` — expect ImportError/ModuleNotFoundError for `aatf.ground_truth` across all 12 tests; confirm 0 passed
+- [X] T004 Run tests to confirm RED state: `cd src && pytest ../tests/test_ground_truth.py -v 2>&1 | tail -20` — expect ImportError/ModuleNotFoundError for `aatf.ground_truth` across all 12 tests; confirm 0 passed
 
 **Checkpoint**: 12 tests written, all failing with ImportError. Ready to implement.
 
@@ -214,7 +214,7 @@
 
 **Independent Test**: `cd src && pytest ../tests/test_ground_truth.py -k "c001 or c002 or c003 or c007 or c008 or c009 or c010 or c011" -v` — all 8 must pass.
 
-- [ ] T005 [US1] Create `src/aatf/ground_truth.py` (~55 LOC) with exact content:
+- [X] T005 [US1] Create `src/aatf/ground_truth.py` (~55 LOC) with exact content:
 
   ```python
   """Ground-truth validation harness — computes Blind-Spot Precision against disabled SIDs."""
@@ -271,7 +271,7 @@
       )
   ```
 
-- [ ] T006 [US1] Run US1 contracts green: `cd src && pytest ../tests/test_ground_truth.py -k "c001 or c002 or c003 or c007 or c008 or c009 or c010 or c011" -v` — confirm 8 passed, 0 failed
+- [X] T006 [US1] Run US1 contracts green: `cd src && pytest ../tests/test_ground_truth.py -k "c001 or c002 or c003 or c007 or c008 or c009 or c010 or c011" -v` — confirm 8 passed, 0 failed
 
 **Checkpoint**: US1 complete — core validation works, ValidationResult is correct shape.
 
@@ -283,7 +283,7 @@
 
 **Independent Test**: `cd src && pytest ../tests/test_ground_truth.py -k "c012" -v` — 1 passed.
 
-- [ ] T007 [US2] Run C-012 green (already implemented in T005 — SID map is in ground_truth.py): `cd src && pytest ../tests/test_ground_truth.py::test_c012_sid_categories_covers_all_phase1 -v` — confirm 1 passed
+- [X] T007 [US2] Run C-012 green (already implemented in T005 — SID map is in ground_truth.py): `cd src && pytest ../tests/test_ground_truth.py::test_c012_sid_categories_covers_all_phase1 -v` — confirm 1 passed
 
 **Checkpoint**: US2 complete — all 8 Phase 1 categories covered by SURICATA_SID_CATEGORIES.
 
@@ -295,7 +295,7 @@
 
 **Independent Test**: `cd src && pytest ../tests/test_ground_truth.py -k "c004 or c005 or c006" -v` — 3 passed.
 
-- [ ] T008 [US3] Run C-004..C-006 green (already in ground_truth.py — meets_gate property hardcoded at 0.8): `cd src && pytest ../tests/test_ground_truth.py -k "c004 or c005 or c006" -v` — confirm 3 passed
+- [X] T008 [US3] Run C-004..C-006 green (already in ground_truth.py — meets_gate property hardcoded at 0.8): `cd src && pytest ../tests/test_ground_truth.py -k "c004 or c005 or c006" -v` — confirm 3 passed
 
 **Checkpoint**: US3 complete — meets_gate boundary logic verified.
 
@@ -305,9 +305,9 @@
 
 **Purpose**: Lint, full suite run, commit, merge to main.
 
-- [ ] T009 Run ruff on new files: `cd src && ruff check ../tests/test_ground_truth.py aatf/ground_truth.py --fix` — confirm 0 errors
-- [ ] T010 Run full test suite: `cd src && pytest --tb=short -q 2>&1 | tail -5` — confirm ≥298 passed, 4 skipped, 6 failed (net +12 from baseline 286)
-- [ ] T011 Stage and commit all new files to branch `024-e6-ground-truth-validation`:
+- [X] T009 Run ruff on new files: `cd src && ruff check ../tests/test_ground_truth.py aatf/ground_truth.py --fix` — confirm 0 errors
+- [X] T010 Run full test suite: `cd src && pytest --tb=short -q 2>&1 | tail -5` — confirm ≥298 passed, 4 skipped, 6 failed (net +12 from baseline 286)
+- [X] T011 Stage and commit all new files to branch `024-e6-ground-truth-validation`:
   ```bash
   git add src/aatf/ground_truth.py tests/test_ground_truth.py specs/024-e6-ground-truth-validation/tasks.md
   git commit -m "feat(F22): add aatf.ground_truth — ValidationResult + validate_blind_spots (12 contracts green)"
