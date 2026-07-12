@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -11,10 +12,12 @@ from aatf.action_library import REGISTRY
 from aatf.attacker import FixedScriptAttacker, LinUCBAttacker, RandomAttacker
 from aatf.config import load_config
 from aatf.context_vector import EpisodeState, build_context
+from aatf.contracts import Action
 from aatf.defence import NullDefence
 from aatf.episode import run_episode
+from aatf.explainability import explain_evasions
 from aatf.gate import phase1_gate
-from aatf.ground_truth import ValidationResult
+from aatf.ground_truth import ValidationResult, validate_blind_spots
 from aatf.linucb import LinUCBModel
 from aatf.manifest import write_manifest
 from aatf.metrics import EpisodeRecord, detection_rate, robustness_score
@@ -24,9 +27,7 @@ from aatf.seeding import seed_everything
 _ATTACKER_REGISTRY = {
     "RandomAttacker": lambda seed, ctx_dim, n_actions: RandomAttacker(seed=seed),
     "FixedScriptAttacker": lambda seed, ctx_dim, n_actions: FixedScriptAttacker(),
-    "LinUCBAttacker": lambda seed, ctx_dim, n_actions: LinUCBAttacker(
-        LinUCBModel(n_actions=n_actions, context_dim=ctx_dim)
-    ),
+    "LinUCBAttacker": lambda seed, ctx_dim, n_actions: LinUCBAttacker(LinUCBModel(d=ctx_dim)),
 }
 
 
@@ -36,7 +37,23 @@ def _make_attacker(name: str, seed: int, ctx_dim: int, n_actions: int):
     return _ATTACKER_REGISTRY[name](seed, ctx_dim, n_actions)
 
 
-def main(config_path: str | Path = "config.yaml") -> None:
+def _load_disabled_sids(disabled_conf: Path) -> set[str]:
+    sids: set[str] = set()
+    if not disabled_conf.exists():
+        return sids
+    for line in disabled_conf.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#"):
+            sids.add(line)
+    return sids
+
+
+def main(
+    config_path: str | Path = "config.yaml",
+    lab: bool = False,
+    eve_path: str | Path = "logs/suricata/eve.json",
+    disabled_conf: str | Path = "lab/rules/disabled.conf",
+) -> None:
     try:
         config = load_config(config_path)
     except FileNotFoundError as exc:
@@ -57,11 +74,35 @@ def main(config_path: str | Path = "config.yaml") -> None:
         print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(2)
 
-    defence = NullDefence()
+    if lab:
+        from aatf.action_executor import ActionExecutor
+        from aatf.suricata_defence import SuricataDefence
+
+        defence = SuricataDefence(eve_path)
+        executor = ActionExecutor(seed=config.seed)
+
+        def execute_fn(action_id: str) -> None:
+            action_def = REGISTRY.get_action(action_id)
+            action = Action(
+                action_id=action_id,
+                category=action_def.category,
+                parameters=action_def.default_parameters,
+                timestamp=datetime.now(UTC),
+            )
+            executor.execute(action)
+            time.sleep(1.5)
+
+        mode_label = "LAB (Suricata)"
+    else:
+        defence = NullDefence()
+        execute_fn = lambda _: None  # noqa: E731
+        mode_label = "Simulation (NullDefence)"
+
     records: list[EpisodeRecord] = []
 
     print("Adaptive Adversarial Testing Framework")
     print("=" * 38)
+    print(f"Mode     : {mode_label}")
     print(f"Attacker : {config.attacker_class}")
     print(f"Episodes : {config.episodes}")
     print(f"Seed     : {config.seed}")
@@ -77,7 +118,7 @@ def main(config_path: str | Path = "config.yaml") -> None:
             _sc.append(ctx)
             return attacker.choose_action(available, ctx)
 
-        result = run_episode(state, action_selector, lambda _: None, defence)
+        result = run_episode(state, action_selector, execute_fn, defence)
 
         for step, ctx in zip(result.steps, step_contexts, strict=False):
             attacker.observe(step.action_id, ctx, step.reward)
@@ -97,13 +138,18 @@ def main(config_path: str | Path = "config.yaml") -> None:
     window = min(10, len(records))
     rs = robustness_score(records, window=window)
 
-    validation_result = ValidationResult(
-        blind_spot_precision=0.0,
-        true_positives=0,
-        false_positives=0,
-        total_reported=0,
-        disabled_sid_count=0,
-    )
+    if lab:
+        disabled_sids = _load_disabled_sids(Path(disabled_conf))
+        explanations = explain_evasions(records, REGISTRY)
+        validation_result = validate_blind_spots(explanations, disabled_sids)
+    else:
+        validation_result = ValidationResult(
+            blind_spot_precision=0.0,
+            true_positives=0,
+            false_positives=0,
+            total_reported=0,
+            disabled_sid_count=0,
+        )
     gate_result = phase1_gate(records, validation_result)
 
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
@@ -144,5 +190,25 @@ def main(config_path: str | Path = "config.yaml") -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run AATF experiment")
     parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
+    parser.add_argument(
+        "--lab",
+        action="store_true",
+        help="Use real Suricata defence + ActionExecutor (Docker lab must be running)",
+    )
+    parser.add_argument(
+        "--eve-path",
+        default="logs/suricata/eve.json",
+        help="Path to Suricata eve.json (used with --lab)",
+    )
+    parser.add_argument(
+        "--disabled-conf",
+        default="lab/rules/disabled.conf",
+        help="Path to disabled.conf for BSP validation (used with --lab)",
+    )
     args = parser.parse_args()
-    main(config_path=args.config)
+    main(
+        config_path=args.config,
+        lab=args.lab,
+        eve_path=args.eve_path,
+        disabled_conf=args.disabled_conf,
+    )

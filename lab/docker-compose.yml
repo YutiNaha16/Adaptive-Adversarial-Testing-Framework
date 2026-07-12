@@ -11,10 +11,6 @@ networks:
       config:
         - subnet: 172.28.0.0/16
 
-volumes:
-  aatf-eve:
-    name: aatf-eve
-
 services:
   attacker:
     build:
@@ -23,8 +19,6 @@ services:
     container_name: aatf-attacker
     networks:
       - lab
-    volumes:
-      - aatf-eve:/srv/eve
     command: ["sleep", "infinity"]
     restart: "no"
 
@@ -33,8 +27,6 @@ services:
     container_name: aatf-defender
     networks:
       - lab
-    volumes:
-      - aatf-eve:/srv/eve
     command: ["sleep", "infinity"]
     restart: "no"
 
@@ -43,8 +35,6 @@ services:
     container_name: aatf-environment
     networks:
       - lab
-    volumes:
-      - aatf-eve:/srv/eve
     command: ["sleep", "infinity"]
     restart: "no"
 
@@ -55,7 +45,7 @@ services:
     container_name: aatf-suricata
     network_mode: host
     volumes:
-      - aatf-eve:/var/log/suricata
+      - ../logs/suricata:/var/log/suricata
       - ./rules/disabled.conf:/lab-rules/disabled.conf:ro
     restart: "no"
     depends_on:

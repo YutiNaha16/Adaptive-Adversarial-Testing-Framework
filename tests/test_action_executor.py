@@ -258,7 +258,9 @@ _LAB_RUNNING = (
 @pytest.mark.skipif(not _LAB_RUNNING, reason="lab not running — run 'make lab-up' first")
 def test_scan_triggers_suricata_alert():
     """C-015: Integration — scan action triggers Suricata alert in eve.json."""
+    import json
     import time
+    from pathlib import Path
 
     executor = ActionExecutor(seed=0)
     action = _make_action("tcp_port_scan", extra={"port_range": "1-100", "timing_ms": 0})
@@ -267,16 +269,12 @@ def test_scan_triggers_suricata_alert():
 
     time.sleep(2)
 
-    eve = subprocess.run(
-        ["docker", "exec", "aatf-defender", "cat", "/var/log/suricata/eve.json"],
-        capture_output=True,
-        text=True,
-    )
-    import json
-
+    eve_path = Path(__file__).parent.parent / "logs" / "suricata" / "eve.json"
+    if not eve_path.exists():
+        pytest.skip("eve.json not found at expected bind-mount path")
     alerts = [
         json.loads(line)
-        for line in eve.stdout.splitlines()
+        for line in eve_path.read_text().splitlines()
         if line.strip()
         if json.loads(line).get("event_type") == "alert"
     ]
