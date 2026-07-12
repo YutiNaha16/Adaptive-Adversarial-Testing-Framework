@@ -1,4 +1,5 @@
 """Tests for src/run_experiment.py — 8 contracts C-001..C-008."""
+
 from __future__ import annotations
 
 import json
@@ -33,6 +34,7 @@ def _write_config(
 
 def test_c001_importability():
     import run_experiment as _re  # noqa: F401
+
     assert callable(_re.main)
 
 

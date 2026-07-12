@@ -1,4 +1,5 @@
 """Tests for aatf.ground_truth — 12 contracts C-001..C-012."""
+
 from __future__ import annotations
 
 from dataclasses import FrozenInstanceError
@@ -142,7 +143,13 @@ def test_c011_unknown_sid_ignored():
 
 def test_c012_sid_categories_covers_all_phase1():
     required = {
-        "ET SCAN", "ET BRUTE_FORCE", "ET EXPLOIT", "ET DNS",
-        "ET POLICY", "ET TROJAN", "ET WEB_CLIENT", "ET WEB_SERVER",
+        "ET SCAN",
+        "ET BRUTE_FORCE",
+        "ET EXPLOIT",
+        "ET DNS",
+        "ET POLICY",
+        "ET TROJAN",
+        "ET WEB_CLIENT",
+        "ET WEB_SERVER",
     }
     assert required <= set(SURICATA_SID_CATEGORIES.values())

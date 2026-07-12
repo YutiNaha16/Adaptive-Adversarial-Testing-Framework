@@ -1,4 +1,5 @@
 """Report generator — renders blind-spot Markdown report from episode logs."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime

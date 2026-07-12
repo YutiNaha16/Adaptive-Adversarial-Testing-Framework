@@ -1,4 +1,5 @@
 """Tests for aatf.gate — 10 contracts C-001..C-010."""
+
 from __future__ import annotations
 
 import sys
@@ -55,11 +56,13 @@ def _write_config(tmp_path: Path, episodes: int = 2) -> Path:
 
 def test_c001_importability():
     from aatf.gate import CriterionResult, GateResult, phase1_gate  # noqa: F401
+
     assert callable(phase1_gate)
 
 
 def test_c002_gate_result_frozen():
     from dataclasses import FrozenInstanceError
+
     gr = GateResult(passed=True, criteria=(), summary="Phase 1 PASSED (0/0 criteria met)")
     with pytest.raises(FrozenInstanceError):
         gr.passed = False
@@ -67,6 +70,7 @@ def test_c002_gate_result_frozen():
 
 def test_c003_criterion_result_frozen():
     from dataclasses import FrozenInstanceError
+
     cr = CriterionResult(name="test", passed=True, value=1.0, threshold=0.0)
     with pytest.raises(FrozenInstanceError):
         cr.passed = False

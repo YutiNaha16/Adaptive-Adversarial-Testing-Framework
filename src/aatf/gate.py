@@ -1,4 +1,5 @@
 """Phase 1 gate evaluator — pure function, no I/O."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

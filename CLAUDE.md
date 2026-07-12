@@ -34,6 +34,10 @@ Auto-generated from all feature plans. Last updated: 2026-06-30
 - Python 3.12 (pinned per F01 scaffold) + `jinja2>=3.1` (NEW); stdlib: `pathlib`, `datetime`; `aatf.metrics` (F20), `aatf.statistics` (F21), `aatf.explainability` (F23), `aatf.action_library` (F10) (023-e6-report-generator)
 - Local filesystem — writes `output_path` (caller-supplied); reads template from `src/aatf/templates/report.md.j2` (023-e6-report-generator)
 - Python 3.12 (pinned per F01 scaffold) + stdlib only — `dataclasses`; `aatf.explainability.ActionExplanation` (F23) (024-e6-ground-truth-validation)
+- Python 3.12 (pinned per F01) + stdlib only — `json`, `datetime`, `pathlib`, `sys`, `argparse`; (025-e7-repro-oneshot)
+- reads `config.yaml`; writes `output_dir/*.md` + `output_dir/run_manifest_*.json` (025-e7-repro-oneshot)
+- Python 3.12 (pinned per F01) + stdlib only — `dataclasses`, `typing`; existing: `aatf.metrics` (026-e7-phase1-gate)
+- no file I/O in `gate.py`; manifest extended via `extra_metadata` kwarg (026-e7-phase1-gate)
 
 - Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available) + pip-tools (dependency compilation/pinning), pytest (test harness). No (001-e0-project-scaffold)
 
@@ -53,9 +57,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available): Follow standard conventions
 
 ## Recent Changes
+- 026-e7-phase1-gate: Added Python 3.12 (pinned per F01) + stdlib only — `dataclasses`, `typing`; existing: `aatf.metrics`
+- 025-e7-repro-oneshot: Added Python 3.12 (pinned per F01) + stdlib only — `json`, `datetime`, `pathlib`, `sys`, `argparse`;
 - 024-e6-ground-truth-validation: Added Python 3.12 (pinned per F01 scaffold) + stdlib only — `dataclasses`; `aatf.explainability.ActionExplanation` (F23)
-- 023-e6-report-generator: Added Python 3.12 (pinned per F01 scaffold) + `jinja2>=3.1` (NEW); stdlib: `pathlib`, `datetime`; `aatf.metrics` (F20), `aatf.statistics` (F21), `aatf.explainability` (F23), `aatf.action_library` (F10)
-- 022-e6-explainability-engine: Added Python 3.12 (pinned per F01 scaffold) + stdlib only (`dataclasses`); `aatf.metrics` (F20), `aatf.action_library` (F10)
 
 
 <!-- MANUAL ADDITIONS START -->

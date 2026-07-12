@@ -1,4 +1,5 @@
 """Tests for aatf.report — generate_report function (F24). Contracts C-001..C-010."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
@@ -146,9 +147,7 @@ def test_c009_metadata_fields(tmp_path: pytest.TempPathFactory) -> None:
     reg = _reg(_defn("tcp_port_scan", "ET SCAN"))
     ep1 = _ep("LinUCBAttacker", 42, _step("tcp_port_scan", True))
     ep2 = _ep("LinUCBAttacker", 99, _step("tcp_port_scan", True))
-    result = generate_report(
-        [ep1, ep2], reg, tmp_path / "report.md", generated_at=FIXED_TS
-    )
+    result = generate_report([ep1, ep2], reg, tmp_path / "report.md", generated_at=FIXED_TS)
     assert "LinUCBAttacker" in result
     assert "42" in result
     assert "99" in result

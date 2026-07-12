@@ -1,4 +1,5 @@
 """Ground-truth validation harness — computes Blind-Spot Precision against disabled SIDs."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

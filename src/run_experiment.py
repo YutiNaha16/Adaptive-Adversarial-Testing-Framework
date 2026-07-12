@@ -1,4 +1,5 @@
 """Experiment entrypoint — load config, run N episodes, generate report and manifest."""
+
 from __future__ import annotations
 
 import argparse
@@ -31,10 +32,7 @@ _ATTACKER_REGISTRY = {
 
 def _make_attacker(name: str, seed: int, ctx_dim: int, n_actions: int):
     if name not in _ATTACKER_REGISTRY:
-        raise ValueError(
-            f"Unknown attacker_class {name!r}. "
-            f"Valid: {sorted(_ATTACKER_REGISTRY)}"
-        )
+        raise ValueError(f"Unknown attacker_class {name!r}. Valid: {sorted(_ATTACKER_REGISTRY)}")
     return _ATTACKER_REGISTRY[name](seed, ctx_dim, n_actions)
 
 
@@ -84,14 +82,16 @@ def main(config_path: str | Path = "config.yaml") -> None:
         for step, ctx in zip(result.steps, step_contexts, strict=False):
             attacker.observe(step.action_id, ctx, step.reward)
 
-        records.append(EpisodeRecord(
-            attacker_class=config.attacker_class,
-            seed=config.seed,
-            steps=result.steps,
-            total_reward=result.total_reward,
-            completed=result.completed,
-            episode_index=i,
-        ))
+        records.append(
+            EpisodeRecord(
+                attacker_class=config.attacker_class,
+                seed=config.seed,
+                steps=result.steps,
+                total_reward=result.total_reward,
+                completed=result.completed,
+                episode_index=i,
+            )
+        )
 
     dr = detection_rate(records)
     window = min(10, len(records))
