@@ -31,5 +31,52 @@
 _No blind spots detected — all actions were detected on every step._
 {% endif %}
 
+{% if ml_summary %}
+---
+
+## ML Anomaly Defence Analysis
+
+> Based on {{ ml_summary.episode_count }} episodes. CAE = {{ "%.4f" | format(ml_summary.cae) }}
+> (lower = stealthier attacker).
+
+### Most Evasive Actions (lowest mean anomaly score while undetected)
+
+{% if ml_summary.evasive %}
+| Action | Category | Mean Anomaly (undetected) | Undetected Steps |
+|--------|----------|--------------------------|-----------------|
+{% for s in ml_summary.evasive %}
+| {{ s.action_id }} | {{ s.category }} | {{ "%.3f" | format(s.mean_anomaly_undetected) }} | {{ s.undetected_steps }} |
+{% endfor %}
+{% else %}
+_No undetected actions — ML detector caught all steps._
+{% endif %}
+
+### Most Suspicious Actions (highest mean anomaly score)
+
+{% if ml_summary.suspicious %}
+| Action | Category | Mean Anomaly (all steps) | Total Steps |
+|--------|----------|--------------------------|-------------|
+{% for s in ml_summary.suspicious %}
+| {{ s.action_id }} | {{ s.category }} | {{ "%.3f" | format(s.mean_anomaly_all) }} | {{ s.total_steps }} |
+{% endfor %}
+{% else %}
+_No actions recorded._
+{% endif %}
+
+### Retraining Recommendation
+
+{% if ml_summary.retrain_categories %}
+The following action categories evaded the ML detector (mean anomaly score < 0.30 on undetected
+steps). Add representative normal-vs-attack traffic for these categories to the next training batch:
+
+{% for cat in ml_summary.retrain_categories %}
+- **{{ cat }}**
+{% endfor %}
+{% else %}
+No ML gap identified in this evaluation. The ML detector scored all evaded actions above the 0.30
+threshold. Re-evaluate after a longer training run or with the DQN attacker active.
+{% endif %}
+{% endif %}
+
 ---
 *Generated from logged episode records. No live defence systems were accessed.*
