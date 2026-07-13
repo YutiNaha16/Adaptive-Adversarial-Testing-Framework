@@ -1,4 +1,5 @@
 """DQN attacker: QNetwork, ReplayBuffer, DQNModel, DQNAttacker (F28 / Epic E9)."""
+
 from __future__ import annotations
 
 import collections
@@ -36,8 +37,9 @@ class ReplayBuffer:
     def __init__(self, capacity: int = 2000) -> None:
         self._buffer: collections.deque = collections.deque(maxlen=capacity)
 
-    def push(self, state: np.ndarray, action_idx: int, reward: float,
-             next_state: np.ndarray) -> None:
+    def push(
+        self, state: np.ndarray, action_idx: int, reward: float, next_state: np.ndarray
+    ) -> None:
         self._buffer.append(Transition(state, action_idx, reward, next_state))
 
     def sample(self, batch_size: int) -> list:
@@ -93,20 +95,20 @@ class DQNModel:
             return random.choice(available_ids)
         return ALL_ACTION_IDS[int(torch.argmax(mask).item())]
 
-    def update(self, action_id: str, state: np.ndarray, reward: float,
-               next_state: np.ndarray) -> None:
+    def update(
+        self, action_id: str, state: np.ndarray, reward: float, next_state: np.ndarray
+    ) -> None:
         action_idx = ALL_ACTION_IDS.index(action_id)
-        self.buffer.push(state.astype(np.float32), action_idx, reward,
-                         next_state.astype(np.float32))
+        self.buffer.push(
+            state.astype(np.float32), action_idx, reward, next_state.astype(np.float32)
+        )
         if len(self.buffer) < self._batch_size:
             return
         batch = self.buffer.sample(self._batch_size)
         states = torch.tensor(np.array([t.state for t in batch]), dtype=torch.float32)
         actions = torch.tensor([t.action_idx for t in batch], dtype=torch.long)
         rewards = torch.tensor([t.reward for t in batch], dtype=torch.float32)
-        next_states = torch.tensor(
-            np.array([t.next_state for t in batch]), dtype=torch.float32
-        )
+        next_states = torch.tensor(np.array([t.next_state for t in batch]), dtype=torch.float32)
         with torch.no_grad():
             target_q = rewards + self._gamma * self.target_net(next_states).max(1).values
         current_q = self.online_net(states).gather(1, actions.unsqueeze(1)).squeeze(1)

@@ -1,4 +1,5 @@
 """Test contracts C-001..C-005: F29 unified ML blind-spot report."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -51,10 +52,16 @@ def test_c003_evasive_table_ranks_ascending_by_undetected_anomaly(tmp_path: Path
     # tcp_port_scan undetected anomaly 0.1 < udp_sweep undetected anomaly 0.4
     # → tcp_port_scan must appear first in the "Most Evasive Actions" table
     steps = [
-        StepRecord(action_id="tcp_port_scan", detected=False, stage_progress=0, reward=1.0,
-                   anomaly_score=0.1),
-        StepRecord(action_id="udp_sweep", detected=False, stage_progress=0, reward=1.0,
-                   anomaly_score=0.4),
+        StepRecord(
+            action_id="tcp_port_scan",
+            detected=False,
+            stage_progress=0,
+            reward=1.0,
+            anomaly_score=0.1,
+        ),
+        StepRecord(
+            action_id="udp_sweep", detected=False, stage_progress=0, reward=1.0, anomaly_score=0.4
+        ),
     ]
     rendered = generate_report([_ep(steps)], REGISTRY, tmp_path / "report.md")
     assert "Most Evasive Actions" in rendered
@@ -70,16 +77,22 @@ def test_c004_suspicious_table_ranks_descending_by_overall_anomaly(tmp_path: Pat
     # → tcp_port_scan must appear first in the "Most Suspicious Actions" table
     # Both detected=True so evasive table is empty; only suspicious table shows them.
     steps = [
-        StepRecord(action_id="tcp_port_scan", detected=True, stage_progress=0, reward=-1.0,
-                   anomaly_score=0.9),
-        StepRecord(action_id="udp_sweep", detected=True, stage_progress=0, reward=-1.0,
-                   anomaly_score=0.2),
+        StepRecord(
+            action_id="tcp_port_scan",
+            detected=True,
+            stage_progress=0,
+            reward=-1.0,
+            anomaly_score=0.9,
+        ),
+        StepRecord(
+            action_id="udp_sweep", detected=True, stage_progress=0, reward=-1.0, anomaly_score=0.2
+        ),
     ]
     rendered = generate_report([_ep(steps)], REGISTRY, tmp_path / "report.md")
     assert "Most Suspicious Actions" in rendered
-    suspicious_section = (
-        rendered.split("Most Suspicious Actions")[1].split("Retraining Recommendation")[0]
-    )
+    suspicious_section = rendered.split("Most Suspicious Actions")[1].split(
+        "Retraining Recommendation"
+    )[0]
     assert suspicious_section.index("tcp_port_scan") < suspicious_section.index("udp_sweep")
 
 
