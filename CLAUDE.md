@@ -39,6 +39,10 @@ Auto-generated from all feature plans. Last updated: 2026-06-30
 - Python 3.12 (pinned per F01) + stdlib only — `dataclasses`, `typing`; existing: `aatf.metrics` (026-e7-phase1-gate)
 - no file I/O in `gate.py`; manifest extended via `extra_metadata` kwarg (026-e7-phase1-gate)
 - Python 3.12 (pinned per F01) + scikit-learn>=1.4 (NEW), numpy (already in .venv), math (stdlib) (027-e8-ml-anomaly-detector)
+- Python 3.12 (pinned per F01) + `torch>=2.2` CPU-only (NEW), numpy (existing), stdlib: collections, random (028-e9-rl-dqn-attacker)
+- N/A — pure in-memory training; config_dqn.yaml for DQN experiment (028-e9-rl-dqn-attacker)
+- Python 3.12 (pinned) + Jinja2 ≥3.1 (already in venv); stdlib `dataclasses`, `statistics`; `aatf.metrics.cumulative_anomaly_exposure` (added in F28) (029-e10-unified-report)
+- pure in-memory computation; writes to caller-supplied `output_path` (inherited from existing generate_report) (029-e10-unified-report)
 
 - Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available) + pip-tools (dependency compilation/pinning), pytest (test harness). No (001-e0-project-scaffold)
 
@@ -58,9 +62,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available): Follow standard conventions
 
 ## Recent Changes
+- 029-e10-unified-report: Added Python 3.12 (pinned) + Jinja2 ≥3.1 (already in venv); stdlib `dataclasses`, `statistics`; `aatf.metrics.cumulative_anomaly_exposure` (added in F28)
+- 028-e9-rl-dqn-attacker: Added Python 3.12 (pinned per F01) + `torch>=2.2` CPU-only (NEW), numpy (existing), stdlib: collections, random
 - 027-e8-ml-anomaly-detector: Added Python 3.12 (pinned per F01) + scikit-learn>=1.4 (NEW), numpy (already in .venv), math (stdlib)
-- 026-e7-phase1-gate: Added Python 3.12 (pinned per F01) + stdlib only — `dataclasses`, `typing`; existing: `aatf.metrics`
-- 025-e7-repro-oneshot: Added Python 3.12 (pinned per F01) + stdlib only — `json`, `datetime`, `pathlib`, `sys`, `argparse`;
 
 
 <!-- MANUAL ADDITIONS START -->
