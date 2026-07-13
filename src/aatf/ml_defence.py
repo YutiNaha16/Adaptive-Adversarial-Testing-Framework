@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import math
 
 import numpy as np
@@ -31,7 +32,11 @@ class ActionFeatureEncoder:
     def encode(self, action: Action) -> np.ndarray:
         feat = np.zeros(FEATURE_DIM, dtype=np.float64)
         feat[0] = CATEGORY_MAP.get(action.category, 0) / 5.0
-        feat[1] = abs(hash(action.action_id)) % 1000 / 1000.0
+        feat[1] = (
+            int(hashlib.md5(action.action_id.encode(), usedforsecurity=False).hexdigest(), 16)
+            % 1000
+            / 1000.0
+        )
         p = action.parameters or {}
         feat[2] = _norm(p.get("port_range_start", 0), 65535)
         feat[3] = _norm(p.get("port_range_end", 0), 65535)
