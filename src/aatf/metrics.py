@@ -49,3 +49,9 @@ def convergence_episodes(
         if detection_rate(records[start : i + 1]) < threshold:
             return record.episode_index
     return None
+
+
+def cumulative_anomaly_exposure(records: list[EpisodeRecord]) -> float:
+    if not records:
+        return 0.0
+    return sum(sum(s.anomaly_score for s in r.steps) for r in records) / len(records)

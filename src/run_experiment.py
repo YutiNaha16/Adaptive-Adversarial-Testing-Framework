@@ -14,13 +14,19 @@ from aatf.config import load_config
 from aatf.context_vector import EpisodeState, build_context
 from aatf.contracts import Action
 from aatf.defence import NullDefence
+from aatf.dqn_attacker import DQNAttacker, DQNModel
 from aatf.episode import run_episode
 from aatf.explainability import explain_evasions
 from aatf.gate import phase1_gate
 from aatf.ground_truth import ValidationResult, validate_blind_spots
 from aatf.linucb import LinUCBModel
 from aatf.manifest import write_manifest
-from aatf.metrics import EpisodeRecord, detection_rate, robustness_score
+from aatf.metrics import (
+    EpisodeRecord,
+    cumulative_anomaly_exposure,
+    detection_rate,
+    robustness_score,
+)
 from aatf.report import generate_report
 from aatf.seeding import seed_everything
 
@@ -28,6 +34,9 @@ _ATTACKER_REGISTRY = {
     "RandomAttacker": lambda seed, ctx_dim, n_actions: RandomAttacker(seed=seed),
     "FixedScriptAttacker": lambda seed, ctx_dim, n_actions: FixedScriptAttacker(),
     "LinUCBAttacker": lambda seed, ctx_dim, n_actions: LinUCBAttacker(LinUCBModel(d=ctx_dim)),
+    "DQNAttacker": lambda seed, ctx_dim, n_actions: DQNAttacker(
+        DQNModel(n_actions=n_actions, state_dim=ctx_dim, seed=seed)
+    ),
 }
 
 
@@ -121,7 +130,8 @@ def main(
         result = run_episode(state, action_selector, execute_fn, defence)
 
         for step, ctx in zip(result.steps, step_contexts, strict=False):
-            attacker.observe(step.action_id, ctx, step.reward)
+            shaped = step.reward - config.anomaly_lambda * step.anomaly_score
+            attacker.observe(step.action_id, ctx, shaped)
 
         records.append(
             EpisodeRecord(
@@ -175,9 +185,11 @@ def main(
         },
     )
 
+    cae = cumulative_anomaly_exposure(records)
     print("-" * 38)
     print(f"Detection Rate   : {dr:.4f}")
     print(f"Robustness Score : {rs:.4f}")
+    print(f"Cumul. Anomaly Exp: {cae:.4f}")
     print(f"Report written   : {report_path}")
     print(f"Manifest written : {manifest_path}")
     print("-" * 38)

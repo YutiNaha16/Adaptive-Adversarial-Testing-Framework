@@ -25,7 +25,7 @@ setup:  ## Create/refresh .venv and install pinned, hashed deps + the package (e
 lock:  ## Recompile requirements.txt from requirements.in (fully pinned + hashed)
 	$(PYTHON) -m venv $(VENV)
 	$(PIP) install --upgrade pip pip-tools
-	$(VENV)/bin/pip-compile --generate-hashes --allow-unsafe --output-file=requirements.txt requirements.in
+	$(VENV)/bin/pip-compile --generate-hashes --allow-unsafe --extra-index-url https://download.pytorch.org/whl/cpu --output-file=requirements.txt requirements.in
 
 test:  ## Run the test suite (pytest); non-zero exit on failure
 	$(PY) -m pytest
