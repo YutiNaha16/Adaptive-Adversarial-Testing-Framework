@@ -21,6 +21,7 @@ class StepRecord:
     detected: bool
     stage_progress: bool
     reward: float
+    anomaly_score: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -91,6 +92,7 @@ def run_episode(
                 detected=result.detected,
                 stage_progress=result.stage_progress,
                 reward=reward,
+                anomaly_score=detection.anomaly_score,
             )
         )
         total_reward += reward
