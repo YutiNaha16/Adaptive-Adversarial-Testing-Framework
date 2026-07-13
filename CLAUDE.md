@@ -38,6 +38,7 @@ Auto-generated from all feature plans. Last updated: 2026-06-30
 - reads `config.yaml`; writes `output_dir/*.md` + `output_dir/run_manifest_*.json` (025-e7-repro-oneshot)
 - Python 3.12 (pinned per F01) + stdlib only — `dataclasses`, `typing`; existing: `aatf.metrics` (026-e7-phase1-gate)
 - no file I/O in `gate.py`; manifest extended via `extra_metadata` kwarg (026-e7-phase1-gate)
+- Python 3.12 (pinned per F01) + scikit-learn>=1.4 (NEW), numpy (already in .venv), math (stdlib) (027-e8-ml-anomaly-detector)
 
 - Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available) + pip-tools (dependency compilation/pinning), pytest (test harness). No (001-e0-project-scaffold)
 
@@ -57,9 +58,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12 (current CPython 3.1x baseline; confirmed `python3.12` available): Follow standard conventions
 
 ## Recent Changes
+- 027-e8-ml-anomaly-detector: Added Python 3.12 (pinned per F01) + scikit-learn>=1.4 (NEW), numpy (already in .venv), math (stdlib)
 - 026-e7-phase1-gate: Added Python 3.12 (pinned per F01) + stdlib only — `dataclasses`, `typing`; existing: `aatf.metrics`
 - 025-e7-repro-oneshot: Added Python 3.12 (pinned per F01) + stdlib only — `json`, `datetime`, `pathlib`, `sys`, `argparse`;
-- 024-e6-ground-truth-validation: Added Python 3.12 (pinned per F01 scaffold) + stdlib only — `dataclasses`; `aatf.explainability.ActionExplanation` (F23)
 
 
 <!-- MANUAL ADDITIONS START -->
