@@ -18,7 +18,7 @@
 
 **Purpose**: Confirm baseline before any changes.
 
-- [ ] T001 Record baseline — run `cd /home/yuti/Adaptive-Adversarial-Testing-Framework && source .venv/bin/activate && pytest` and confirm exactly 345 passed, 1 skipped, 0 failed before any changes
+- [X] T001 Record baseline — run `cd /home/yuti/Adaptive-Adversarial-Testing-Framework && source .venv/bin/activate && pytest` and confirm exactly 345 passed, 1 skipped, 0 failed before any changes
 
 ---
 
@@ -28,7 +28,7 @@
 
 **⚠️ CRITICAL**: T002 must be complete and red before any implementation begins.
 
-- [ ] T002 Create `tests/test_unified_report.py` with verbatim content below — 5 contracts C-001..C-005
+- [X] T002 Create `tests/test_unified_report.py` with verbatim content below — 5 contracts C-001..C-005
 
   **Full file content** (write exactly as shown):
 
@@ -134,7 +134,7 @@
       assert "No ML gap identified" in rendered_high
   ```
 
-- [ ] T003 Confirm red — run `pytest tests/test_unified_report.py -v` and verify all 5 contracts fail (ImportError on MLActionStats or test failures); record failure mode
+- [X] T003 Confirm red — run `pytest tests/test_unified_report.py -v` and verify all 5 contracts fail (ImportError on MLActionStats or test failures); record failure mode
 
 ---
 
@@ -145,14 +145,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Extend imports in `src/aatf/report.py`:
+- [X] T004 [US1] Extend imports in `src/aatf/report.py`:
   - Add `import dataclasses` at the top (stdlib imports block)
   - Change existing metrics import from:
     `from aatf.metrics import EpisodeRecord, detection_rate, robustness_score`
     to:
     `from aatf.metrics import EpisodeRecord, cumulative_anomaly_exposure, detection_rate, robustness_score`
 
-- [ ] T005 [US1] Add module-level constant and dataclasses to `src/aatf/report.py` immediately after the imports block (before `_TEMPLATE_DIR`):
+- [X] T005 [US1] Add module-level constant and dataclasses to `src/aatf/report.py` immediately after the imports block (before `_TEMPLATE_DIR`):
 
   ```python
   EVASION_THRESHOLD: float = 0.3
@@ -177,7 +177,7 @@
       retrain_categories: list[str]
   ```
 
-- [ ] T006 [US1] Add private helpers to `src/aatf/report.py` immediately after `_TEMPLATE_DIR`:
+- [X] T006 [US1] Add private helpers to `src/aatf/report.py` immediately after `_TEMPLATE_DIR`:
 
   ```python
   def _has_ml_scores(records: list[EpisodeRecord]) -> bool:
@@ -238,13 +238,13 @@
       )
   ```
 
-- [ ] T007 [US1] Inject `ml_summary` into ctx dict in `generate_report()` in `src/aatf/report.py` — add this line immediately after the `ctx = {...}` block closes and before `env = Environment(...)`:
+- [X] T007 [US1] Inject `ml_summary` into ctx dict in `generate_report()` in `src/aatf/report.py` — add this line immediately after the `ctx = {...}` block closes and before `env = Environment(...)`:
 
   ```python
       ctx["ml_summary"] = _compute_ml_summary(records, registry) if _has_ml_scores(records) else None
   ```
 
-- [ ] T008 [US1] Insert ML section into `src/aatf/templates/report.md.j2` — between the closing `{% endif %}` of the Blind Spots block and the `---` footer line.
+- [X] T008 [US1] Insert ML section into `src/aatf/templates/report.md.j2` — between the closing `{% endif %}` of the Blind Spots block and the `---` footer line.
 
   The current template ends with:
   ```
@@ -309,7 +309,7 @@
   *Generated from logged episode records. No live defence systems were accessed.*
   ```
 
-- [ ] T009 [US1] Verify C-001 and C-002 green — run `pytest tests/test_unified_report.py::test_c001_no_ml_section_when_all_anomaly_scores_zero tests/test_unified_report.py::test_c002_ml_section_appears_and_shows_cae -v`
+- [X] T009 [US1] Verify C-001 and C-002 green — run `pytest tests/test_unified_report.py::test_c001_no_ml_section_when_all_anomaly_scores_zero tests/test_unified_report.py::test_c002_ml_section_appears_and_shows_cae -v`
 
 **Checkpoint**: ML section auto-appears correctly — C-001 and C-002 both PASS.
 
@@ -320,7 +320,7 @@
 **Goal**: Evasive table ranks ascending by undetected anomaly; suspicious table ranks descending by overall anomaly.
 **Independent Test**: C-003 and C-004 both green (already handled by _compute_ml_summary from T006).
 
-- [ ] T010 [US2] Verify C-003 and C-004 green — run `pytest tests/test_unified_report.py::test_c003_evasive_table_ranks_ascending_by_undetected_anomaly tests/test_unified_report.py::test_c004_suspicious_table_ranks_descending_by_overall_anomaly -v`; if either fails, debug _compute_ml_summary sort logic in `src/aatf/report.py`
+- [X] T010 [US2] Verify C-003 and C-004 green — run `pytest tests/test_unified_report.py::test_c003_evasive_table_ranks_ascending_by_undetected_anomaly tests/test_unified_report.py::test_c004_suspicious_table_ranks_descending_by_overall_anomaly -v`; if either fails, debug _compute_ml_summary sort logic in `src/aatf/report.py`
 
 **Checkpoint**: Table ranking verified — C-003 and C-004 both PASS.
 
@@ -331,7 +331,7 @@
 **Goal**: Categories below EVASION_THRESHOLD (0.3) listed for retraining; otherwise no-gap message.
 **Independent Test**: C-005 green (already handled by _compute_ml_summary retrain_categories logic from T006).
 
-- [ ] T011 [US3] Verify C-005 green — run `pytest tests/test_unified_report.py::test_c005_retrain_categories_and_no_gap_message -v`; if it fails, debug retrain_categories computation in `src/aatf/report.py`
+- [X] T011 [US3] Verify C-005 green — run `pytest tests/test_unified_report.py::test_c005_retrain_categories_and_no_gap_message -v`; if it fails, debug retrain_categories computation in `src/aatf/report.py`
 
 **Checkpoint**: All 5 contracts green — `pytest tests/test_unified_report.py` shows 5 passed.
 
@@ -339,18 +339,18 @@
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T012 Lint — run `ruff check src/aatf/report.py tests/test_unified_report.py`; fix any issues (unused imports, line length, etc.)
+- [X] T012 Lint — run `ruff check src/aatf/report.py tests/test_unified_report.py`; fix any issues (unused imports, line length, etc.)
 
-- [ ] T013 Full suite — run `cd /home/yuti/Adaptive-Adversarial-Testing-Framework && pytest` and confirm ≥350 passed, 0 failed (target = 350+)
+- [X] T013 Full suite — run `cd /home/yuti/Adaptive-Adversarial-Testing-Framework && pytest` and confirm ≥350 passed, 0 failed (target = 350+)
 
-- [ ] T014 Commit — stage and commit with message:
+- [X] T014 Commit — stage and commit with message:
   `feat(F29): add ML Anomaly Defence Analysis section to blind-spot report`
   Files to stage:
   - `src/aatf/report.py`
   - `src/aatf/templates/report.md.j2`
   - `tests/test_unified_report.py`
 
-- [ ] T015 Push — `git push origin 029-e10-unified-report`
+- [X] T015 Push — `git push origin 029-e10-unified-report`
 
 ---
 
