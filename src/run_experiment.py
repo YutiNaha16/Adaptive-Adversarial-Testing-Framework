@@ -85,9 +85,14 @@ def main(
 
     if lab:
         from aatf.action_executor import ActionExecutor
+        from aatf.defence import CompositeDefence
+        from aatf.ml_defence import MLAnomalyDefence
         from aatf.suricata_defence import SuricataDefence
 
-        defence = SuricataDefence(eve_path)
+        defence = CompositeDefence(
+            primary=SuricataDefence(eve_path),
+            secondary=MLAnomalyDefence(seed=config.seed),
+        )
         executor = ActionExecutor(seed=config.seed)
 
         def execute_fn(action_id: str) -> None:
@@ -101,7 +106,7 @@ def main(
             executor.execute(action)
             time.sleep(1.5)
 
-        mode_label = "LAB (Suricata)"
+        mode_label = "LAB (Suricata + ML)"
     else:
         defence = NullDefence()
         execute_fn = lambda _: None  # noqa: E731

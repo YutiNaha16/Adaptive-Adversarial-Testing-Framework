@@ -24,3 +24,21 @@ class NullDefence(Defence):
             anomaly_score=0.0,
             coverage="unknown",
         )
+
+
+class CompositeDefence(Defence):
+    """Merges two defences: primary controls alerted/rule_ids; secondary provides anomaly_score."""
+
+    def __init__(self, primary: Defence, secondary: Defence) -> None:
+        self._primary = primary
+        self._secondary = secondary
+
+    def observe(self, action: Action) -> DetectionResult:
+        p = self._primary.observe(action)
+        s = self._secondary.observe(action)
+        return DetectionResult(
+            alerted=p.alerted,
+            rule_ids=p.rule_ids,
+            anomaly_score=s.anomaly_score,
+            coverage=p.coverage,
+        )
