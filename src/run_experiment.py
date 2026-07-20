@@ -14,7 +14,7 @@ from aatf.config import load_config
 from aatf.context_vector import EpisodeState, build_context
 from aatf.contracts import Action
 from aatf.defence import NullDefence
-from aatf.dqn_attacker import DQNAttacker, DQNModel
+from aatf.dqn_attacker import DQNAttacker, DQNModel, ParameterizedDQNAttacker, ParameterizedDQNModel
 from aatf.episode import run_episode
 from aatf.explainability import explain_evasions
 from aatf.gate import phase1_gate
@@ -36,6 +36,9 @@ _ATTACKER_REGISTRY = {
     "LinUCBAttacker": lambda seed, ctx_dim, n_actions: LinUCBAttacker(LinUCBModel(d=ctx_dim)),
     "DQNAttacker": lambda seed, ctx_dim, n_actions: DQNAttacker(
         DQNModel(n_actions=n_actions, state_dim=ctx_dim, seed=seed)
+    ),
+    "ParameterizedDQNAttacker": lambda seed, ctx_dim, n_actions: ParameterizedDQNAttacker(
+        ParameterizedDQNModel(n_actions=n_actions, state_dim=ctx_dim, seed=seed)
     ),
 }
 
@@ -85,22 +88,30 @@ def main(
 
     if lab:
         from aatf.action_executor import ActionExecutor
+        from aatf.action_intensity import get_params_for_intensity
         from aatf.defence import CompositeDefence
-        from aatf.ml_defence import MLAnomalyDefence
+        from aatf.ml_defence import MLAnomalyDefence, auto_remediate
         from aatf.suricata_defence import SuricataDefence
 
+        ml_defence = MLAnomalyDefence(seed=config.seed)
         defence = CompositeDefence(
             primary=SuricataDefence(eve_path),
-            secondary=MLAnomalyDefence(seed=config.seed),
+            secondary=ml_defence,
         )
         executor = ActionExecutor(seed=config.seed)
 
         def execute_fn(action_id: str) -> None:
             action_def = REGISTRY.get_action(action_id)
+            intensity = (
+                attacker.get_last_intensity()
+                if isinstance(attacker, ParameterizedDQNAttacker)
+                else 1
+            )
+            params = get_params_for_intensity(action_id, intensity, action_def.default_parameters)
             action = Action(
                 action_id=action_id,
                 category=action_def.category,
-                parameters=action_def.default_parameters,
+                parameters=params,
                 timestamp=datetime.now(UTC),
             )
             executor.execute(action)
@@ -202,6 +213,21 @@ def main(
         status = "PASS" if c.passed else "FAIL"
         print(f"  {c.name:<22}: {c.value:.4f} (≥{c.threshold:.4f}) [{status}]")
     print(gate_result.summary)
+
+    if lab and cae > 0:
+        from aatf.ml_defence import auto_remediate
+
+        _, rem = auto_remediate(ml_defence, records)
+        print("-" * 38)
+        print("Auto-Remediation:")
+        print(f"  Double blind spots found : {rem.total_evaded}")
+        if rem.total_evaded > 0:
+            print(f"  Gaps closed              : {rem.gaps_closed}/{rem.total_evaded}")
+            print(f"  Avg ML score before      : {rem.avg_score_before:.4f}")
+            print(f"  Avg ML score after       : {rem.avg_score_after:.4f}")
+            print(f"  Actions remediated       : {', '.join(rem.remediated_action_ids)}")
+        else:
+            print("  No double blind spots — ML detector caught all evaded actions.")
 
 
 if __name__ == "__main__":
