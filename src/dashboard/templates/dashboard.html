@@ -452,16 +452,19 @@ main{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-directio
 </main>
 
 <script>
+const cLabels = {{ c_labels }};
+const cDr     = {{ c_dr }};
+const cRs     = {{ c_rs }};
+const cCae    = {{ c_cae }};
+
+if (typeof Chart === 'undefined') {
+  console.error('AATF: Chart.js not loaded — charts will not render. Restart the dashboard server.');
+} else {
 /* ── Chart defaults ── */
 Chart.defaults.color = '#8b949e';
 Chart.defaults.borderColor = '#21262d';
 const gridOpts = { color: 'rgba(48,54,61,0.7)', drawBorder: false };
 const tickOpts = { color: '#8b949e', font: { size: 11 } };
-
-const cLabels = {{ c_labels }};
-const cDr     = {{ c_dr }};
-const cRs     = {{ c_rs }};
-const cCae    = {{ c_cae }};
 
 /* ── DR bar chart ── */
 if (document.getElementById('drChart') && cLabels.length) {
@@ -548,6 +551,7 @@ if (document.getElementById('caeChart') && cLabels.length) {
     }
   });
 }
+} /* end Chart guard */
 
 /* ── Auto-refresh countdown ── */
 let seconds = 30;
