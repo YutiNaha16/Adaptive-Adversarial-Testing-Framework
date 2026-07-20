@@ -185,9 +185,16 @@ def _load_runs() -> list[dict]:
         rs = data.get("robustness_score") or criteria.get("robustness_score", {}).get("value", 0.0)
         cae_val = data.get("cae")
 
-        # Latest report in the same dir
+        # Latest report + learning curve in the same dir
         reports = sorted(manifest_path.parent.glob("report_*.md"))
         report_text = reports[-1].read_text() if reports else ""
+        curves = sorted(manifest_path.parent.glob("learning_curve_*.json"))
+        learning_curve: list[dict] = []
+        if curves:
+            try:
+                learning_curve = json.loads(curves[-1].read_text())
+            except (json.JSONDecodeError, OSError):
+                pass
 
         blind_spots = _parse_blind_spots(report_text)
         ml_evasive = _parse_ml_evasive(report_text)
@@ -217,6 +224,7 @@ def _load_runs() -> list[dict]:
             "retrain_categories": retrain_cats,
             "n_blind_spots": len(blind_spots),
             "is_canonical": run_dir in _CANONICAL,
+            "learning_curve": learning_curve,
         }
 
         # Keep the later timestamp per run_dir
@@ -238,10 +246,19 @@ def _canonical_runs(all_runs: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
+def _filter_display_runs(all_runs: list[dict]) -> list[dict]:
+    """Exclude very short or demo runs from the history table."""
+    return [
+        r for r in all_runs
+        if r["episodes"] >= 10 and "demo" not in r["run_dir"].lower()
+    ]
+
+
 @app.route("/")
 def index():
     all_runs = _load_runs()
     canonical = _canonical_runs(all_runs)
+    display_runs = _filter_display_runs(all_runs)
 
     # Chart data for canonical rounds
     c_labels = [f"Round {i + 1}\n{r['attacker_short']}" for i, r in enumerate(canonical)]
@@ -264,10 +281,16 @@ def index():
     t_labels = [f"{r['run_dir']}" for r in timeline_runs]
     t_dr = [round(r["detection_rate"] * 100, 2) for r in timeline_runs]
 
+    # Learning curve for latest canonical run (episode-by-episode reward)
+    lc_data = latest["learning_curve"] if latest else []
+    lc_episodes = [p["episode"] for p in lc_data]
+    lc_reward = [p["total_reward"] for p in lc_data]
+    lc_detected = [round(p["detected"] / p["steps"] * 100, 1) if p["steps"] else 0 for p in lc_data]
+
     return render_template(
         "dashboard.html",
         canonical=canonical,
-        all_runs=all_runs,
+        all_runs=display_runs,
         latest=latest,
         baseline=baseline,
         evasion_improvement=evasion_improvement,
@@ -277,6 +300,9 @@ def index():
         c_cae=json.dumps(c_cae),
         t_labels=json.dumps(t_labels),
         t_dr=json.dumps(t_dr),
+        lc_episodes=json.dumps(lc_episodes),
+        lc_reward=json.dumps(lc_reward),
+        lc_detected=json.dumps(lc_detected),
     )
 
 

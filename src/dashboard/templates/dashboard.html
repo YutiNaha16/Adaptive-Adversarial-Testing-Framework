@@ -269,6 +269,20 @@ main{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-directio
   </div>
 </div>
 
+{# ── Learning curve (episode-by-episode reward + per-episode DR) ── #}
+{% if latest and latest.learning_curve %}
+<div class="card card-pad">
+  <div class="section-header">
+    <h2>Learning Curve — {{ latest.attacker_short }}</h2>
+    <div class="sep"></div>
+    <div class="pill">{{ latest.episodes }} episodes</div>
+  </div>
+  <div class="chart-wrap" style="height:200px">
+    <canvas id="lcChart"></canvas>
+  </div>
+</div>
+{% endif %}
+
 {# ── Blind Spots table (Round 3 = latest canonical) ── #}
 {% if latest and latest.blind_spots %}
 <div class="card card-pad">
@@ -452,10 +466,13 @@ main{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-directio
 </main>
 
 <script>
-const cLabels = {{ c_labels | safe }};
-const cDr     = {{ c_dr | safe }};
-const cRs     = {{ c_rs | safe }};
-const cCae    = {{ c_cae | safe }};
+const cLabels   = {{ c_labels | safe }};
+const cDr       = {{ c_dr | safe }};
+const cRs       = {{ c_rs | safe }};
+const cCae      = {{ c_cae | safe }};
+const lcEpisodes = {{ lc_episodes | safe }};
+const lcReward   = {{ lc_reward | safe }};
+const lcDetected = {{ lc_detected | safe }};
 
 if (typeof Chart === 'undefined') {
   console.error('AATF: Chart.js not loaded — charts will not render. Restart the dashboard server.');
@@ -547,6 +564,52 @@ if (document.getElementById('caeChart') && cLabels.length) {
       scales: {
         x: { grid: gridOpts, ticks: { ...tickOpts, maxRotation: 0 } },
         y: { grid: gridOpts, ticks: tickOpts, min: 0 }
+      }
+    }
+  });
+}
+
+/* ── Learning curve chart ── */
+if (document.getElementById('lcChart') && lcEpisodes.length) {
+  new Chart(document.getElementById('lcChart'), {
+    type: 'line',
+    data: {
+      labels: lcEpisodes,
+      datasets: [
+        {
+          label: 'Episode Reward',
+          data: lcReward,
+          borderColor: 'rgba(88,166,255,0.8)',
+          backgroundColor: 'rgba(88,166,255,0.08)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 1.5,
+          yAxisID: 'yReward',
+        },
+        {
+          label: 'Detection Rate (%)',
+          data: lcDetected,
+          borderColor: 'rgba(248,81,73,0.7)',
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 1.5,
+          yAxisID: 'yDr',
+        },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#8b949e', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { mode: 'index', intersect: false },
+      },
+      scales: {
+        x: { grid: gridOpts, ticks: { ...tickOpts, maxTicksLimit: 10 } },
+        yReward: { grid: gridOpts, ticks: tickOpts, position: 'left', title: { display: true, text: 'Reward', color: '#58a6ff', font: { size: 10 } } },
+        yDr:     { grid: { display: false }, ticks: { ...tickOpts, callback: v => v + '%' }, position: 'right', title: { display: true, text: 'DR %', color: '#f85149', font: { size: 10 } } },
       }
     }
   });

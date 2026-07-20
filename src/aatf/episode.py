@@ -40,7 +40,15 @@ def run_episode(
     *,
     attack_graph: AttackGraph = ATTACK_GRAPH,
     max_steps: int = MAX_STEPS,
+    parameterize_fn: Callable[[str], dict] | None = None,
 ) -> EpisodeResult:
+    """Run one episode.
+
+    parameterize_fn: optional callback returning intensity-adjusted parameters for an
+    action_id. When provided (e.g. ParameterizedDQNAttacker in sim mode), the returned
+    params are used for defence.observe() so anomaly scoring reflects the actual packet
+    profile the attacker chose, not just the action's static defaults.
+    """
     steps: list[StepRecord] = []
     total_reward = 0.0
 
@@ -68,10 +76,11 @@ def run_episode(
         execute_fn(action_id)
 
         action_def = REGISTRY.get_action(action_id)
+        params = parameterize_fn(action_id) if parameterize_fn else action_def.default_parameters
         action = Action(
             action_id=action_id,
             category=action_def.category,
-            parameters=action_def.default_parameters,
+            parameters=params,
             timestamp=datetime.now(UTC),
         )
         detection = defence.observe(action)

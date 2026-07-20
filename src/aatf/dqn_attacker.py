@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import collections
 import random
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -119,6 +120,27 @@ class DQNModel:
         self._grad_step_count += 1
         if self._grad_step_count % self._target_update_freq == 0:
             self.target_net.load_state_dict(self.online_net.state_dict())
+
+    def save(self, path: str | Path) -> None:
+        torch.save(
+            {
+                "online_net": self.online_net.state_dict(),
+                "optimizer": self.optimizer.state_dict(),
+                "epsilon": self._epsilon,
+                "step_count": self._step_count,
+                "grad_step_count": self._grad_step_count,
+            },
+            path,
+        )
+
+    def load(self, path: str | Path) -> None:
+        ckpt = torch.load(path, map_location="cpu", weights_only=True)
+        self.online_net.load_state_dict(ckpt["online_net"])
+        self.target_net.load_state_dict(ckpt["online_net"])
+        self.optimizer.load_state_dict(ckpt["optimizer"])
+        self._epsilon = ckpt["epsilon"]
+        self._step_count = ckpt.get("step_count", 0)
+        self._grad_step_count = ckpt.get("grad_step_count", 0)
 
 
 class DQNAttacker(Attacker):
@@ -249,6 +271,27 @@ class ParameterizedDQNModel:
         self._grad_step_count += 1
         if self._grad_step_count % self._target_update_freq == 0:
             self.target_net.load_state_dict(self.online_net.state_dict())
+
+    def save(self, path: str | Path) -> None:
+        torch.save(
+            {
+                "online_net": self.online_net.state_dict(),
+                "optimizer": self.optimizer.state_dict(),
+                "epsilon": self._epsilon,
+                "step_count": self._step_count,
+                "grad_step_count": self._grad_step_count,
+            },
+            path,
+        )
+
+    def load(self, path: str | Path) -> None:
+        ckpt = torch.load(path, map_location="cpu", weights_only=True)
+        self.online_net.load_state_dict(ckpt["online_net"])
+        self.target_net.load_state_dict(ckpt["online_net"])
+        self.optimizer.load_state_dict(ckpt["optimizer"])
+        self._epsilon = ckpt["epsilon"]
+        self._step_count = ckpt.get("step_count", 0)
+        self._grad_step_count = ckpt.get("grad_step_count", 0)
 
 
 class ParameterizedDQNAttacker(Attacker):

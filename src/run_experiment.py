@@ -66,6 +66,7 @@ def main(
     eve_path: str | Path = "logs/suricata/eve.json",
     disabled_conf: str | Path = "lab/rules/disabled.conf",
     evasive_cache: str | Path | None = None,
+    checkpoint_dir: str | Path | None = None,
 ) -> None:
     try:
         config = load_config(config_path)
@@ -110,7 +111,10 @@ def main(
                 if isinstance(attacker, ParameterizedDQNAttacker)
                 else 1
             )
-            params = get_params_for_intensity(action_id, intensity, action_def.default_parameters)
+            params = get_params_for_intensity(
+                action_id, intensity, action_def.default_parameters,
+                target_ip=config.lab_target_ip,
+            )
             action = Action(
                 action_id=action_id,
                 category=action_def.category,
@@ -139,6 +143,22 @@ def main(
 
     records: list[EpisodeRecord] = []
 
+    # Build parameterize_fn for ParameterizedDQNAttacker so intensity-adjusted params
+    # reach defence.observe() in both lab and sim modes.
+    if isinstance(attacker, ParameterizedDQNAttacker):
+        from aatf.action_intensity import get_params_for_intensity
+
+        def parameterize_fn(action_id: str) -> dict:
+            action_def = REGISTRY.get_action(action_id)
+            intensity = attacker.get_last_intensity()
+            return get_params_for_intensity(
+                action_id, intensity, action_def.default_parameters,
+                target_ip=config.lab_target_ip,
+            )
+
+    else:
+        parameterize_fn = None
+
     print("Adaptive Adversarial Testing Framework")
     print("=" * 38)
     print(f"Mode     : {mode_label}")
@@ -157,7 +177,9 @@ def main(
             _sc.append(ctx)
             return attacker.choose_action(available, ctx)
 
-        result = run_episode(state, action_selector, execute_fn, defence)
+        result = run_episode(
+            state, action_selector, execute_fn, defence, parameterize_fn=parameterize_fn
+        )
 
         for step, ctx in zip(result.steps, step_contexts, strict=False):
             shaped = step.reward - config.anomaly_lambda * step.anomaly_score
@@ -173,6 +195,16 @@ def main(
                 episode_index=i,
             )
         )
+
+    # Save model checkpoint if requested and attacker supports it
+    if checkpoint_dir is not None:
+        ckpt_path = Path(checkpoint_dir)
+        ckpt_path.mkdir(parents=True, exist_ok=True)
+        model = getattr(attacker, "_model", None)
+        if model is not None and hasattr(model, "save"):
+            ckpt_file = ckpt_path / f"{config.attacker_class.lower()}_checkpoint.pt"
+            model.save(ckpt_file)
+            print(f"Checkpoint saved : {ckpt_file}")
 
     dr = detection_rate(records)
     window = min(10, len(records))
@@ -194,6 +226,25 @@ def main(
     cae = cumulative_anomaly_exposure(records)
 
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
+
+    # Per-episode learning curve
+    import json as _json
+
+    curve = [
+        {
+            "episode": r.episode_index,
+            "total_reward": round(r.total_reward, 4),
+            "steps": len(r.steps),
+            "detected": sum(1 for s in r.steps if s.detected),
+            "mean_anomaly": round(
+                sum(s.anomaly_score for s in r.steps) / len(r.steps) if r.steps else 0.0, 4
+            ),
+        }
+        for r in records
+    ]
+    curve_path = output_dir / f"learning_curve_{ts}.json"
+    curve_path.write_text(_json.dumps(curve, indent=2))
+
     report_path = output_dir / f"report_{ts}.md"
     generate_report(records, REGISTRY, report_path)
     manifest_path = write_manifest(
@@ -276,6 +327,11 @@ if __name__ == "__main__":
         default=None,
         help="Path to evasive_cache.npy from a previous run (pre-loads auto-remediation vectors)",
     )
+    parser.add_argument(
+        "--checkpoint-dir",
+        default=None,
+        help="Directory to save trained model checkpoint after run (DQN/ParameterizedDQN only)",
+    )
     args = parser.parse_args()
     main(
         config_path=args.config,
@@ -283,4 +339,5 @@ if __name__ == "__main__":
         eve_path=args.eve_path,
         disabled_conf=args.disabled_conf,
         evasive_cache=args.evasive_cache,
+        checkpoint_dir=args.checkpoint_dir,
     )

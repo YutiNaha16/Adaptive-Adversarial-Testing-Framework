@@ -59,13 +59,18 @@ def get_params_for_intensity(
     action_id: str,
     intensity: int,
     default_parameters: dict[str, Any],
+    target_ip: str | None = None,
 ) -> dict[str, Any]:
     """Return execution parameters for the action at the given intensity level.
 
     Falls back to default_parameters for actions without intensity overrides.
+    target_ip overrides the compiled-in _LAB_IP when provided (e.g. from ExperimentConfig).
     """
     if action_id not in _OVERRIDES:
         return default_parameters
     levels = _OVERRIDES[action_id]
     clamped = max(0, min(intensity, len(levels) - 1))
-    return levels[clamped]
+    params = dict(levels[clamped])
+    if target_ip is not None and "target_ip" in params:
+        params["target_ip"] = target_ip
+    return params

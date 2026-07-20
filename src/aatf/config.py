@@ -14,6 +14,7 @@ class ExperimentConfig(BaseModel):
     detection_threshold: float = Field(ge=0.0, le=1.0)
     attacker_class: str = "RandomAttacker"
     anomaly_lambda: float = Field(ge=0.0, default=0.0)
+    lab_target_ip: str = "172.28.0.2"
 
 
 def load_config(path: Path | str = "config.yaml") -> ExperimentConfig:
