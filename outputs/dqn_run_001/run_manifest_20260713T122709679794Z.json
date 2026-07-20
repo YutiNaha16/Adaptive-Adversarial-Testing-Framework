@@ -1,0 +1,49 @@
+{
+  "seed": 42,
+  "python_version": "3.12.3",
+  "packages": {
+    "pip-tools": "7.5.3",
+    "pytest": "9.1.1",
+    "ruff": "0.15.20",
+    "pydantic": "2.13.4",
+    "pyyaml": "6.0.3",
+    "numpy": "2.5.0"
+  },
+  "suricata_version": "unknown",
+  "ruleset_version": "unknown",
+  "git_commit": "dd460bb30ba1f3c02892d0957f6e7dc7437abfac-dirty",
+  "config_snapshot": {
+    "episodes": 200,
+    "seed": 42,
+    "output_dir": "outputs/dqn_run_001",
+    "ruleset_path": "/etc/suricata/rules",
+    "detection_threshold": 0.5,
+    "attacker_class": "DQNAttacker",
+    "anomaly_lambda": 1.0
+  },
+  "timestamp": "2026-07-13T12:27:09Z",
+  "phase1_gate": {
+    "passed": true,
+    "summary": "Phase 1 PASSED (3/3 criteria met)",
+    "criteria": [
+      {
+        "name": "detection_rate",
+        "passed": true,
+        "value": 0.133,
+        "threshold": 0.0
+      },
+      {
+        "name": "blind_spot_precision",
+        "passed": true,
+        "value": 1.0,
+        "threshold": 0.8
+      },
+      {
+        "name": "robustness_score",
+        "passed": true,
+        "value": 0.13333333333333333,
+        "threshold": 0.0
+      }
+    ]
+  }
+}

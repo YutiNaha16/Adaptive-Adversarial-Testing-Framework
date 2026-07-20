@@ -1,0 +1,23 @@
+{
+  "seed": 42,
+  "python_version": "3.12.3",
+  "packages": {
+    "pip-tools": "7.5.3",
+    "pytest": "9.1.1",
+    "ruff": "0.15.20",
+    "pydantic": "2.13.4",
+    "pyyaml": "6.0.3",
+    "numpy": "2.5.0"
+  },
+  "suricata_version": "unknown",
+  "ruleset_version": "unknown",
+  "git_commit": "d19ee05340a7bb886e83e373c7a7a3a36b124e94",
+  "config_snapshot": {
+    "episodes": 100,
+    "seed": 42,
+    "output_dir": "outputs/run_001",
+    "ruleset_path": "/etc/suricata/rules",
+    "detection_threshold": 0.5
+  },
+  "timestamp": "2026-07-02T04:19:22Z"
+}

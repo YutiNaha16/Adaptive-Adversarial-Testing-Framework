@@ -55,8 +55,11 @@ lab-status:  ## Show current lab container states (exits 0=running, 1=stopped, 2
 lab-smoke:  ## Send smoke probe; verify ET Open SID fires in eve.json (exits 1 on failure)
 	@bash lab/scripts/lab-smoke.sh
 
-demo:  ## Live demo: 5 episodes with ParameterizedDQN — no Docker needed (~30 s)
-	$(PY) src/run_experiment.py --config config_demo.yaml
+demo:  ## BH demo: replay stored Round 1/2/3 results (~5 s, no Docker needed)
+	$(PY) src/demo.py
+
+demo-live:  ## BH demo: run 5 real episodes with ParameterizedDQN (~30 s, no Docker)
+	$(PY) src/demo.py --live
 
 lab-traffic:  ## Generate benign HTTP/SSH traffic in the lab (calibrate ML baseline)
 	@bash lab/scripts/lab-traffic.sh
