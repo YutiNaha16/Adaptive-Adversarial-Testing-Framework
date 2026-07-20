@@ -2,191 +2,564 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AATF — Adaptive Adversarial Testing Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AATF — Adversarial Testing Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg: #0d1117; --panel: #161b22; --border: #30363d;
-    --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
-    --green: #3fb950; --red: #f85149; --yellow: #d29922;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
-  header { background: var(--panel); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
-  header h1 { font-size: 18px; font-weight: 600; }
-  header .subtitle { color: var(--muted); font-size: 12px; }
-  .badge { background: var(--accent); color: #000; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
-  main { max-width: 1400px; margin: 0 auto; padding: 24px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
-  .card h2 { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .metric { font-size: 36px; font-weight: 700; }
-  .metric.green { color: var(--green); }
-  .metric.red { color: var(--red); }
-  .metric.yellow { color: var(--yellow); }
-  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .chart-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
-  .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
-  table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; padding: 10px 12px; background: var(--panel); border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); text-transform: uppercase; }
-  td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
-  tr:hover td { background: rgba(255,255,255,0.03); }
-  .pass { color: var(--green); font-weight: 600; }
-  .fail { color: var(--red); font-weight: 600; }
-  .tag { font-size: 11px; background: rgba(88,166,255,0.15); color: var(--accent); padding: 2px 6px; border-radius: 4px; }
-  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
-  .empty { color: var(--muted); text-align: center; padding: 40px; }
-  @media (max-width: 900px) { .charts { grid-template-columns: 1fr; } }
+:root {
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c2128; --border:#30363d;
+  --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --accent2:#388bfd;
+  --green:#3fb950; --red:#f85149; --yellow:#d29922; --orange:#ffa657;
+  --purple:#bc8cff; --teal:#39d353;
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'Cascadia Code','Fira Code',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh}
+
+/* ── Header ── */
+header{
+  background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);
+  border-bottom:1px solid var(--border);
+  padding:0 28px;
+  height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(8px);
+}
+.header-left{display:flex;align-items:center;gap:14px}
+.logo{font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.logo span{color:var(--accent)}
+.tagline{color:var(--muted);font-size:12px;border-left:1px solid var(--border);padding-left:14px}
+.header-right{display:flex;align-items:center;gap:10px}
+.bh-badge{
+  background:linear-gradient(135deg,#1a1a2e,#16213e);
+  border:1px solid #444;color:#fff;
+  font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;
+  letter-spacing:0.3px;
+}
+.live-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--green);
+  animation:pulse 2s infinite;display:inline-block;margin-right:6px;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.refresh-info{color:var(--muted);font-size:11px}
+
+/* ── Layout ── */
+main{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-direction:column;gap:24px}
+
+/* ── Section headers ── */
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.section-header h2{font-size:15px;font-weight:600}
+.section-header .sep{flex:1;height:1px;background:var(--border)}
+.section-header .pill{
+  font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;
+  background:rgba(88,166,255,0.12);color:var(--accent);
+}
+
+/* ── Cards ── */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px}
+.card-pad{padding:20px}
+
+/* ── KPI row ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{
+  background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:18px 20px;position:relative;overflow:hidden;
+}
+.kpi::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent-kpi,var(--accent));
+}
+.kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px}
+.kpi-value{font-size:34px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--muted)}
+.kpi-delta{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;margin-top:4px;
+}
+.delta-good{background:rgba(63,185,80,.12);color:var(--green)}
+.delta-warn{background:rgba(210,153,34,.12);color:var(--yellow)}
+.delta-bad{background:rgba(248,81,73,.12);color:var(--red)}
+
+/* ── Hero finding ── */
+.hero{
+  background:linear-gradient(135deg,rgba(88,166,255,0.06) 0%,rgba(63,185,80,0.06) 100%);
+  border:1px solid rgba(88,166,255,0.2);
+  border-radius:10px;padding:22px 28px;
+  display:flex;align-items:center;gap:24px;
+}
+.hero-icon{font-size:36px;flex-shrink:0}
+.hero-text h3{font-size:18px;font-weight:700;margin-bottom:4px}
+.hero-text p{color:var(--muted);font-size:13px;line-height:1.5}
+.hero-stat{
+  margin-left:auto;text-align:center;flex-shrink:0;
+  background:rgba(63,185,80,0.1);border:1px solid rgba(63,185,80,0.3);
+  border-radius:10px;padding:14px 22px;
+}
+.hero-stat .big{font-size:42px;font-weight:800;color:var(--green);line-height:1}
+.hero-stat .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+/* ── Two-column layout ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* ── Chart wrappers ── */
+.chart-wrap{position:relative;height:220px}
+
+/* ── Blind Spots table ── */
+.bs-table{width:100%;border-collapse:collapse}
+.bs-table thead tr{border-bottom:1px solid var(--border)}
+.bs-table th{
+  padding:8px 12px;font-size:11px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.5px;text-align:left;font-weight:500;
+}
+.bs-table td{padding:8px 12px;border-bottom:1px solid rgba(48,54,61,0.5);font-size:12px}
+.bs-table tr:hover td{background:rgba(255,255,255,0.02)}
+.cat-tag{
+  font-size:10px;font-weight:600;padding:2px 7px;border-radius:8px;
+  background:rgba(88,166,255,0.1);color:var(--accent);white-space:nowrap;
+}
+.evasion-bar{
+  display:flex;align-items:center;gap:8px;
+}
+.bar-track{flex:1;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;min-width:60px}
+.bar-fill{height:100%;border-radius:3px}
+.bar-pct{font-size:12px;font-weight:600;min-width:36px;text-align:right}
+
+/* ── ML panel ── */
+.ml-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.ml-card h4{font-size:12px;font-weight:600;margin-bottom:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.ml-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(48,54,61,0.4)}
+.ml-row:last-child{border-bottom:none}
+.ml-action{font-size:12px;font-family:var(--mono);color:var(--text)}
+.ml-score{font-size:12px;font-weight:600;color:var(--yellow);min-width:36px;text-align:right}
+.ml-steps{font-size:11px;color:var(--muted);min-width:54px;text-align:right}
+
+/* ── Run history table ── */
+.run-table{width:100%;border-collapse:collapse}
+.run-table th{padding:10px 14px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;text-align:left;border-bottom:1px solid var(--border);font-weight:500}
+.run-table td{padding:10px 14px;border-bottom:1px solid rgba(48,54,61,0.4);font-size:12px;vertical-align:middle}
+.run-table tr:hover td{background:rgba(255,255,255,0.02)}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-pass{background:rgba(63,185,80,.15);color:var(--green)}
+.badge-fail{background:rgba(248,81,73,.15);color:var(--red)}
+.badge-canon{background:rgba(88,166,255,.12);color:var(--accent)}
+.badge-other{background:rgba(139,148,158,.1);color:var(--muted)}
+.commit{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.tag-pill{
+  display:inline-block;font-size:10px;padding:2px 7px;border-radius:8px;
+  background:rgba(48,54,61,0.8);color:var(--muted);font-family:var(--mono);
+}
+
+/* ── Novelty callout ── */
+.novelty-box{
+  display:flex;gap:12px;align-items:flex-start;
+  background:rgba(255,166,87,.05);border:1px solid rgba(255,166,87,.25);
+  border-radius:8px;padding:12px 16px;
+}
+.novelty-icon{color:var(--orange);font-size:18px;margin-top:1px;flex-shrink:0}
+.novelty-text{font-size:12px;color:var(--muted);line-height:1.55}
+.novelty-text strong{color:var(--text)}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:60px;color:var(--muted)}
+.empty code{font-family:var(--mono);background:var(--panel2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+
+/* ── Responsive ── */
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.two-col,.three-col,.kpi-grid{grid-template-columns:1fr}.hero{flex-direction:column}.hero-stat{margin:0;width:100%}}
 </style>
 </head>
 <body>
+
 <header>
-  <div>
-    <h1>AATF — Adversarial Testing Dashboard</h1>
-    <div class="subtitle">Adaptive Adversarial Testing Framework &nbsp;|&nbsp; Black Hat Europe 2026</div>
+  <div class="header-left">
+    <div class="logo">AAT<span>F</span></div>
+    <div class="tagline">Adaptive Adversarial Testing Framework</div>
   </div>
-  <span class="badge">LIVE</span>
+  <div class="header-right">
+    <div class="bh-badge">Black Hat Europe 2026</div>
+    <div class="refresh-info"><span class="live-dot"></span><span id="refresh-countdown">auto-refresh in 30s</span></div>
+  </div>
 </header>
+
 <main>
 
-{% if runs %}
-  {% set latest = runs[-1] %}
-  <div class="grid">
-    <div class="card">
-      <h2>Detection Rate (latest)</h2>
-      <div class="metric {{ 'green' if latest.detection_rate > 0.1 else 'red' }}">
-        {{ "%.1f"|format(latest.detection_rate * 100) }}%
-      </div>
-      <div style="color:var(--muted);font-size:12px;margin-top:4px">{{ latest.attacker }} &middot; {{ latest.episodes }} episodes</div>
-    </div>
-    <div class="card">
-      <h2>Robustness Score (latest)</h2>
-      <div class="metric {{ 'green' if latest.robustness_score > 0.05 else 'yellow' }}">
-        {{ "%.4f"|format(latest.robustness_score) }}
-      </div>
-      <div style="color:var(--muted);font-size:12px;margin-top:4px">Last 10-episode window</div>
-    </div>
-    <div class="card">
-      <h2>Cumul. Anomaly Exposure (latest)</h2>
-      <div class="metric {{ 'yellow' if latest.cae != 'N/A' else '' }}">
-        {{ latest.cae }}
-      </div>
-      <div style="color:var(--muted);font-size:12px;margin-top:4px">CAE &darr; = stealthier attacker</div>
-    </div>
-    <div class="card">
-      <h2>Total Runs</h2>
-      <div class="metric">{{ runs|length }}</div>
-      <div style="color:var(--muted);font-size:12px;margin-top:4px">
-        {{ runs|selectattr('phase1_passed')|list|length }} passed Phase 1
-      </div>
-    </div>
-  </div>
-
-  <div class="charts">
-    <div class="chart-card">
-      <h3>Detection Rate Over Runs</h3>
-      <canvas id="drChart" height="200"></canvas>
-    </div>
-    <div class="chart-card">
-      <h3>Robustness Score Over Runs</h3>
-      <canvas id="rsChart" height="200"></canvas>
-    </div>
-  </div>
-
-  <div class="section-title">Experiment Runs</div>
-  <div class="card" style="padding:0;overflow:hidden">
-    <table>
-      <thead>
-        <tr>
-          <th>Run</th>
-          <th>Timestamp</th>
-          <th>Attacker</th>
-          <th>Episodes</th>
-          <th>Detection Rate</th>
-          <th>Robustness</th>
-          <th>CAE</th>
-          <th>Phase 1</th>
-          <th>Commit</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for run in runs|reverse %}
-        <tr>
-          <td><span class="tag">{{ run.run_dir }}</span></td>
-          <td style="color:var(--muted);font-size:12px">{{ run.timestamp[:16] }}</td>
-          <td>{{ run.attacker }}</td>
-          <td>{{ run.episodes }}</td>
-          <td>{{ "%.4f"|format(run.detection_rate) }}</td>
-          <td>{{ "%.4f"|format(run.robustness_score) }}</td>
-          <td>{{ run.cae }}</td>
-          <td class="{{ 'pass' if run.phase1_passed else 'fail' }}">{{ 'PASS' if run.phase1_passed else 'FAIL' }}</td>
-          <td style="color:var(--muted);font-family:monospace;font-size:11px">{{ run.git_commit }}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
+{% if not canonical %}
+<div class="empty">
+  <p style="font-size:18px;margin-bottom:8px">No experiment data found.</p>
+  <p>Run <code>make run</code> or <code>make demo</code> to generate results.</p>
+</div>
 {% else %}
-  <div class="empty">
-    <p>No experiment runs found in <code>outputs/</code>.</p>
-    <p style="margin-top:8px">Run <code>make run</code> to generate the first experiment.</p>
+
+{# ── Hero finding ── #}
+{% if evasion_improvement is not none and evasion_improvement > 0 %}
+<div class="hero">
+  <div class="hero-icon">🎯</div>
+  <div class="hero-text">
+    <h3>Autonomous RL attacker discovers structural blind spots in Suricata + ET Open</h3>
+    <p>
+      Parameterized DQN (Novelty 1) learns to select low-intensity attack variants
+      that evade Suricata's fixed-threshold rules — e.g. 2 SSH attempts vs. the 5-attempt
+      detection rule. Detection rate drops <strong style="color:var(--green)">
+      {{ "%.1f"|format(evasion_improvement) }}%</strong> with zero rule changes.
+    </p>
   </div>
+  <div class="hero-stat">
+    <div class="big">↓{{ "%.0f"|format(evasion_improvement) }}%</div>
+    <div class="label">Evasion Improvement</div>
+  </div>
+</div>
 {% endif %}
+
+{# ── KPI cards ── #}
+{% if latest %}
+<div class="kpi-grid">
+  <div class="kpi" style="--accent-kpi:var(--red)">
+    <div class="kpi-label">Detection Rate (Round 3)</div>
+    <div class="kpi-value" style="color:var(--green)">{{ "%.1f"|format(latest.detection_rate * 100) }}%</div>
+    <div class="kpi-sub">{{ latest.attacker_short }} · {{ latest.episodes }} episodes</div>
+    {% if baseline %}
+    <div class="kpi-delta delta-good">↓ from {{ "%.1f"|format(baseline.detection_rate * 100) }}%</div>
+    {% endif %}
+  </div>
+  <div class="kpi" style="--accent-kpi:var(--yellow)">
+    <div class="kpi-label">Robustness Score</div>
+    <div class="kpi-value" style="color:var(--yellow)">{{ "%.1f"|format(latest.robustness_score * 100) }}%</div>
+    <div class="kpi-sub">Last 10-episode window average</div>
+  </div>
+  <div class="kpi" style="--accent-kpi:var(--purple)">
+    <div class="kpi-label">Cumulative Anomaly Exposure</div>
+    <div class="kpi-value" style="color:var(--purple)">
+      {{ "%.2f"|format(latest.cae) if latest.cae is not none else "—" }}
+    </div>
+    <div class="kpi-sub">CAE ↓ = stealthier attacker vs ML</div>
+  </div>
+  <div class="kpi" style="--accent-kpi:var(--orange)">
+    <div class="kpi-label">Blind Spots Found</div>
+    <div class="kpi-value" style="color:var(--orange)">{{ latest.n_blind_spots }}</div>
+    <div class="kpi-sub">Actions that evade Suricata &gt;50%</div>
+  </div>
+</div>
+{% endif %}
+
+{# ── Round comparison + CAE trend ── #}
+<div class="two-col">
+  <div class="card card-pad">
+    <div class="section-header">
+      <h2>Detection Rate by Round</h2>
+      <div class="sep"></div>
+      <div class="pill">{{ canonical|length }} rounds</div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="drChart"></canvas>
+    </div>
+  </div>
+  <div class="card card-pad">
+    <div class="section-header">
+      <h2>Cumulative Anomaly Exposure</h2>
+      <div class="sep"></div>
+      <div class="pill">ML layer</div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="caeChart"></canvas>
+    </div>
+  </div>
+</div>
+
+{# ── Blind Spots table (Round 3 = latest canonical) ── #}
+{% if latest and latest.blind_spots %}
+<div class="card card-pad">
+  <div class="section-header">
+    <h2>Blind Spots — {{ latest.attacker_short }} ({{ latest.episodes }} episodes)</h2>
+    <div class="sep"></div>
+    <div class="pill">{{ latest.blind_spots|length }} actions</div>
+  </div>
+  <table class="bs-table">
+    <thead>
+      <tr>
+        <th>Action</th>
+        <th>Category</th>
+        <th style="width:220px">Evasion Rate</th>
+        <th>Evaded / Total</th>
+        <th>Remediation</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for bs in latest.blind_spots %}
+    <tr>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--accent)">{{ bs.action }}</td>
+      <td><span class="cat-tag" style="color:{{ bs.cat_colour }};background:{{ bs.cat_colour }}18">{{ bs.category }}</span></td>
+      <td>
+        <div class="evasion-bar">
+          <div class="bar-track">
+            <div class="bar-fill" style="width:{{ bs.evasion_pct }}%;background:{% if bs.evasion_pct == 100 %}var(--red){% elif bs.evasion_pct >= 80 %}var(--orange){% elif bs.evasion_pct >= 50 %}var(--yellow){% else %}var(--green){% endif %}"></div>
+          </div>
+          <span class="bar-pct" style="color:{% if bs.evasion_pct == 100 %}var(--red){% elif bs.evasion_pct >= 80 %}var(--orange){% elif bs.evasion_pct >= 50 %}var(--yellow){% else %}var(--green){% endif %}">{{ "%.0f"|format(bs.evasion_pct) }}%</span>
+        </div>
+      </td>
+      <td style="color:var(--muted)">{{ bs.evaded }} / {{ bs.total }}</td>
+      <td style="color:var(--muted);font-size:11px;max-width:300px">
+        {% if bs.evasion_pct == 100 %}
+        <span style="color:var(--red);font-weight:600">Complete blind spot</span> —
+        {% endif %}
+        {{ bs.category }} rules need tuning
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# ── ML Analysis ── #}
+{% if latest and (latest.ml_evasive or latest.ml_suspicious) %}
+<div>
+  <div class="section-header">
+    <h2>ML Anomaly Defence Analysis</h2>
+    <div class="sep"></div>
+    <div class="pill">IsolationForest · CAE = {{ "%.4f"|format(latest.cae) if latest.cae is not none else "N/A" }}</div>
+  </div>
+  <div class="two-col">
+    <div class="ml-card">
+      <h4>Most Evasive Actions (lowest ML score while undetected)</h4>
+      {% if latest.ml_evasive %}
+      {% for row in latest.ml_evasive %}
+      <div class="ml-row">
+        <span class="ml-action">{{ row.action }}</span>
+        <span style="font-size:11px;color:var(--muted);margin:0 8px">{{ row.category }}</span>
+        <span class="ml-steps">{{ row.undetected_steps }} steps</span>
+        <span class="ml-score">{{ "%.3f"|format(row.mean_anomaly) }}</span>
+      </div>
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--muted);font-size:12px">No undetected actions — ML caught all steps.</p>
+      {% endif %}
+    </div>
+    <div class="ml-card">
+      <h4>Most Suspicious Actions (highest ML score overall)</h4>
+      {% if latest.ml_suspicious %}
+      {% for row in latest.ml_suspicious %}
+      <div class="ml-row">
+        <span class="ml-action">{{ row.action }}</span>
+        <span style="font-size:11px;color:var(--muted);margin:0 8px">{{ row.category }}</span>
+        <span class="ml-steps">{{ row.total_steps }} steps</span>
+        <span class="ml-score" style="color:var(--red)">{{ "%.3f"|format(row.mean_anomaly) }}</span>
+      </div>
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--muted);font-size:12px">No data.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{# ── Novelty callouts ── #}
+<div class="two-col">
+  <div class="novelty-box">
+    <div class="novelty-icon">⚡</div>
+    <div class="novelty-text">
+      <strong>Novelty 1 — Action Parameter Variation</strong><br>
+      ParameterizedDQN outputs 45 Q-values (15 actions × 3 intensities). At intensity 0
+      (low), <code style="font-family:var(--mono);color:var(--accent)">ssh_brute_force</code>
+      sends 2 attempts — below Suricata's 5-attempt threshold. The network learns to prefer
+      this intensity because it yields lower anomaly scores and thus higher shaped reward.
+    </div>
+  </div>
+  <div class="novelty-box">
+    <div class="novelty-icon">🛡️</div>
+    <div class="novelty-text">
+      <strong>Novelty 2 — Auto-Remediation</strong><br>
+      After each run, <code style="font-family:var(--mono);color:var(--accent)">auto_remediate()</code>
+      identifies double blind spots (evaded Suricata AND anomaly_score &lt; 0.3).
+      Their feature vectors are cached; future similar actions get a cosine-similarity
+      score boost — closing gaps without retraining the IsolationForest.
+    </div>
+  </div>
+</div>
+
+{# ── All Runs History ── #}
+<div class="card card-pad">
+  <div class="section-header">
+    <h2>Experiment History</h2>
+    <div class="sep"></div>
+    <div class="pill">{{ all_runs|length }} runs</div>
+  </div>
+  <table class="run-table">
+    <thead>
+      <tr>
+        <th>Run</th>
+        <th>Timestamp</th>
+        <th>Attacker</th>
+        <th>Episodes</th>
+        <th>Detection Rate</th>
+        <th>Robustness</th>
+        <th>CAE</th>
+        <th>Blind Spots</th>
+        <th>Phase 1</th>
+        <th>Commit</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for run in all_runs | reverse %}
+    <tr>
+      <td>
+        <span class="tag-pill">{{ run.run_dir }}</span>
+        {% if run.is_canonical %}
+        <span class="badge badge-canon" style="margin-left:4px">BH</span>
+        {% endif %}
+      </td>
+      <td style="color:var(--muted)">{{ run.timestamp[:16] }}</td>
+      <td style="font-size:12px">{{ run.attacker_short }}</td>
+      <td style="color:var(--muted)">{{ run.episodes }}</td>
+      <td>
+        <span style="font-weight:600;color:{% if run.detection_rate > 0.1 %}var(--yellow){% elif run.detection_rate > 0 %}var(--green){% else %}var(--muted){% endif %}">
+          {{ "%.2f"|format(run.detection_rate * 100) }}%
+        </span>
+      </td>
+      <td style="color:var(--muted)">{{ "%.4f"|format(run.robustness_score) }}</td>
+      <td>
+        {% if run.cae is not none %}
+        <span style="color:var(--purple)">{{ "%.2f"|format(run.cae) }}</span>
+        {% else %}
+        <span style="color:var(--muted)">—</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if run.n_blind_spots > 0 %}
+        <span style="color:var(--orange);font-weight:600">{{ run.n_blind_spots }}</span>
+        {% else %}
+        <span style="color:var(--muted)">—</span>
+        {% endif %}
+      </td>
+      <td>
+        <span class="badge {{ 'badge-pass' if run.phase1_passed else 'badge-fail' }}">
+          {{ 'PASS' if run.phase1_passed else 'FAIL' }}
+        </span>
+      </td>
+      <td class="commit">{{ run.git_commit or '—' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endif %}{# end if canonical #}
 
 </main>
 
 <script>
-const labels = {{ labels }};
-const drValues = {{ dr_values }};
-const rsValues = {{ rs_values }};
-const caeValues = {{ cae_values }};
+/* ── Chart defaults ── */
+Chart.defaults.color = '#8b949e';
+Chart.defaults.borderColor = '#21262d';
+const gridOpts = { color: 'rgba(48,54,61,0.7)', drawBorder: false };
+const tickOpts = { color: '#8b949e', font: { size: 11 } };
 
-const chartDefaults = {
-  responsive: true,
-  plugins: { legend: { labels: { color: '#8b949e', font: { size: 11 } } } },
-  scales: {
-    x: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } },
-    y: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } }
-  }
-};
+const cLabels = {{ c_labels }};
+const cDr     = {{ c_dr }};
+const cRs     = {{ c_rs }};
+const cCae    = {{ c_cae }};
 
-if (labels.length > 0) {
+/* ── DR bar chart ── */
+if (document.getElementById('drChart') && cLabels.length) {
+  const barColours = cDr.map((v, i) =>
+    i === cDr.length - 1 ? 'rgba(63,185,80,0.85)' : 'rgba(88,166,255,0.7)'
+  );
   new Chart(document.getElementById('drChart'), {
-    type: 'line',
+    type: 'bar',
     data: {
-      labels,
-      datasets: [{
-        label: 'Detection Rate',
-        data: drValues,
-        borderColor: '#58a6ff',
-        backgroundColor: 'rgba(88,166,255,0.1)',
-        tension: 0.3,
-        fill: true,
-        pointRadius: 4
-      }]
+      labels: cLabels,
+      datasets: [
+        {
+          label: 'Detection Rate (%)',
+          data: cDr,
+          backgroundColor: barColours,
+          borderColor: barColours.map(c => c.replace('0.85','1').replace('0.7','1')),
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+        {
+          label: 'Robustness (%)',
+          data: cRs,
+          type: 'line',
+          borderColor: 'rgba(210,153,34,0.8)',
+          backgroundColor: 'rgba(210,153,34,0.1)',
+          tension: 0.3,
+          fill: false,
+          pointRadius: 5,
+          pointBackgroundColor: '#d29922',
+          yAxisID: 'y',
+        }
+      ]
     },
-    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, max: 1 } } }
-  });
-
-  new Chart(document.getElementById('rsChart'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Robustness Score',
-        data: rsValues,
-        borderColor: '#3fb950',
-        backgroundColor: 'rgba(63,185,80,0.1)',
-        tension: 0.3,
-        fill: true,
-        pointRadius: 4
-      }]
-    },
-    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0 } } }
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#8b949e', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%` }
+        }
+      },
+      scales: {
+        x: { grid: gridOpts, ticks: { ...tickOpts, maxRotation: 0 } },
+        y: { grid: gridOpts, ticks: { ...tickOpts, callback: v => v + '%' }, min: 0 }
+      }
+    }
   });
 }
+
+/* ── CAE bar chart ── */
+if (document.getElementById('caeChart') && cLabels.length) {
+  const caeColours = cCae.map((v, i) =>
+    i === cCae.length - 1 ? 'rgba(188,140,255,0.85)' : 'rgba(188,140,255,0.5)'
+  );
+  new Chart(document.getElementById('caeChart'), {
+    type: 'bar',
+    data: {
+      labels: cLabels,
+      datasets: [{
+        label: 'CAE (Cumulative Anomaly Exposure)',
+        data: cCae,
+        backgroundColor: caeColours,
+        borderColor: 'rgba(188,140,255,1)',
+        borderWidth: 1,
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#8b949e', font: { size: 11 }, boxWidth: 12 } },
+        annotation: {},
+        tooltip: {
+          callbacks: {
+            label: ctx => ` CAE: ${ctx.parsed.y.toFixed(4)}`,
+            afterLabel: () => 'Lower = stealthier attacker vs ML'
+          }
+        }
+      },
+      scales: {
+        x: { grid: gridOpts, ticks: { ...tickOpts, maxRotation: 0 } },
+        y: { grid: gridOpts, ticks: tickOpts, min: 0 }
+      }
+    }
+  });
+}
+
+/* ── Auto-refresh countdown ── */
+let seconds = 30;
+const countEl = document.getElementById('refresh-countdown');
+setInterval(() => {
+  seconds--;
+  if (seconds <= 0) {
+    location.reload();
+  } else {
+    if (countEl) countEl.textContent = `auto-refresh in ${seconds}s`;
+  }
+}, 1000);
 </script>
 </body>
 </html>

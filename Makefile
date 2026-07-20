@@ -7,7 +7,7 @@ PY     := $(VENV)/bin/python
 PIP    := $(VENV)/bin/pip
 
 .DEFAULT_GOAL := help
-.PHONY: help setup lock test run lint lab-up lab-down lab-check lab-status lab-smoke demo dashboard lab-traffic transferability
+.PHONY: help setup lock test run lint lab-up lab-down lab-check lab-status lab-smoke demo demo-live dashboard lab-traffic lab-baseline transferability
 
 COMPOSE := docker compose -f lab/docker-compose.yml
 
@@ -63,6 +63,9 @@ demo-live:  ## BH demo: run 5 real episodes with ParameterizedDQN (~30 s, no Doc
 
 lab-traffic:  ## Generate benign HTTP/SSH traffic in the lab (calibrate ML baseline)
 	@bash lab/scripts/lab-traffic.sh
+
+lab-baseline:  ## Capture real benign-traffic feature vectors for IsolationForest training
+	$(PY) lab/scripts/capture-baseline.py
 
 dashboard:  ## Start the live metrics dashboard at http://localhost:5050
 	@echo "Starting AATF dashboard at http://localhost:5050 ..."
