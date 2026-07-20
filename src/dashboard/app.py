@@ -248,10 +248,7 @@ def _canonical_runs(all_runs: list[dict]) -> list[dict]:
 
 def _filter_display_runs(all_runs: list[dict]) -> list[dict]:
     """Exclude very short or demo runs from the history table."""
-    return [
-        r for r in all_runs
-        if r["episodes"] >= 10 and "demo" not in r["run_dir"].lower()
-    ]
+    return [r for r in all_runs if r["episodes"] >= 10 and "demo" not in r["run_dir"].lower()]
 
 
 @app.route("/")

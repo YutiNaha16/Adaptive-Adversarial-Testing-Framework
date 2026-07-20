@@ -112,7 +112,9 @@ def main(
                 else 1
             )
             params = get_params_for_intensity(
-                action_id, intensity, action_def.default_parameters,
+                action_id,
+                intensity,
+                action_def.default_parameters,
                 target_ip=config.lab_target_ip,
             )
             action = Action(
@@ -152,7 +154,9 @@ def main(
             action_def = REGISTRY.get_action(action_id)
             intensity = attacker.get_last_intensity()
             return get_params_for_intensity(
-                action_id, intensity, action_def.default_parameters,
+                action_id,
+                intensity,
+                action_def.default_parameters,
                 target_ip=config.lab_target_ip,
             )
 
