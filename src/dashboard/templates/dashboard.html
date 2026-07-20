@@ -452,10 +452,10 @@ main{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-directio
 </main>
 
 <script>
-const cLabels = {{ c_labels }};
-const cDr     = {{ c_dr }};
-const cRs     = {{ c_rs }};
-const cCae    = {{ c_cae }};
+const cLabels = {{ c_labels | safe }};
+const cDr     = {{ c_dr | safe }};
+const cRs     = {{ c_rs | safe }};
+const cCae    = {{ c_cae | safe }};
 
 if (typeof Chart === 'undefined') {
   console.error('AATF: Chart.js not loaded — charts will not render. Restart the dashboard server.');
