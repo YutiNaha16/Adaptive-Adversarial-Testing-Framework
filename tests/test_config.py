@@ -124,3 +124,34 @@ detection_threshold: 0.5
     assert isinstance(d["output_dir"], str)
     assert isinstance(d["ruleset_path"], str)
     assert d["episodes"] == 100
+
+
+def test_lab_target_ip_default(tmp_path):
+    cfg_path = _write_yaml(
+        tmp_path,
+        """
+episodes: 10
+seed: 0
+output_dir: outputs/x
+ruleset_path: /etc/suricata/rules
+detection_threshold: 0.5
+""",
+    )
+    cfg = load_config(cfg_path)
+    assert cfg.lab_target_ip == "172.28.0.2"
+
+
+def test_lab_target_ip_custom(tmp_path):
+    cfg_path = _write_yaml(
+        tmp_path,
+        """
+episodes: 10
+seed: 0
+output_dir: outputs/x
+ruleset_path: /etc/suricata/rules
+detection_threshold: 0.5
+lab_target_ip: 10.0.0.99
+""",
+    )
+    cfg = load_config(cfg_path)
+    assert cfg.lab_target_ip == "10.0.0.99"

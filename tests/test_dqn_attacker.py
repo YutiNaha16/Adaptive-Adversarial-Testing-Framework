@@ -200,3 +200,72 @@ def test_c010_reproducibility():
 
     assert run(42) == run(42)
     assert run(7) == run(7)
+
+
+# ---------------------------------------------------------------------------
+# C-011: DQNModel checkpoint round-trip
+# ---------------------------------------------------------------------------
+
+
+def test_c011_dqn_model_save_load(tmp_path):
+    """C-011: save/load preserves epsilon, step_count, and greedy action choice."""
+    import torch
+
+    from aatf.dqn_attacker import DQNModel
+
+    model = DQNModel(seed=0, epsilon_start=0.5, epsilon_end=0.1, epsilon_decay_steps=10)
+    available = ["tcp_port_scan", "ssh_brute_force", "dns_exfil"]
+    ctx = np.zeros(50, dtype=np.float32)
+
+    for _ in range(5):
+        model.select_action(available, ctx)
+
+    ckpt = tmp_path / "dqn.pt"
+    model.save(ckpt)
+
+    model2 = DQNModel(seed=99)
+    model2.load(ckpt)
+
+    assert abs(model2._epsilon - model._epsilon) < 1e-6
+    assert model2._step_count == model._step_count
+
+    # Network weights must match — verify greedy (epsilon=0) choice is identical
+    x = torch.tensor(ctx, dtype=torch.float32)
+    with torch.no_grad():
+        q1 = model.online_net(x)
+        q2 = model2.online_net(x)
+    assert torch.allclose(q1, q2)
+
+
+# ---------------------------------------------------------------------------
+# C-012: ParameterizedDQNModel checkpoint round-trip
+# ---------------------------------------------------------------------------
+
+
+def test_c012_parameterized_dqn_model_save_load(tmp_path):
+    """C-012: ParameterizedDQNModel save/load preserves epsilon, step_count, and Q-values."""
+    import torch
+
+    from aatf.dqn_attacker import ParameterizedDQNModel
+
+    model = ParameterizedDQNModel(seed=1, epsilon_start=0.8, epsilon_end=0.1, epsilon_decay_steps=20)
+    available = ["tcp_port_scan", "ssh_brute_force"]
+    ctx = np.zeros(50, dtype=np.float32)
+
+    for _ in range(8):
+        model.select_action_with_intensity(available, ctx)
+
+    ckpt = tmp_path / "pdqn.pt"
+    model.save(ckpt)
+
+    model2 = ParameterizedDQNModel(seed=99)
+    model2.load(ckpt)
+
+    assert abs(model2._epsilon - model._epsilon) < 1e-6
+    assert model2._step_count == model._step_count
+
+    x = torch.tensor(ctx, dtype=torch.float32)
+    with torch.no_grad():
+        q1 = model.online_net(x)
+        q2 = model2.online_net(x)
+    assert torch.allclose(q1, q2)

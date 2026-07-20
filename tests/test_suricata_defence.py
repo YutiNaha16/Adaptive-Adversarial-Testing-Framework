@@ -171,10 +171,11 @@ def test_file_truncation_resets_cursor(action: Action, tmp_path: Path) -> None: 
 
 def _lab_running() -> bool:
     r = subprocess.run(
-        ["docker", "inspect", "aatf-suricata"],
+        ["docker", "inspect", "--format", "{{.State.Running}}", "aatf-suricata"],
         capture_output=True,
+        text=True,
     )
-    return r.returncode == 0
+    return r.returncode == 0 and r.stdout.strip() == "true"
 
 
 def test_live_lab_probe(action: Action) -> None:  # C-012

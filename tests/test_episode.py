@@ -157,3 +157,32 @@ def test_c012_state_step_equals_steps_length() -> None:
     state = EpisodeState()
     result = run_episode(state, _SELECTOR, _EXECUTE, StubDefence(alert=False), max_steps=4)
     assert state.step == len(result.steps)
+
+
+# ---------------------------------------------------------------------------
+# C-013: parameterize_fn is called and overrides default params
+# ---------------------------------------------------------------------------
+
+
+def test_c013_parameterize_fn_overrides_params() -> None:
+    """C-013: parameterize_fn return value reaches defence.observe() instead of defaults."""
+    from aatf.contracts import Action, DetectionResult
+    from aatf.defence import Defence
+
+    observed_params: list[dict] = []
+
+    class RecordingDefence(Defence):
+        def observe(self, action: Action) -> DetectionResult:
+            observed_params.append(dict(action.parameters))
+            return DetectionResult(alerted=False, rule_ids=[], anomaly_score=0.0, coverage="unknown")
+
+    sentinel = {"custom_key": "sentinel_value"}
+
+    def parameterize_fn(action_id: str) -> dict:
+        return sentinel
+
+    state = EpisodeState()
+    run_episode(state, _SELECTOR, _EXECUTE, RecordingDefence(), max_steps=1, parameterize_fn=parameterize_fn)
+
+    assert len(observed_params) == 1
+    assert observed_params[0] == sentinel
