@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AATF — Adaptive Adversarial Testing Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+    --green: #3fb950; --red: #f85149; --yellow: #d29922;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
+  header { background: var(--panel); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header .subtitle { color: var(--muted); font-size: 12px; }
+  .badge { background: var(--accent); color: #000; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+  main { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+  .card h2 { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .metric { font-size: 36px; font-weight: 700; }
+  .metric.green { color: var(--green); }
+  .metric.red { color: var(--red); }
+  .metric.yellow { color: var(--yellow); }
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+  .chart-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 10px 12px; background: var(--panel); border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); text-transform: uppercase; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  tr:hover td { background: rgba(255,255,255,0.03); }
+  .pass { color: var(--green); font-weight: 600; }
+  .fail { color: var(--red); font-weight: 600; }
+  .tag { font-size: 11px; background: rgba(88,166,255,0.15); color: var(--accent); padding: 2px 6px; border-radius: 4px; }
+  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+  .empty { color: var(--muted); text-align: center; padding: 40px; }
+  @media (max-width: 900px) { .charts { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>AATF — Adversarial Testing Dashboard</h1>
+    <div class="subtitle">Adaptive Adversarial Testing Framework &nbsp;|&nbsp; Black Hat Europe 2026</div>
+  </div>
+  <span class="badge">LIVE</span>
+</header>
+<main>
+
+{% if runs %}
+  {% set latest = runs[-1] %}
+  <div class="grid">
+    <div class="card">
+      <h2>Detection Rate (latest)</h2>
+      <div class="metric {{ 'green' if latest.detection_rate > 0.1 else 'red' }}">
+        {{ "%.1f"|format(latest.detection_rate * 100) }}%
+      </div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px">{{ latest.attacker }} &middot; {{ latest.episodes }} episodes</div>
+    </div>
+    <div class="card">
+      <h2>Robustness Score (latest)</h2>
+      <div class="metric {{ 'green' if latest.robustness_score > 0.05 else 'yellow' }}">
+        {{ "%.4f"|format(latest.robustness_score) }}
+      </div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px">Last 10-episode window</div>
+    </div>
+    <div class="card">
+      <h2>Cumul. Anomaly Exposure (latest)</h2>
+      <div class="metric {{ 'yellow' if latest.cae != 'N/A' else '' }}">
+        {{ latest.cae }}
+      </div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px">CAE &darr; = stealthier attacker</div>
+    </div>
+    <div class="card">
+      <h2>Total Runs</h2>
+      <div class="metric">{{ runs|length }}</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px">
+        {{ runs|selectattr('phase1_passed')|list|length }} passed Phase 1
+      </div>
+    </div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h3>Detection Rate Over Runs</h3>
+      <canvas id="drChart" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Robustness Score Over Runs</h3>
+      <canvas id="rsChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">Experiment Runs</div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table>
+      <thead>
+        <tr>
+          <th>Run</th>
+          <th>Timestamp</th>
+          <th>Attacker</th>
+          <th>Episodes</th>
+          <th>Detection Rate</th>
+          <th>Robustness</th>
+          <th>CAE</th>
+          <th>Phase 1</th>
+          <th>Commit</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for run in runs|reverse %}
+        <tr>
+          <td><span class="tag">{{ run.run_dir }}</span></td>
+          <td style="color:var(--muted);font-size:12px">{{ run.timestamp[:16] }}</td>
+          <td>{{ run.attacker }}</td>
+          <td>{{ run.episodes }}</td>
+          <td>{{ "%.4f"|format(run.detection_rate) }}</td>
+          <td>{{ "%.4f"|format(run.robustness_score) }}</td>
+          <td>{{ run.cae }}</td>
+          <td class="{{ 'pass' if run.phase1_passed else 'fail' }}">{{ 'PASS' if run.phase1_passed else 'FAIL' }}</td>
+          <td style="color:var(--muted);font-family:monospace;font-size:11px">{{ run.git_commit }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% else %}
+  <div class="empty">
+    <p>No experiment runs found in <code>outputs/</code>.</p>
+    <p style="margin-top:8px">Run <code>make run</code> to generate the first experiment.</p>
+  </div>
+{% endif %}
+
+</main>
+
+<script>
+const labels = {{ labels }};
+const drValues = {{ dr_values }};
+const rsValues = {{ rs_values }};
+const caeValues = {{ cae_values }};
+
+const chartDefaults = {
+  responsive: true,
+  plugins: { legend: { labels: { color: '#8b949e', font: { size: 11 } } } },
+  scales: {
+    x: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } },
+    y: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } }
+  }
+};
+
+if (labels.length > 0) {
+  new Chart(document.getElementById('drChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Detection Rate',
+        data: drValues,
+        borderColor: '#58a6ff',
+        backgroundColor: 'rgba(88,166,255,0.1)',
+        tension: 0.3,
+        fill: true,
+        pointRadius: 4
+      }]
+    },
+    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, max: 1 } } }
+  });
+
+  new Chart(document.getElementById('rsChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Robustness Score',
+        data: rsValues,
+        borderColor: '#3fb950',
+        backgroundColor: 'rgba(63,185,80,0.1)',
+        tension: 0.3,
+        fill: true,
+        pointRadius: 4
+      }]
+    },
+    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0 } } }
+  });
+}
+</script>
+</body>
+</html>

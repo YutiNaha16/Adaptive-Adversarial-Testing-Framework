@@ -1,0 +1,7 @@
+episodes: 5
+seed: 42
+output_dir: outputs/run_demo
+ruleset_path: /etc/suricata/rules
+detection_threshold: 0.5
+attacker_class: ParameterizedDQNAttacker
+anomaly_lambda: 0.5

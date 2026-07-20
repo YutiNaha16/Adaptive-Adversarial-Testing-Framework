@@ -7,7 +7,7 @@ PY     := $(VENV)/bin/python
 PIP    := $(VENV)/bin/pip
 
 .DEFAULT_GOAL := help
-.PHONY: help setup lock test run lint lab-up lab-down lab-check lab-status lab-smoke
+.PHONY: help setup lock test run lint lab-up lab-down lab-check lab-status lab-smoke demo dashboard lab-traffic transferability
 
 COMPOSE := docker compose -f lab/docker-compose.yml
 
@@ -54,3 +54,23 @@ lab-status:  ## Show current lab container states (exits 0=running, 1=stopped, 2
 
 lab-smoke:  ## Send smoke probe; verify ET Open SID fires in eve.json (exits 1 on failure)
 	@bash lab/scripts/lab-smoke.sh
+
+demo:  ## Live demo: 5 episodes with ParameterizedDQN — no Docker needed (~30 s)
+	$(PY) src/run_experiment.py --config config_demo.yaml
+
+lab-traffic:  ## Generate benign HTTP/SSH traffic in the lab (calibrate ML baseline)
+	@bash lab/scripts/lab-traffic.sh
+
+dashboard:  ## Start the live metrics dashboard at http://localhost:5050
+	@echo "Starting AATF dashboard at http://localhost:5050 ..."
+	AATF_OUTPUTS=outputs $(PY) src/dashboard/app.py
+
+transferability:  ## Run two-config transferability test and diff blind spots
+	@echo "=== Run A: baseline (config_round3.yaml) ==="
+	$(PY) src/run_experiment.py --config config_round3.yaml
+	@echo ""
+	@echo "=== Run B: alternate ruleset (config_transfer.yaml) ==="
+	$(PY) src/run_experiment.py --config config_transfer.yaml
+	@echo ""
+	@echo "=== Transferability Analysis ==="
+	$(PY) lab/scripts/compare-blind-spots.py outputs/run_003 outputs/run_transfer

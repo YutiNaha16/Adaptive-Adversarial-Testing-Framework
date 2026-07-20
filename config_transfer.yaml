@@ -1,0 +1,10 @@
+# Transferability test config — same attacker, alternate rule set (disabled-v2.conf).
+# Blind spots that appear in BOTH run_003 and run_transfer are structural weaknesses
+# independent of specific rule thresholds.
+episodes: 200
+seed: 42
+output_dir: outputs/run_transfer
+ruleset_path: /etc/suricata/rules
+detection_threshold: 0.5
+attacker_class: ParameterizedDQNAttacker
+anomaly_lambda: 0.5

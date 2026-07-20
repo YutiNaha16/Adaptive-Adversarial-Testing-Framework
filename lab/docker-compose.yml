@@ -18,24 +18,31 @@ services:
       dockerfile: lab/Dockerfile.attacker
     container_name: aatf-attacker
     networks:
-      - lab
+      lab:
+        ipv4_address: 172.28.0.10
     command: ["sleep", "infinity"]
     restart: "no"
 
+  # Real nginx web target — accepts HTTP traffic for scanning/brute-force actions
   defender:
-    image: alpine:3.19
+    build:
+      context: ..
+      dockerfile: lab/Dockerfile.target-web
     container_name: aatf-defender
     networks:
-      - lab
-    command: ["sleep", "infinity"]
+      lab:
+        ipv4_address: 172.28.0.3
     restart: "no"
 
+  # Real OpenSSH target at _LAB_IP (172.28.0.2) — accepts SSH for brute-force actions
   environment:
-    image: alpine:3.19
+    build:
+      context: ..
+      dockerfile: lab/Dockerfile.target-ssh
     container_name: aatf-environment
     networks:
-      - lab
-    command: ["sleep", "infinity"]
+      lab:
+        ipv4_address: 172.28.0.2
     restart: "no"
 
   suricata:

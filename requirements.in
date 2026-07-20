@@ -23,3 +23,6 @@ scikit-learn>=1.4
 
 # RL/DQN attacker (Feature F28 / Epic E9)
 torch>=2.2
+
+# Live dashboard (Black Hat demo)
+flask>=3.0

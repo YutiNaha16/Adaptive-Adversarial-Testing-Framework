@@ -177,6 +177,7 @@ def main(
             disabled_sid_count=0,
         )
     gate_result = phase1_gate(records, validation_result)
+    cae = cumulative_anomaly_exposure(records)
 
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
     report_path = output_dir / f"report_{ts}.md"
@@ -185,6 +186,9 @@ def main(
         config,
         config.seed,
         extra_metadata={
+            "detection_rate": dr,
+            "robustness_score": rs,
+            "cae": cae,
             "phase1_gate": {
                 "passed": gate_result.passed,
                 "summary": gate_result.summary,
@@ -197,11 +201,10 @@ def main(
                     }
                     for c in gate_result.criteria
                 ],
-            }
+            },
         },
     )
 
-    cae = cumulative_anomaly_exposure(records)
     print("-" * 38)
     print(f"Detection Rate   : {dr:.4f}")
     print(f"Robustness Score : {rs:.4f}")
