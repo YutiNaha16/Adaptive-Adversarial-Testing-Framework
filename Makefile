@@ -7,7 +7,7 @@ PY     := $(VENV)/bin/python
 PIP    := $(VENV)/bin/pip
 
 .DEFAULT_GOAL := help
-.PHONY: help setup lock test run lint lab-up lab-down lab-check lab-status lab-smoke demo demo-live dashboard lab-traffic lab-baseline transferability
+.PHONY: help setup lock test run lint lab-up lab-down lab-check lab-status lab-smoke demo demo-live dashboard lab-traffic lab-baseline transferability round3-ml round4
 
 COMPOSE := docker compose -f lab/docker-compose.yml
 
@@ -70,6 +70,12 @@ lab-baseline:  ## Capture real benign-traffic feature vectors for IsolationFores
 dashboard:  ## Start the live metrics dashboard at http://localhost:5050
 	@echo "Starting AATF dashboard at http://localhost:5050 ..."
 	AATF_OUTPUTS=outputs $(PY) src/dashboard/app.py
+
+round3-ml:  ## Round 3-ML — Param-DQN with ML shaping (IsolationForest reward signal)
+	$(PY) src/run_experiment.py --config config_round3_ml.yaml
+
+round4:  ## Round 4 — Auto-remediation proof: load evasive cache from run_003_ml
+	$(PY) src/run_experiment.py --config config_round4.yaml --evasive-cache outputs/run_003_ml/evasive_cache.npy
 
 transferability:  ## Run two-config transferability test and diff blind spots
 	@echo "=== Run A: baseline (config_round3.yaml) ==="

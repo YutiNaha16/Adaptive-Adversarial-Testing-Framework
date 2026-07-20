@@ -65,6 +65,7 @@ def main(
     lab: bool = False,
     eve_path: str | Path = "logs/suricata/eve.json",
     disabled_conf: str | Path = "lab/rules/disabled.conf",
+    evasive_cache: str | Path | None = None,
 ) -> None:
     try:
         config = load_config(config_path)
@@ -86,11 +87,13 @@ def main(
         print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(2)
 
+    ml_defence = None
+
     if lab:
         from aatf.action_executor import ActionExecutor
         from aatf.action_intensity import get_params_for_intensity
         from aatf.defence import CompositeDefence
-        from aatf.ml_defence import MLAnomalyDefence, auto_remediate
+        from aatf.ml_defence import MLAnomalyDefence
         from aatf.suricata_defence import SuricataDefence
 
         ml_defence = MLAnomalyDefence(seed=config.seed)
@@ -119,9 +122,20 @@ def main(
 
         mode_label = "LAB (Suricata + ML)"
     else:
-        defence = NullDefence()
         execute_fn = lambda _: None  # noqa: E731
-        mode_label = "Simulation (NullDefence)"
+        if config.anomaly_lambda > 0:
+            from aatf.ml_defence import MLAnomalyDefence, load_evasive_cache
+
+            ml_defence = MLAnomalyDefence(seed=config.seed)
+            if evasive_cache and Path(evasive_cache).exists():
+                n_loaded = load_evasive_cache(ml_defence, Path(evasive_cache))
+                print(f"Loaded {n_loaded} evasive vectors from {evasive_cache}")
+            defence = ml_defence
+            mode_label = f"ML-simulation (IsolationForest, anomaly_lambda={config.anomaly_lambda})"
+        else:
+            ml_defence = None
+            defence = NullDefence()
+            mode_label = "Simulation (NullDefence)"
 
     records: list[EpisodeRecord] = []
 
@@ -217,10 +231,12 @@ def main(
         print(f"  {c.name:<22}: {c.value:.4f} (≥{c.threshold:.4f}) [{status}]")
     print(gate_result.summary)
 
-    if lab and cae > 0:
-        from aatf.ml_defence import auto_remediate
+    if ml_defence is not None and cae > 0:
+        from aatf.ml_defence import auto_remediate, save_evasive_cache
 
-        _, rem = auto_remediate(ml_defence, records)
+        new_defence, rem = auto_remediate(ml_defence, records)
+        cache_path = output_dir / "evasive_cache.npy"
+        save_evasive_cache(new_defence, cache_path)
         print("-" * 38)
         print("Auto-Remediation:")
         print(f"  Double blind spots found : {rem.total_evaded}")
@@ -229,6 +245,7 @@ def main(
             print(f"  Avg ML score before      : {rem.avg_score_before:.4f}")
             print(f"  Avg ML score after       : {rem.avg_score_after:.4f}")
             print(f"  Actions remediated       : {', '.join(rem.remediated_action_ids)}")
+            print(f"  Cache saved              : {cache_path}")
         else:
             print("  No double blind spots — ML detector caught all evaded actions.")
 
@@ -251,10 +268,16 @@ if __name__ == "__main__":
         default="lab/rules/disabled.conf",
         help="Path to disabled.conf for BSP validation (used with --lab)",
     )
+    parser.add_argument(
+        "--evasive-cache",
+        default=None,
+        help="Path to evasive_cache.npy from a previous run (pre-loads auto-remediation vectors)",
+    )
     args = parser.parse_args()
     main(
         config_path=args.config,
         lab=args.lab,
         eve_path=args.eve_path,
         disabled_conf=args.disabled_conf,
+        evasive_cache=args.evasive_cache,
     )

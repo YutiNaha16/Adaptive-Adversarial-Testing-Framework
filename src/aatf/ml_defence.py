@@ -99,6 +99,20 @@ def _synthetic_baseline(n_samples: int, seed: int = 42) -> np.ndarray:
     return X
 
 
+def save_evasive_cache(defence: MLAnomalyDefence, path: Path) -> None:
+    """Persist the evasive-action feature vectors to disk for cross-run remediation."""
+    if not defence._evasive_cache:
+        return
+    np.save(path, np.vstack(defence._evasive_cache).astype(np.float64))
+
+
+def load_evasive_cache(defence: MLAnomalyDefence, path: Path) -> int:
+    """Load saved evasive vectors into defence._evasive_cache. Returns count loaded."""
+    vectors = np.load(path)
+    defence._evasive_cache = [vectors[i] for i in range(len(vectors))]
+    return len(vectors)
+
+
 def save_real_baseline(vectors: np.ndarray) -> Path:
     """Persist real-traffic feature vectors captured from the lab.
 
