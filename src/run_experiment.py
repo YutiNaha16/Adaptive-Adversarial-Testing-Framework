@@ -126,7 +126,7 @@ def main(
         if config.anomaly_lambda > 0:
             from aatf.ml_defence import MLAnomalyDefence, load_evasive_cache
 
-            ml_defence = MLAnomalyDefence(seed=config.seed)
+            ml_defence = MLAnomalyDefence(threshold=config.detection_threshold, seed=config.seed)
             if evasive_cache and Path(evasive_cache).exists():
                 n_loaded = load_evasive_cache(ml_defence, Path(evasive_cache))
                 print(f"Loaded {n_loaded} evasive vectors from {evasive_cache}")
@@ -234,7 +234,10 @@ def main(
     if ml_defence is not None and cae > 0:
         from aatf.ml_defence import auto_remediate, save_evasive_cache
 
-        new_defence, rem = auto_remediate(ml_defence, records)
+        # Use detection_threshold as evasion_threshold so we cache any action that slipped through
+        new_defence, rem = auto_remediate(
+            ml_defence, records, evasion_threshold=config.detection_threshold
+        )
         cache_path = output_dir / "evasive_cache.npy"
         save_evasive_cache(new_defence, cache_path)
         print("-" * 38)
