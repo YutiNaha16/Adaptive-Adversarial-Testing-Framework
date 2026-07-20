@@ -16,8 +16,8 @@ app = Flask(__name__)
 
 _OUTPUTS_DIR = Path(os.environ.get("AATF_OUTPUTS", "outputs"))
 
-# Canonical display order for BH story: Random → DQN → ParameterizedDQN
-_CANONICAL = ["run_001", "run_002", "run_003"]
+# Canonical BH story: Random → DQN → Param-DQN evades ML → Param-DQN + remediation cache
+_CANONICAL = ["run_001", "run_002", "run_003_ml", "run_004"]
 
 # Attacker short labels
 _ATTACKER_SHORT = {

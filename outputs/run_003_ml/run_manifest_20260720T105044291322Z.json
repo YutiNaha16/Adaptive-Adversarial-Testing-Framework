@@ -1,0 +1,52 @@
+{
+  "seed": 42,
+  "python_version": "3.12.3",
+  "packages": {
+    "pip-tools": "7.5.3",
+    "pytest": "9.1.1",
+    "ruff": "0.15.20",
+    "pydantic": "2.13.4",
+    "pyyaml": "6.0.3",
+    "numpy": "2.5.0"
+  },
+  "suricata_version": "unknown",
+  "ruleset_version": "unknown",
+  "git_commit": "c3a4f238a1bccb7ab81cb57f4f51c4e4cd3cacff-dirty",
+  "config_snapshot": {
+    "episodes": 200,
+    "seed": 42,
+    "output_dir": "outputs/run_003_ml",
+    "ruleset_path": "/etc/suricata/rules",
+    "detection_threshold": 0.5,
+    "attacker_class": "ParameterizedDQNAttacker",
+    "anomaly_lambda": 0.5
+  },
+  "timestamp": "2026-07-20T10:50:44Z",
+  "detection_rate": 1.0,
+  "robustness_score": 1.0,
+  "cae": 9.265703650682712,
+  "phase1_gate": {
+    "passed": false,
+    "summary": "Phase 1 FAILED (2/3 criteria met: blind_spot_precision below threshold)",
+    "criteria": [
+      {
+        "name": "detection_rate",
+        "passed": true,
+        "value": 1.0,
+        "threshold": 0.0
+      },
+      {
+        "name": "blind_spot_precision",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 0.8
+      },
+      {
+        "name": "robustness_score",
+        "passed": true,
+        "value": 1.0,
+        "threshold": 0.0
+      }
+    ]
+  }
+}
