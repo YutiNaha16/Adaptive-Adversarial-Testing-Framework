@@ -248,7 +248,9 @@ def test_c012_parameterized_dqn_model_save_load(tmp_path):
 
     from aatf.dqn_attacker import ParameterizedDQNModel
 
-    model = ParameterizedDQNModel(seed=1, epsilon_start=0.8, epsilon_end=0.1, epsilon_decay_steps=20)
+    model = ParameterizedDQNModel(
+        seed=1, epsilon_start=0.8, epsilon_end=0.1, epsilon_decay_steps=20
+    )
     available = ["tcp_port_scan", "ssh_brute_force"]
     ctx = np.zeros(50, dtype=np.float32)
 
