@@ -226,7 +226,7 @@ def main(
             total_reported=0,
             disabled_sid_count=0,
         )
-    gate_result = phase1_gate(records, validation_result)
+    gate_result = phase1_gate(records, validation_result, lab_mode=lab)
     cae = cumulative_anomaly_exposure(records)
 
     ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
@@ -282,8 +282,11 @@ def main(
     print(f"Manifest written : {manifest_path}")
     print("-" * 38)
     for c in gate_result.criteria:
-        status = "PASS" if c.passed else "FAIL"
-        print(f"  {c.name:<22}: {c.value:.4f} (≥{c.threshold:.4f}) [{status}]")
+        if c.skipped:
+            print(f"  {c.name:<22}: N/A  (lab mode only)  [SKIP]")
+        else:
+            status = "PASS" if c.passed else "FAIL"
+            print(f"  {c.name:<22}: {c.value:.4f} (≥{c.threshold:.4f}) [{status}]")
     print(gate_result.summary)
 
     if ml_defence is not None and cae > 0:

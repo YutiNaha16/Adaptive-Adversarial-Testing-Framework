@@ -77,14 +77,21 @@ def test_c003_criterion_result_frozen():
 
 
 def test_c004_all_pass():
-    result = phase1_gate(_make_records(3), _make_vr(0.9))
+    result = phase1_gate(_make_records(3), _make_vr(0.9), lab_mode=True)
     assert result.passed is True
     assert all(c.passed for c in result.criteria)
     assert len(result.criteria) == 3
 
 
+def test_c004b_sim_mode_skips_bsp():
+    result = phase1_gate(_make_records(3), _make_vr(0.0))
+    assert result.passed is True  # BSP not evaluated in sim mode
+    bsp = next(c for c in result.criteria if c.name == "blind_spot_precision")
+    assert bsp.skipped is True
+
+
 def test_c005_bsp_fails():
-    result = phase1_gate(_make_records(3), _make_vr(0.5))
+    result = phase1_gate(_make_records(3), _make_vr(0.5), lab_mode=True)
     assert result.passed is False
     bsp_criterion = next(c for c in result.criteria if c.name == "blind_spot_precision")
     assert bsp_criterion.passed is False
