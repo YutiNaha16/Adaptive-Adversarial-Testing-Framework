@@ -234,6 +234,16 @@ def main(
     # Per-episode learning curve
     import json as _json
 
+    # Save Q-value policy snapshot for ParameterizedDQNAttacker
+    if isinstance(attacker, ParameterizedDQNAttacker):
+        import numpy as _np
+
+        neutral_state = _np.zeros(ctx_dim, dtype=_np.float32)
+        policy = attacker._model.extract_policy(neutral_state)
+        policy_path = output_dir / f"policy_{ts}.json"
+        policy_path.write_text(_json.dumps(policy, indent=2))
+        print(f"Policy snapshot  : {policy_path}")
+
     curve = [
         {
             "episode": r.episode_index,

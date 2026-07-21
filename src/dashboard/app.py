@@ -196,6 +196,15 @@ def _load_runs() -> list[dict]:
             except (json.JSONDecodeError, OSError):
                 pass
 
+        # Latest Q-value policy snapshot (ParameterizedDQN only)
+        policy_files = sorted(manifest_path.parent.glob("policy_*.json"))
+        policy: dict = {}
+        if policy_files:
+            try:
+                policy = json.loads(policy_files[-1].read_text())
+            except (json.JSONDecodeError, OSError):
+                pass
+
         blind_spots = _parse_blind_spots(report_text)
         ml_evasive = _parse_ml_evasive(report_text)
         ml_suspicious = _parse_ml_suspicious(report_text)
@@ -225,6 +234,7 @@ def _load_runs() -> list[dict]:
             "n_blind_spots": len(blind_spots),
             "is_canonical": run_dir in _CANONICAL,
             "learning_curve": learning_curve,
+            "policy": policy,
         }
 
         # Keep the later timestamp per run_dir
@@ -278,6 +288,23 @@ def index():
     t_labels = [f"{r['run_dir']}" for r in timeline_runs]
     t_dr = [round(r["detection_rate"] * 100, 2) for r in timeline_runs]
 
+    # Q-value policy table for latest canonical run (ParameterizedDQN only)
+    policy = latest["policy"] if latest else {}
+    policy_rows = []
+    if policy:
+        for action_id, intensities in sorted(policy.items()):
+            best = max(intensities, key=intensities.get)
+            policy_rows.append(
+                {
+                    "action": action_id,
+                    "low": round(intensities.get("low", 0.0), 3),
+                    "medium": round(intensities.get("medium", 0.0), 3),
+                    "high": round(intensities.get("high", 0.0), 3),
+                    "preferred": best,
+                }
+            )
+        policy_rows.sort(key=lambda r: -max(r["low"], r["medium"], r["high"]))
+
     # Learning curve for latest canonical run (episode-by-episode reward)
     lc_data = latest["learning_curve"] if latest else []
     lc_episodes = [p["episode"] for p in lc_data]
@@ -300,6 +327,7 @@ def index():
         lc_episodes=json.dumps(lc_episodes),
         lc_reward=json.dumps(lc_reward),
         lc_detected=json.dumps(lc_detected),
+        policy_rows=policy_rows,
     )
 
 

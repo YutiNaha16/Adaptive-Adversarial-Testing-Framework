@@ -395,6 +395,43 @@ main{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-directio
   </div>
 </div>
 
+{# ── Q-Value Policy Table ── #}
+{% if policy_rows %}
+<div class="card card-pad">
+  <div class="section-header">
+    <h2>Learned Policy — Q-Values by Action &amp; Intensity</h2>
+    <div class="sep"></div>
+    <div class="pill">ParameterizedDQN · {{ policy_rows|length }} actions</div>
+  </div>
+  <p style="color:var(--muted);font-size:0.78rem;margin-bottom:0.8rem">
+    Q-values extracted at a neutral context state after training. Higher = preferred by the agent.
+    Preferred intensity shows what the DQN learned to select most often.
+  </p>
+  <div style="overflow-x:auto">
+  <table class="bs-table">
+    <thead><tr>
+      <th>Action</th>
+      <th style="text-align:right">Low</th>
+      <th style="text-align:right">Medium</th>
+      <th style="text-align:right">High</th>
+      <th>Preferred</th>
+    </tr></thead>
+    <tbody>
+    {% for row in policy_rows %}
+    <tr>
+      <td style="font-family:var(--mono);font-size:0.78rem">{{ row.action }}</td>
+      <td style="text-align:right;color:{% if row.preferred=='low' %}var(--green){% else %}var(--muted){% endif %}">{{ row.low }}</td>
+      <td style="text-align:right;color:{% if row.preferred=='medium' %}var(--yellow){% else %}var(--muted){% endif %}">{{ row.medium }}</td>
+      <td style="text-align:right;color:{% if row.preferred=='high' %}var(--red){% else %}var(--muted){% endif %}">{{ row.high }}</td>
+      <td><span style="padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600;background:{% if row.preferred=='low' %}rgba(63,185,80,0.15){% elif row.preferred=='medium' %}rgba(227,179,65,0.15){% else %}rgba(248,81,73,0.15){% endif %};color:{% if row.preferred=='low' %}var(--green){% elif row.preferred=='medium' %}var(--yellow){% else %}var(--red){% endif %}">{{ row.preferred }}</span></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endif %}
+
 {# ── All Runs History ── #}
 <div class="card card-pad">
   <div class="section-header">

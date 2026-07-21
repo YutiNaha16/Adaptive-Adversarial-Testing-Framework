@@ -215,6 +215,24 @@ class ParameterizedDQNModel:
     def _combined_idx(self, action_idx: int, intensity: int) -> int:
         return action_idx * self._n_intensities + intensity
 
+    def extract_policy(self, state: np.ndarray) -> dict[str, dict[str, float]]:
+        """Return Q-values for every (action, intensity) pair given a context state.
+
+        Returns {action_id: {"low": q, "medium": q, "high": q}}.
+        Useful for inspecting what the model learned after training.
+        """
+        x = torch.tensor(state, dtype=torch.float32)
+        with torch.no_grad():
+            q = self.online_net(x).numpy()
+        labels = ["low", "medium", "high"]
+        return {
+            action_id: {
+                labels[intensity]: float(q[self._combined_idx(action_idx, intensity)])
+                for intensity in range(self._n_intensities)
+            }
+            for action_idx, action_id in enumerate(ALL_ACTION_IDS)
+        }
+
     def select_action_with_intensity(
         self, available_ids: list[str], state: np.ndarray
     ) -> tuple[str, int]:

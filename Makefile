@@ -7,7 +7,11 @@ PY     := $(VENV)/bin/python
 PIP    := $(VENV)/bin/pip
 
 .DEFAULT_GOAL := help
-.PHONY: help setup lock test run lint lab-up lab-down lab-check lab-status lab-smoke demo demo-live dashboard lab-traffic lab-baseline transferability round3-ml round4
+.PHONY: help setup lock test run lint lab-up lab-down lab-check lab-status lab-smoke demo demo-live dashboard lab-traffic lab-baseline transferability round3-ml round4 multiseed sweep arms-race transfer-sim
+
+CONFIG ?= config_round3_ml.yaml
+SEEDS  ?= 0,1,2,3,4
+ROUNDS ?= 4
 
 COMPOSE := docker compose -f lab/docker-compose.yml
 
@@ -86,3 +90,22 @@ transferability:  ## Run two-config transferability test and diff blind spots
 	@echo ""
 	@echo "=== Transferability Analysis ==="
 	$(PY) lab/scripts/compare-blind-spots.py outputs/run_003 outputs/run_transfer
+
+transfer-sim:  ## Transferability test in sim mode (no Docker) — seed 42 vs seed 99
+	@echo "=== Run A: seed=42 (config_round3_ml.yaml) ==="
+	$(PY) src/run_experiment.py --config config_round3_ml.yaml
+	@echo ""
+	@echo "=== Run B: seed=99 (config_transfer_sim.yaml) ==="
+	$(PY) src/run_experiment.py --config config_transfer_sim.yaml
+	@echo ""
+	@echo "=== Transferability Analysis ==="
+	$(PY) lab/scripts/compare-blind-spots.py outputs/run_003_ml outputs/run_transfer_sim
+
+multiseed:  ## Multi-seed run with 95% CI — CONFIG=config_round3_ml.yaml SEEDS=0,1,2,3,4
+	$(PY) src/run_multiseed.py --config $(CONFIG) --seeds $(SEEDS)
+
+sweep:  ## Hyperparameter sweep (anomaly_lambda × detection_threshold) — CONFIG=config_round3_ml.yaml
+	$(PY) src/run_sweep.py --config $(CONFIG)
+
+arms-race:  ## Arms race loop: attacker vs hardening defender — CONFIG=config_round3_ml.yaml ROUNDS=4
+	$(PY) src/run_arms_race.py --config $(CONFIG) --rounds $(ROUNDS)
