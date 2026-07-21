@@ -1,0 +1,53 @@
+{
+  "config": "config_round3_ml.yaml",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "attacker_class": "ParameterizedDQNAttacker",
+  "episodes_per_seed": 200,
+  "metrics": {
+    "detection_rate": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "robustness_score": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "cae": {
+      "mean": 9.2151,
+      "std": 0.0193,
+      "ci_low": 9.1995,
+      "ci_high": 9.2284,
+      "values": [
+        9.211,
+        9.2357,
+        9.2241,
+        9.2201,
+        9.1845
+      ]
+    }
+  }
+}

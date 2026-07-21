@@ -1,0 +1,41 @@
+{
+  "config": "config_round3_ml.yaml",
+  "attacker_class": "ParameterizedDQNAttacker",
+  "episodes_per_round": 200,
+  "n_rounds": 4,
+  "threshold_delta": 0.02,
+  "rounds": [
+    {
+      "round": 0,
+      "threshold": 0.63,
+      "cache_vectors": 15,
+      "detection_rate": 0.0,
+      "robustness_score": 0.0,
+      "cae": 9.2119
+    },
+    {
+      "round": 1,
+      "threshold": 0.65,
+      "cache_vectors": 15,
+      "detection_rate": 0.9137,
+      "robustness_score": 0.9,
+      "cae": 11.8313
+    },
+    {
+      "round": 2,
+      "threshold": 0.67,
+      "cache_vectors": 15,
+      "detection_rate": 0.8987,
+      "robustness_score": 0.8733,
+      "cae": 11.7774
+    },
+    {
+      "round": 3,
+      "threshold": 0.69,
+      "cache_vectors": 15,
+      "detection_rate": 0.9243,
+      "robustness_score": 0.9,
+      "cae": 11.8361
+    }
+  ]
+}
