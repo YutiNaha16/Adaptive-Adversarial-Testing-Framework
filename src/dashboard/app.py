@@ -10,7 +10,7 @@ import os
 import re
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, Response, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -328,6 +328,20 @@ def index():
         lc_reward=json.dumps(lc_reward),
         lc_detected=json.dumps(lc_detected),
         policy_rows=policy_rows,
+    )
+
+
+@app.route("/report/<run_dir>")
+def download_report(run_dir: str):
+    run_path = _OUTPUTS_DIR / run_dir
+    reports = sorted(run_path.glob("report_*.md"))
+    if not reports:
+        return "No report found for this run.", 404
+    text = reports[-1].read_text()
+    return Response(
+        text,
+        mimetype="text/markdown",
+        headers={"Content-Disposition": f'attachment; filename="report_{run_dir}.md"'},
     )
 
 

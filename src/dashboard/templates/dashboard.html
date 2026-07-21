@@ -394,6 +394,20 @@ main{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-directio
     </div>
   </div>
 </div>
+<div class="novelty-box" style="border-color:rgba(88,166,255,.25);background:rgba(88,166,255,.05)">
+  <div class="novelty-icon" style="color:var(--accent)">N3</div>
+  <div class="novelty-text">
+    <strong>Novelty 3 — Dual-Paradigm Reward Shaping</strong><br>
+    The RL reward blends two independent detection signals: a Suricata rule-based penalty
+    (fires on known signatures) and an IsolationForest anomaly score weighted by
+    <code style="font-family:var(--mono);color:var(--accent)">anomaly_lambda</code>.
+    This forces the attacker to simultaneously evade both a rule-based IDPS and an
+    unsupervised ML detector — a harder and more realistic adversarial objective than
+    prior work targeting either paradigm alone. The result: actions that are invisible
+    to Suricata AND score low on the anomaly detector are the only ones that receive
+    positive reward, driving the policy towards true dual-blind-spot exploitation.
+  </div>
+</div>
 
 {# ── Q-Value Policy Table ── #}
 {% if policy_rows %}
@@ -452,6 +466,7 @@ main{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-directio
         <th>Blind Spots</th>
         <th>Phase 1</th>
         <th>Commit</th>
+        <th>Report</th>
       </tr>
     </thead>
     <tbody>
@@ -492,6 +507,13 @@ main{max-width:1440px;margin:0 auto;padding:24px 28px;display:flex;flex-directio
         </span>
       </td>
       <td class="commit">{{ run.git_commit or '—' }}</td>
+      <td>
+        <a href="/report/{{ run.run_dir }}" download="report_{{ run.run_dir }}.md"
+           style="color:var(--accent);font-size:11px;text-decoration:none;border:1px solid rgba(88,166,255,.3);padding:2px 8px;border-radius:4px;white-space:nowrap"
+           title="Download Markdown report">
+          Download
+        </a>
+      </td>
     </tr>
     {% endfor %}
     </tbody>
