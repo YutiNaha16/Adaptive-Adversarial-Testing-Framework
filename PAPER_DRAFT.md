@@ -399,7 +399,7 @@ To isolate the contribution of each novelty, three ablation conditions are compa
 | **Full (N1+N2+N3)** | Param-DQN | 0.5 | Yes | **89.87%** | **11.78** | Defender adapted; 3 blind spots remain |
 | **–N1** (no intensity) | DQN | 0.5 | Yes | **100.00%** | 12.13 | Without intensity selection, every action triggers ML detection |
 | **–N2** (no cache) | Param-DQN | 0.5 | No | **0.00%** | 9.22 | Defender blind; cache is the only adaptation mechanism |
-| **–N3** (λ=0) | Param-DQN | 0.0 | Yes | **0.00%** | **0.00** | Attacker ignores ML; no anomaly signal produced |
+| **–N3** (λ=0) | Param-DQN | 0.0 | Yes† | **0.00%** | **0.00** | Attacker ignores ML; no anomaly signal produced |
 
 **Reading the ablation:**
 
@@ -410,6 +410,8 @@ To isolate the contribution of each novelty, three ablation conditions are compa
 - **–N3 (CAE=0.00):** With λ=0, anomaly scores never enter the reward signal. The attacker's policy is shaped only by Suricata signals; it learns to evade Suricata but produces no anomalous ML features (CAE=0). There is no ML signal to boost in the cache. N3 is what forces the attacker into the IsolationForest's observable range in the first place, making N2 meaningful.
 
 **Conclusion:** All three novelties are individually necessary. Removing any single one causes the system to collapse to either trivial detection or persistent evasion.
+
+†With λ=0, the IsolationForest detector is not consulted during episode execution and all `anomaly_score` values are 0.0. The evasive cache is loaded but never activated (the cosine-similarity boost requires a non-zero anomaly score as input). The "Yes" entry reflects the config file state, not functional cache use.
 
 ### 6.4 Hyperparameter Sensitivity: Phase Transition at τ ≈ 0.62
 
@@ -491,7 +493,7 @@ To validate that simulation results reflect real network behaviour, a 50-episode
 | Metric | Sim (run_003_ml) | Lab (run_lab) |
 |---|---|---|
 | Episodes | 200 | 50 |
-| DR | 0.00% | 19.87% |
+| DR | 0.00% | 18.80% |
 | RS | 0.00 | 0.15 |
 | CAE | 9.22 | **9.23** |
 | BSP | N/A (no Suricata) | **1.00** |
@@ -503,7 +505,7 @@ To validate that simulation results reflect real network behaviour, a 50-episode
 
 2. **BSP=1.00:** All 15 reported blind spots correspond to genuinely disabled Suricata SIDs. Every evasion observed in the lab is a real NIDS gap, not a simulation artefact.
 
-3. **DR gap (19.87% lab vs 0.00% sim):** The higher DR in lab mode is explained by the cold-start problem — 50 episodes is insufficient for the IsolationForest to stabilise in the lab environment. In sim mode, the IsolationForest is pre-configured against a fixed baseline; in lab mode it learns from scratch on real traffic which has subtly different feature distributions.
+3. **DR gap (18.80% lab vs 0.00% sim):** The higher DR in lab mode is explained by the cold-start problem — 50 episodes is insufficient for the IsolationForest to stabilise in the lab environment. In sim mode, the IsolationForest is pre-configured against a fixed baseline; in lab mode it learns from scratch on real traffic which has subtly different feature distributions.
 
 ### 6.9 Extended Lab Run (200 Episodes) with Sim-Derived Cache
 
@@ -592,7 +594,7 @@ The explanation is **execution-time feature variation**: the `timing_ms` field i
 
 All experiments were conducted in an isolated Docker network with no access to external hosts. Outbound connectivity was validated as blocked before each lab run. No production systems were targeted. The framework is intended as a blue-team tool for NIDS blind-spot discovery and informed rule-writing, not for malicious use.
 
-Responsible disclosure: the specific Suricata rule gaps identified in lab experiments have been reported to the ET Open maintainers.
+Responsible disclosure: the specific Suricata rule gaps identified in lab experiments will be reported to the ET Open maintainers prior to publication.
 
 ### 7.5 What Would Strengthen This for Top-Tier Venues
 
