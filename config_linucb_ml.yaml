@@ -1,0 +1,8 @@
+episodes: 200
+seed: 42
+output_dir: outputs/run_linucb_ml
+ruleset_path: /etc/suricata/rules
+detection_threshold: 0.63
+attacker_class: LinUCBAttacker
+anomaly_lambda: 0.5
+lab_target_ip: 172.28.0.2

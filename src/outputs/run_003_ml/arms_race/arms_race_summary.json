@@ -1,0 +1,73 @@
+{
+  "config": "../config_round3_ml.yaml",
+  "attacker_class": "ParameterizedDQNAttacker",
+  "episodes_per_round": 200,
+  "n_rounds": 8,
+  "threshold_delta": 0.02,
+  "rounds": [
+    {
+      "round": 0,
+      "threshold": 0.63,
+      "cache_vectors": 0,
+      "detection_rate": 1.0,
+      "robustness_score": 1.0,
+      "cae": 9.8234
+    },
+    {
+      "round": 1,
+      "threshold": 0.65,
+      "cache_vectors": 0,
+      "detection_rate": 1.0,
+      "robustness_score": 1.0,
+      "cae": 9.8235
+    },
+    {
+      "round": 2,
+      "threshold": 0.67,
+      "cache_vectors": 15,
+      "detection_rate": 0.0,
+      "robustness_score": 0.0,
+      "cae": 9.8242
+    },
+    {
+      "round": 3,
+      "threshold": 0.69,
+      "cache_vectors": 15,
+      "detection_rate": 0.9107,
+      "robustness_score": 0.8933,
+      "cae": 12.12
+    },
+    {
+      "round": 4,
+      "threshold": 0.71,
+      "cache_vectors": 15,
+      "detection_rate": 0.9233,
+      "robustness_score": 0.88,
+      "cae": 12.152
+    },
+    {
+      "round": 5,
+      "threshold": 0.73,
+      "cache_vectors": 15,
+      "detection_rate": 0.9337,
+      "robustness_score": 0.9133,
+      "cae": 12.1815
+    },
+    {
+      "round": 6,
+      "threshold": 0.75,
+      "cache_vectors": 15,
+      "detection_rate": 0.922,
+      "robustness_score": 0.8667,
+      "cae": 12.2035
+    },
+    {
+      "round": 7,
+      "threshold": 0.77,
+      "cache_vectors": 15,
+      "detection_rate": 0.9177,
+      "robustness_score": 0.9,
+      "cae": 12.1902
+    }
+  ]
+}
