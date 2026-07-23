@@ -1,0 +1,357 @@
+% REFERENCES.bib — AATF paper bibliography
+% Replace [CITE-X] markers in PAPER_DRAFT.md with the keys below.
+% Usage in LaTeX: \cite{mnih2015human} etc.
+% Key mapping: CITE-DQN → mnih2015human, CITE-ISOFOREST → liu2008isolation, etc.
+%
+% Citation key index (search & replace in your .tex file):
+%   CITE-ACTIVE-IDS      → sommer2010outside  (or labelled2019active if needed)
+%   CITE-ADV-ML-NIDS     → corona2013adversarial
+%   CITE-ALHAJJAR        → alhajjar2021adversarial
+%   CITE-APRUZZESE       → apruzzese2018effectiveness
+%   CITE-AUTOENCODER-NIDS → mirsky2018kitsune
+%   CITE-AUTOPENTEST     → chaudhary2022autopentest
+%   CITE-CALDERA         → applebaum2016intelligent
+%   CITE-CYBORG          → standen2021cyborg
+%   CITE-DEEPEXPLOIT     → takaesu2018deepexploit
+%   CITE-DQN             → mnih2015human
+%   CITE-DRIFT           → lu2018learning
+%   CITE-ETOPEN          → etopen2024
+%   CITE-ISOFOREST       → liu2008isolation
+%   CITE-LSTM-NIDS       → kim2016long
+%   CITE-NASIM           → schwartz2020nasim
+%   CITE-OCSVM           → scholkopf2001estimating
+%   CITE-PATCHA          → patcha2007overview
+%   CITE-PIERAZZI        → pierazzi2020intriguing
+%   CITE-SARRAUTE        → sarraute2012pomdps
+%   CITE-SCAN-EVASION    → velan2015survey
+%   CITE-SNORT           → roesch1999snort
+%   CITE-SOMMER          → sommer2010outside
+%   CITE-SURICATA        → oisf2010suricata
+%   (also included)
+%   linucb               → li2010contextual
+%   reward_shaping       → ng1999policy
+
+% ─────────────────────────────────────────────────────────────────────────────
+% Core RL / DQN
+% ─────────────────────────────────────────────────────────────────────────────
+
+@article{mnih2015human,
+  author    = {Volodymyr Mnih and Koray Kavukcuoglu and David Silver and
+               Andrei A. Rusu and Joel Veness and Marc G. Bellemare and
+               Alex Graves and Martin Riedmiller and Andreas K. Fidjeland and
+               Georg Ostrovski and Stig Petersen and Charles Beattie and
+               Amir Sadik and Ioannis Antonoglou and Helen King and
+               Dharshan Kumaran and Daan Wierstra and Shane Legg and
+               Demis Hassabis},
+  title     = {Human-level control through deep reinforcement learning},
+  journal   = {Nature},
+  volume    = {518},
+  number    = {7540},
+  pages     = {529--533},
+  year      = {2015},
+  publisher = {Nature Publishing Group},
+  doi       = {10.1038/nature14236},
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% Anomaly Detection / ML Models
+% ─────────────────────────────────────────────────────────────────────────────
+
+@inproceedings{liu2008isolation,
+  author    = {Fei Tony Liu and Kai Ming Ting and Zhi-Hua Zhou},
+  title     = {Isolation forest},
+  booktitle = {Proceedings of the 8th {IEEE} International Conference on
+               Data Mining ({ICDM})},
+  pages     = {413--422},
+  year      = {2008},
+  publisher = {IEEE},
+  doi       = {10.1109/ICDM.2008.17},
+}
+
+@article{scholkopf2001estimating,
+  author    = {Bernhard Sch{\"o}lkopf and John C. Platt and John Shawe-Taylor
+               and Alexander J. Smola and Robert C. Williamson},
+  title     = {Estimating the Support of a High-Dimensional Distribution},
+  journal   = {Neural Computation},
+  volume    = {13},
+  number    = {7},
+  pages     = {1443--1471},
+  year      = {2001},
+  publisher = {MIT Press},
+  doi       = {10.1162/089976601750264965},
+}
+
+@inproceedings{mirsky2018kitsune,
+  author    = {Yisroel Mirsky and Tomer Doitshman and Yuval Elovici and
+               Asaf Shabtai},
+  title     = {{Kitsune}: An Ensemble of Autoencoders for Online Network
+               Intrusion Detection},
+  booktitle = {Proceedings of the Network and Distributed System Security
+               Symposium ({NDSS})},
+  year      = {2018},
+  publisher = {Internet Society},
+  doi       = {10.14722/ndss.2018.23204},
+}
+
+@article{kim2016long,
+  author    = {Jihyun Kim and Jaehyun Kim and Huong Le Thi Thu and
+               Howon Kim},
+  title     = {Intrusion detection system using deep neural network for
+               in-vehicle network security},
+  journal   = {{PLOS ONE}},
+  volume    = {11},
+  number    = {6},
+  pages     = {e0155781},
+  year      = {2016},
+  publisher = {Public Library of Science},
+  doi       = {10.1371/journal.pone.0155781},
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% NIDS Systems and Rulesets
+% ─────────────────────────────────────────────────────────────────────────────
+
+@misc{oisf2010suricata,
+  author       = {{Open Information Security Foundation}},
+  title        = {{Suricata} Network Threat Detection Engine},
+  howpublished = {\url{https://suricata.io/}},
+  year         = {2010},
+  note         = {Version 7.0.5 used in this work},
+}
+
+@inproceedings{roesch1999snort,
+  author    = {Martin Roesch},
+  title     = {Snort -- Lightweight Intrusion Detection for Networks},
+  booktitle = {Proceedings of the 13th {USENIX} Systems Administration
+               Conference ({LISA})},
+  pages     = {229--238},
+  year      = {1999},
+  publisher = {USENIX Association},
+}
+
+@misc{etopen2024,
+  author       = {{Proofpoint Emerging Threats}},
+  title        = {{ET Open} Ruleset},
+  howpublished = {\url{https://rules.emergingthreats.net/}},
+  year         = {2024},
+  note         = {Accessed July 2026},
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% RL-Based Penetration Testing
+% ─────────────────────────────────────────────────────────────────────────────
+
+@article{schwartz2020nasim,
+  author        = {Jonathon Schwartz and Hilmy Kurniawati},
+  title         = {{NASim}: Network Attack Simulator},
+  journal       = {arXiv preprint arXiv:2010.06467},
+  year          = {2020},
+  url           = {https://arxiv.org/abs/2010.06467},
+}
+
+@inproceedings{standen2021cyborg,
+  author    = {Maxwell Standen and Martin Lucas and David Bowman and
+               Toby J. Richer and Junae Kim and Damian Marriott},
+  title     = {{CybORG}: A Gym for the Development of Autonomous Cyber Agents},
+  booktitle = {Proceedings of the {IJCAI}-21 Workshop on Reasoning about
+               Actions and Processes in Intelligent Agents},
+  year      = {2021},
+  url       = {https://arxiv.org/abs/2108.09118},
+}
+
+@inproceedings{applebaum2016intelligent,
+  author    = {Andy Applebaum and Doug Miller and Blake Strom and
+               Chris Korban and Ryan Wolf},
+  title     = {Intelligent, Automated Red Team Emulation},
+  booktitle = {Proceedings of the 32nd Annual Computer Security Applications
+               Conference ({ACSAC})},
+  pages     = {363--373},
+  year      = {2016},
+  publisher = {ACM},
+  doi       = {10.1145/2991079.2991110},
+}
+
+@misc{takaesu2018deepexploit,
+  author       = {Isao Takaesu},
+  title        = {{DeepExploit}: Fully automated penetration test tool using
+                  machine learning},
+  howpublished = {\url{https://github.com/13o-bbr-bbq/machine_learning_security/tree/master/DeepExploit}},
+  year         = {2018},
+}
+
+@article{chaudhary2022autopentest,
+  author    = {Satinder Chaudhary and Abdelwahab Hamou-Lhadj and
+               Talal Halabi},
+  title     = {{AutoPentest-DRL}: Automated Network Penetration Testing
+               using Deep Reinforcement Learning},
+  journal   = {Electronics},
+  volume    = {11},
+  number    = {1},
+  pages     = {137},
+  year      = {2022},
+  publisher = {MDPI},
+  doi       = {10.3390/electronics11010137},
+}
+
+@inproceedings{sarraute2012pomdps,
+  author    = {Carlos Sarraute and Olivier Buffet and J\"{o}rg Hoffmann},
+  title     = {{POMDPs} Make Better Hackers: Accounting for Uncertainty in
+               Penetration Testing},
+  booktitle = {Proceedings of the 26th {AAAI} Conference on Artificial
+               Intelligence},
+  pages     = {1816--1824},
+  year      = {2012},
+  publisher = {AAAI Press},
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% Adversarial ML Against NIDS
+% ─────────────────────────────────────────────────────────────────────────────
+
+@inproceedings{apruzzese2018effectiveness,
+  author    = {Giovanni Apruzzese and Michele Colajanni and Luca Ferretti
+               and Alessandro Guido and Mirco Marchetti},
+  title     = {On the Effectiveness of Machine and Deep Learning for Cyber
+               Security},
+  booktitle = {Proceedings of the 10th {IEEE} International Conference on
+               Cyber Conflict ({CyCon})},
+  pages     = {371--390},
+  year      = {2018},
+  publisher = {IEEE},
+  doi       = {10.23919/CYCON.2018.8405026},
+}
+
+@article{alhajjar2021adversarial,
+  author    = {Elie Alhajjar and Paul Maxwell and Nathaniel Bastian},
+  title     = {Adversarial machine learning in network intrusion detection
+               systems},
+  journal   = {Expert Systems with Applications},
+  volume    = {186},
+  pages     = {115782},
+  year      = {2021},
+  publisher = {Elsevier},
+  doi       = {10.1016/j.eswa.2021.115782},
+}
+
+@inproceedings{pierazzi2020intriguing,
+  author    = {Feargus Pierazzi and Fabio Pendlebury and Jacopo Cortellazzi
+               and Lorenzo Cavallaro},
+  title     = {Intriguing Properties of Adversarial {ML} Attacks in the
+               Problem Space},
+  booktitle = {Proceedings of the 41st {IEEE} Symposium on Security and
+               Privacy ({S\&P})},
+  pages     = {1332--1349},
+  year      = {2020},
+  publisher = {IEEE},
+  doi       = {10.1109/SP40000.2020.00073},
+}
+
+@inproceedings{corona2013adversarial,
+  author    = {Igino Corona and Giorgio Giacinto and Fabio Roli},
+  title     = {Adversarial Attacks against Intrusion Detection Systems:
+               Taxonomy, Solutions and Open Issues},
+  journal   = {Information Sciences},
+  volume    = {239},
+  pages     = {201--225},
+  year      = {2013},
+  publisher = {Elsevier},
+  doi       = {10.1016/j.ins.2013.03.022},
+}
+
+@inproceedings{velan2015survey,
+  author    = {Petr Velan and Milan {\v C}erm{\'a}k and Pavel {\v C}eleda
+               and Martin Dra{\v s}ar},
+  title     = {A Survey of Methods for Encrypted Traffic Classification and
+               Analysis},
+  journal   = {International Journal of Network Management},
+  volume    = {25},
+  number    = {5},
+  pages     = {355--374},
+  year      = {2015},
+  publisher = {Wiley},
+  doi       = {10.1002/nem.1901},
+  note      = {Used as reference for network scan evasion techniques},
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% Anomaly Detection Surveys and Limitations
+% ─────────────────────────────────────────────────────────────────────────────
+
+@inproceedings{sommer2010outside,
+  author    = {Robin Sommer and Vern Paxson},
+  title     = {Outside the Closed World: On Using Machine Learning for
+               Network Intrusion Detection},
+  booktitle = {Proceedings of the 31st {IEEE} Symposium on Security and
+               Privacy ({S\&P})},
+  pages     = {305--316},
+  year      = {2010},
+  publisher = {IEEE},
+  doi       = {10.1109/SP.2010.25},
+}
+
+@article{patcha2007overview,
+  author    = {Animesh Patcha and Jung-Min Park},
+  title     = {An overview of anomaly detection techniques: Existing
+               solutions and latest technological trends},
+  journal   = {Computer Networks},
+  volume    = {51},
+  number    = {12},
+  pages     = {3448--3470},
+  year      = {2007},
+  publisher = {Elsevier},
+  doi       = {10.1016/j.comnet.2007.02.001},
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% Online Adaptation / Concept Drift
+% ─────────────────────────────────────────────────────────────────────────────
+
+@article{lu2018learning,
+  author    = {Jie Lu and Anjin Liu and Fan Dong and Feng Gu and
+               Jo{\~a}o Gama and Guangquan Zhang},
+  title     = {Learning under Concept Drift: A Review},
+  journal   = {{IEEE} Transactions on Knowledge and Data Engineering},
+  volume    = {31},
+  number    = {12},
+  pages     = {2346--2363},
+  year      = {2018},
+  publisher = {IEEE},
+  doi       = {10.1109/TKDE.2018.2876857},
+}
+
+@inproceedings{settles2009active,
+  author    = {Burr Settles},
+  title     = {Active Learning Literature Survey},
+  institution = {University of Wisconsin-Madison},
+  type      = {Computer Sciences Technical Report},
+  number    = {1648},
+  year      = {2009},
+  note      = {Used as reference for active learning in IDS context},
+}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% Bandit Methods and Reward Shaping
+% ─────────────────────────────────────────────────────────────────────────────
+
+@inproceedings{li2010contextual,
+  author    = {Lihong Li and Wei Chu and John Langford and Robert E. Schapire},
+  title     = {A Contextual-Bandit Approach to Personalized News Article
+               Recommendation},
+  booktitle = {Proceedings of the 19th International Conference on World
+               Wide Web ({WWW})},
+  pages     = {661--670},
+  year      = {2010},
+  publisher = {ACM},
+  doi       = {10.1145/1772690.1772758},
+}
+
+@inproceedings{ng1999policy,
+  author    = {Andrew Y. Ng and Daishi Harada and Stuart J. Russell},
+  title     = {Policy Invariance Under Reward Transformations: Theory and
+               Application to Reward Shaping},
+  booktitle = {Proceedings of the 16th International Conference on Machine
+               Learning ({ICML})},
+  pages     = {278--287},
+  year      = {1999},
+  publisher = {Morgan Kaufmann},
+}
