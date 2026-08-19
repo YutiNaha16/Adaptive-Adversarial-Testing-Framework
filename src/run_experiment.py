@@ -97,7 +97,12 @@ def main(
         from aatf.ml_defence import MLAnomalyDefence
         from aatf.suricata_defence import SuricataDefence
 
-        ml_defence = MLAnomalyDefence(seed=config.seed)
+        from aatf.ml_defence import load_evasive_cache
+
+        ml_defence = MLAnomalyDefence(threshold=config.detection_threshold, seed=config.seed)
+        if evasive_cache and Path(evasive_cache).exists():
+            n_loaded = load_evasive_cache(ml_defence, Path(evasive_cache))
+            print(f"Loaded {n_loaded} evasive vectors from {evasive_cache}")
         defence = CompositeDefence(
             primary=SuricataDefence(eve_path),
             secondary=ml_defence,

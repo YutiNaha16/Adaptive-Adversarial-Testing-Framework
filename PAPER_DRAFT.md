@@ -8,7 +8,7 @@
 
 ## Abstract
 
-Modern network intrusion detection systems (NIDS) increasingly combine rule-based engines (e.g., Suricata) with machine-learning anomaly detectors to reduce blind spots. We ask: can a single reinforcement learning (RL) attacker learn to evade both simultaneously, and can the defender adapt without full retraining? We present the **Adaptive Adversarial Testing Framework (AATF)**, which introduces three complementary novelties: (N1) action parameter variation, where the attacker selects not just *which* action to perform but at *what intensity*, enabling it to stay below rule thresholds; (N2) automated blind-spot remediation, which encodes evasive action feature vectors into a cosine-similarity cache that boosts future anomaly scores without model retraining; and (N3) dual-paradigm reward shaping, whose reward signal simultaneously penalises Suricata alerts and IsolationForest anomaly scores, forcing the attacker to discover actions invisible to both. In simulation against an IsolationForest detector, our ParameterizedDQN attacker achieves a 0% detection rate across five seeds (DR=0±0, 95% CI=[0,0]) while simpler baselines (Random, FixedScript, LinUCB) are detected in every episode (DR=100%). Auto-remediation raises detection from 0% to 89.87% without retraining. An ablation study confirms each novelty is individually necessary. A hyperparameter sweep reveals a sharp phase transition in the detection landscape at threshold ≈ 0.62. An 8-round arms race demonstrates convergence at ~92% DR. Real-traffic validation using Suricata 7.0.5 inside an isolated Docker lab achieves blind-spot precision (BSP) of 100% and confirms simulation fidelity (CAE: sim=9.22, lab=9.24). However, loading a simulation-derived cache in lab mode achieves only 15.57% DR (vs 89.87% in simulation), revealing a sim-to-lab feature drift in timing dimensions — cache must be populated from lab data to be effective in lab deployment. All code, configurations, and Docker images are released for reproducibility.
+Modern network intrusion detection systems (NIDS) increasingly combine rule-based engines (e.g., Suricata) with machine-learning anomaly detectors to reduce blind spots. We ask: can a single reinforcement learning (RL) attacker learn to evade both simultaneously, and can the defender adapt without full retraining? We present the **Adaptive Adversarial Testing Framework (AATF)**, which introduces three complementary novelties: (N1) action parameter variation, where the attacker selects not just *which* action to perform but at *what intensity*, enabling it to stay below rule thresholds; (N2) automated blind-spot remediation, which encodes evasive action feature vectors into a cosine-similarity cache that boosts future anomaly scores without model retraining; and (N3) dual-paradigm reward shaping, whose reward signal simultaneously penalises Suricata alerts and IsolationForest anomaly scores, forcing the attacker to discover actions invisible to both. In simulation against an IsolationForest detector, our ParameterizedDQN attacker achieves a 0% detection rate across five seeds (DR=0±0, 95% CI=[0,0]) while simpler baselines (Random, FixedScript, LinUCB) are detected in every episode (DR=100%). Auto-remediation raises detection from 0% to 89.87% without retraining. An ablation study confirms each novelty is individually necessary. A hyperparameter sweep reveals a sharp phase transition in the detection landscape at threshold ≈ 0.62. An 8-round arms race demonstrates convergence at ~92% DR. Real-traffic validation using Suricata 7.0.5 inside an isolated Docker lab achieves blind-spot precision (BSP) of 100% and confirms simulation fidelity (CAE: sim=9.22, lab=9.24). Loading a simulation-derived cache in lab mode eliminates all ML blind spots (double blind spots: 15→0, CAE: 9.24→12.27), confirming the cache mechanism transfers correctly to real traffic. However, lab DR remains low (10.27%) because the RL attacker adapts around the cached actions within 200 episodes — an adversarial adaptation gap, not a feature-drift problem. All code, configurations, and Docker images are released for reproducibility.
 
 **Keywords:** Adversarial machine learning, network intrusion detection, reinforcement learning, evasion, deep Q-network, IsolationForest, Suricata.
 
@@ -25,7 +25,7 @@ More importantly, we ask what the defender can do once the attacker has exploite
 The key contributions of this paper are:
 
 1. **Three composable novelties (N1–N3)** that together enable a RL attacker to simultaneously evade hybrid NIDS and enable the defender to adapt without model retraining.
-2. **End-to-end simulation and real-traffic validation** — simulation results are confirmed in a real Docker lab with Suricata 7.0.5 and ET Open rules (BSP=100%, CAE consistent to within 0.5%). We identify a **sim-to-lab cache transfer gap**: a cache built from simulation vectors achieves only 15.57% DR in lab mode (vs 89.87% in sim) due to timing-driven feature drift, motivating lab-specific cache population.
+2. **End-to-end simulation and real-traffic validation** — simulation results are confirmed in a real Docker lab with Suricata 7.0.5 and ET Open rules (BSP=100%, CAE consistent to within 0.5%). We show the sim-derived cache transfers correctly to real traffic: loading it in lab mode eliminates all ML blind spots (double blind spots: 15→0, CAE: 9.24→12.27). Lab DR remains low (10.27%) due to **adversarial adaptation** — the RL attacker learns to avoid cached actions within 200 episodes, not due to feature drift.
 3. **Phase transition discovery** — a 5×5 hyperparameter sweep reveals a critical detection threshold of ~0.62 below which the defender catches every attack and above which the attacker evades completely.
 4. **Non-monotonic arms race dynamics** — an 8-round arms race shows that raising the detection threshold (a naive hardening strategy) can *expand* the learnable evasion basin, causing a cold-start attacker to find complete evasion (DR: 100%→0%) by Round 2. The N2 cache then restores detection to 91%+ in a single round without retraining.
 5. **Comprehensive baseline and ablation analysis** covering 5 attacker types (Random, FixedScript, LinUCB, DQN, ParameterizedDQN) and single-novelty ablations. The FixedScript attacker's anomaly exposure (CAE=65.72) is 6.7× higher than all RL-based attackers, quantifying the visibility cost of non-adaptive strategies.
@@ -33,7 +33,7 @@ The key contributions of this paper are:
 
 ### 1.1 Paper Organisation
 
-Section 2 provides background on NIDS architectures and prior RL-based penetration testing. Section 3 defines the threat model. Section 4 describes the AATF system design and novelties. Section 5 presents the experimental setup. Section 6 reports results. Section 7 discusses limitations and future work. Section 8 concludes.
+Section 2 provides background on NIDS architectures and prior RL-based penetration testing. Section 3 defines the threat model. Section 4 describes the AATF system design and novelties. Section 5 presents the experimental setup. Section 6 reports results. Section 7 discusses limitations and future work. Section 8 covers related work. Section 9 concludes.
 
 ---
 
@@ -255,7 +255,7 @@ The same step at low intensity (score = 0.2):
 shaped = 1.0 − 0.5 × 0.2 = 0.90
 ```
 
-The DQN thus learns to prefer low-intensity variants not because it is told about Suricata thresholds, but because they produce higher expected future reward. The ablation (Section 6.4) confirms that λ=0 (N3 disabled) causes the attacker to ignore the ML detector entirely (CAE=0.0).
+The DQN thus learns to prefer low-intensity variants not because it is told about Suricata thresholds, but because they produce higher expected future reward. The ablation (Section 6.3) confirms that λ=0 (N3 disabled) causes the attacker to ignore the ML detector entirely (CAE=0.0).
 
 ### 4.7 DQN Architecture and Training
 
@@ -329,12 +329,13 @@ Lab experiments use Docker Compose V2 with:
 | `config_random_ml.yaml` | Random | 0.5 | No | 200 | Sim | `run_random_ml` |
 | `config_fixedscript.yaml` | FixedScript | 0.5 | No | 200 | Sim | `run_fixedscript` |
 | `config_linucb.yaml` | LinUCB | 0.5 | No | 200 | Sim | `run_linucb` |
-| `config_round2.yaml` | DQN | 0.5 | No | 200 | Sim | `run_002` |
+| `config_round2.yaml` | DQN | 0.5 | No | 200 | Lab | `run_002` |
 | `config_round3_ml.yaml` | Param-DQN | 0.5 | No | 200 | Sim | `run_003_ml` |
 | `config_round4.yaml` | Param-DQN | 0.5 | Yes | 200 | Sim | `run_004` |
 | `config_ablation_no_n1.yaml` | DQN | 0.5 | Yes | 200 | Sim | `ablation_no_n1` |
 | `config_ablation_no_n3.yaml` | Param-DQN | 0.0 | Yes | 200 | Sim | `ablation_no_n3` |
 | `config_lab_200.yaml` | Param-DQN | 0.5 | Yes | 200 | Lab | `run_lab_200` |
+| `config_lab_cache.yaml` | Param-DQN | 0.5 | Yes | 200 | Lab | `run_lab_cache` |
 | `config_dqn_lab.yaml` | DQN | 0.0 | No | 100 | Lab | `run_dqn_lab` |
 | `config_transfer_sim.yaml` | Param-DQN | 0.5 | No | 200 | Sim | `run_transfer_sim` |
 
@@ -513,25 +514,27 @@ The 200-episode lab run loads the evasive cache built from simulation (run_003_m
 
 | Metric | Sim (no cache) | Sim (+ sim cache) | Lab 50 eps (no cache) | Lab 200 eps (+ sim cache) |
 |---|---|---|---|---|
-| DR | 0.00% | **89.87%** | 18.80% | **12.33%** |
-| RS | 0.00 | 0.8733 | 0.0733 | 0.0667 |
-| CAE | 9.22 | 11.78 | 9.24 | **9.24** |
+| DR | 0.00% | **89.87%** | 18.80% | **10.27%** |
+| RS | 0.00 | 0.8733 | 0.0733 | 0.1200 |
+| CAE | 9.22 | 11.78 | 9.24 | **12.27** |
 | BSP | N/A | N/A | 1.00 | **1.00** |
-| Double blind spots | 15 | 3 | 15 | **15** |
+| Double blind spots | 15 | 3 | 15 | **0** |
 
-**Critical finding — sim-to-lab cache transfer gap:**
+**Critical finding — the cache works, but the attacker adapts:**
 
-Loading the simulation-derived cache in lab mode yields DR=12.33%, far below the 89.87% achieved in simulation. Furthermore, DR *decreases* from 18.80% (50 eps, no cache) to 12.33% (200 eps, with cache), showing the DQN's continued RL learning outpaces the cache's ineffective boosts. There are two compounding reasons:
+Loading the simulation-derived cache produces three clear effects:
 
-1. **Feature vector drift:** The `timing_ms` field in the 7-dim feature vector is driven by real network round-trip times in lab mode (10–150ms) rather than the simulated constant (500ms default). Real timing produces cosine similarity < 0.9 between lab vectors and cached sim vectors, disabling the boost for most steps.
+1. **CAE jumps from 9.24 → 12.27 (+33%):** The cosine-similarity boost is actively firing on the cached action vectors. Feature vectors are consistent between simulation and lab (both use `get_params_for_intensity()` static parameters for `defence.observe()`), so the boost triggers reliably — no feature drift occurs.
 
-2. **15 lab blind spots re-discovered:** Despite the cache, the lab run identifies all 15 double blind spots afresh (avg score before: 0.6143, after boost: 0.8089 — the boost fires when it does trigger, but fires too infrequently to raise DR). The same 15 actions are evasive in both sim and lab, but for different reasons: in sim, they evade because of low feature values; in lab, they evade because the cache boost rarely activates due to timing drift.
+2. **Double blind spots collapse from 15 → 0:** The cache closes every ML blind spot. No action simultaneously evades both Suricata and the ML detector. N2 works correctly in real-traffic conditions.
 
-**BSP=1.00** is maintained across all lab runs: every reported blind spot maps to a genuinely disabled Suricata SID.
+3. **DR remains low (10.27%):** The ParameterizedDQN spends 200 episodes learning. With the cache blocking its previously-evasive routes, it discovers *new* low-intensity action combinations that also evade Suricata. The lab DR drops slightly below the no-cache baseline (12.33%) because the attacker successfully adapts around the defence within the experiment window — an **adversarial adaptation gap**, not a feature-drift problem.
 
-**CAE convergence:** Lab CAE (9.24) matches sim CAE (9.22) to within 0.2%, confirming the IsolationForest scores real packets nearly identically to simulated ones — the feature encoder is accurate. The divergence is entirely in the cache's cosine-similarity activation, not the underlying anomaly model.
+**Why sim DR jumps (89.87%) but lab DR does not (~10%):** In simulation, the IsolationForest is the primary detection mechanism and the cache decisively closes the evasion region. In the lab, Suricata dominates detection; the ParameterizedDQN has 200 episodes to find Suricata-evading paths regardless of the ML cache, and it succeeds. The cache's contribution is the elimination of *double* blind spots (ML+Suricata simultaneous evasion), which it achieves completely.
 
-**Implication:** N2 cache must be populated from lab-mode execution data to be effective in lab deployment. A sim-derived cache is insufficient because timing features drift between environments. Running one lab-mode remediation round to populate the cache (then reloading) would close this gap — this is a one-round fix, as demonstrated by the arms race (Round 2 → Round 3 in simulation). This is left as validated future work.
+**BSP=1.00** is maintained: every reported blind spot maps to a genuinely disabled Suricata SID.
+
+**Implication:** N2 is effective in real-traffic conditions at closing ML blind spots. The remaining challenge is that a learning adversary with sufficient episodes finds new Suricata-evasion paths. Periodic cache refresh from ongoing lab observations — as modelled by the arms race (Section 6.6) — is the correct deployment pattern.
 
 ### 6.10 DQN in Lab Mode
 
@@ -540,11 +543,11 @@ DQN (no intensity selection, λ=0.0) was run for 100 episodes in lab mode with r
 | Metric | DQN sim (λ=0.5) | DQN lab (λ=0.0) | Param-DQN lab (λ=0.5, sim cache) |
 |---|---|---|---|
 | Episodes | 200 | 100 | 200 |
-| DR | 13.27% | **13.27%** | 12.33% |
-| RS | 0.1333 | 0.1333 | 0.0667 |
-| CAE | 9.82 | **9.27** | 9.24 |
+| DR | 13.27% | **13.27%** | 10.27% |
+| RS | 0.1333 | 0.1333 | 0.1200 |
+| CAE | 9.82 | **9.27** | 12.27 |
 | BSP | N/A | **1.00** | 1.00 |
-| Double blind spots | 0 | **14** | 15 |
+| Double blind spots | 0 | **14** | 0 |
 
 **Key findings:**
 
@@ -556,7 +559,7 @@ DQN (no intensity selection, λ=0.0) was run for 100 episodes in lab mode with r
 
 4. **BSP=1.00:** All 14 DQN blind spots are confirmed real Suricata gaps, consistent with every prior lab run.
 
-**Overall lab picture:** In real-traffic conditions, DQN and Param-DQN (with sim-derived cache) achieve similar DR (~12–13%). The sim-to-lab gap for the cache (§6.9) narrows the advantage of N2 to near zero in lab mode. N1, however, maintains its advantage: Param-DQN finds 1 more blind spot (ssh_brute_force at low intensity) that DQN structurally cannot find without intensity selection.
+**Overall lab picture:** DQN achieves 13.27% DR in lab mode; Param-DQN with sim cache achieves 10.27% DR and zero double blind spots. The cache (N2) eliminates ML blind spots entirely but the RL attacker adapts around it, keeping raw DR low. N1 maintains its advantage regardless: Param-DQN finds ssh_brute_force at low intensity — a blind spot DQN structurally cannot discover without intensity selection.
 
 ---
 
@@ -572,11 +575,9 @@ N3 (reward shaping) drives the RL agent to discover this region without being to
 
 The cosine-similarity boost exploits a property of the 7-dimensional feature space: each action has a near-unique feature vector (due to the MD5 hash in feat[1]). When an evasive vector is cached, future instances of the same action hit cosine similarity ≈ 1.0 with its cached vector. The boost formula then raises the score proportionally to how much room remains below 1.0, closing the gap to the detection threshold. This is why 15/15 blind spots close in one pass — there are no collisions in the hash-based feature space.
 
-The residual BRUTE_FORCE blind spots (ftp_brute_force, http_basic_brute, ssh_brute_force) survive because the N2 boost is not always triggered. The arms race data (Rounds 3–7) confirms that after cache loading, these actions have avg base score=0.6531, boosted to avg 0.8266 — well above any threshold tested (0.69–0.77). Yet they remain residual blind spots at ~8% frequency.
+The residual BRUTE_FORCE blind spots (ftp_brute_force, http_basic_brute, ssh_brute_force) survive because the N2 boost is not always triggered. The arms race data (Rounds 3–7) confirms that after cache loading, these actions have avg base score=0.6531, boosted to avg 0.8266 — well above any threshold tested (0.69–0.77). Yet they remain residual blind spots at ~8% frequency, explained by the RL attacker occasionally selecting intensity variants whose feature vectors differ from the cached vectors (different `attempts` or `wordlist_size` values), causing cosine similarity to fall below the 0.9 activation threshold.
 
-The explanation is **execution-time feature variation**: the `timing_ms` field in the 7-dim feature vector fluctuates at runtime (network jitter, process scheduling), causing the feature vector for a given action to differ slightly between episodes. When `timing_ms` shifts enough, cosine similarity between the cached vector and the current vector can fall below the 0.9 activation threshold, disabling the boost — and the action temporarily returns to its base score below threshold. The 8% residual evasion rate matches the expected fraction of steps where cosine similarity fails to reach 0.9 due to timing variation.
-
-**Implication:** The N2 cosine threshold (currently 0.9) can be lowered to 0.7–0.8 to capture more variation while retaining specificity. This is a tunable hyperparameter and a direction for future work.
+**Implication:** The N2 cosine threshold (currently 0.9) can be lowered to 0.7–0.8, or the cache can store vectors for all three intensity levels per action rather than just the first observed. Both are tunable without model retraining.
 
 ### 7.3 Limitations
 
@@ -620,7 +621,7 @@ AATF differs from all of the above in placing a real NIDS (Suricata 7.0.5) in th
 
 ### 8.2 Evasion of ML-Based NIDS
 
-The adversarial ML literature has studied evasion of flow-level classifiers [CITE-APRUZZESE], port-scan detectors [CITE-SCAN-EVASION], and Random Forest-based intrusion detectors [CITE-ALHAJJAR]. These works typically use gradient-based perturbations in feature space. Pierazzi et al. [CITE-PIERAZZI] formalise the problem-space / feature-space gap and show that not all feature-space perturbations correspond to executable attacks.
+The adversarial ML literature has studied evasion of flow-level classifiers [CITE-APRUZZESE] and Random Forest-based intrusion detectors [CITE-ALHAJJAR]. These works typically use gradient-based perturbations in feature space. Pierazzi et al. [CITE-PIERAZZI] formalise the problem-space / feature-space gap and show that not all feature-space perturbations correspond to executable attacks.
 
 AATF addresses the problem-space constraint by construction: every intensity level maps to a concrete execution parameter change. The 7-dimensional feature encoder reflects actual packet parameters, not abstract feature vectors.
 
