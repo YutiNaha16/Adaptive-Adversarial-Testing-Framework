@@ -94,10 +94,8 @@ def main(
         from aatf.action_executor import ActionExecutor
         from aatf.action_intensity import get_params_for_intensity
         from aatf.defence import CompositeDefence
-        from aatf.ml_defence import MLAnomalyDefence
+        from aatf.ml_defence import MLAnomalyDefence, load_evasive_cache
         from aatf.suricata_defence import SuricataDefence
-
-        from aatf.ml_defence import load_evasive_cache
 
         ml_defence = MLAnomalyDefence(threshold=config.detection_threshold, seed=config.seed)
         if evasive_cache and Path(evasive_cache).exists():
