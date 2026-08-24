@@ -15,6 +15,7 @@ class ExperimentConfig(BaseModel):
     attacker_class: str = "RandomAttacker"
     anomaly_lambda: float = Field(ge=0.0, default=0.0)
     lab_target_ip: str = "172.28.0.2"
+    detector: str = "isolation_forest"  # "isolation_forest" or "ae"
 
 
 def load_config(path: Path | str = "config.yaml") -> ExperimentConfig:
