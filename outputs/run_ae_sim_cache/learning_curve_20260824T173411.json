@@ -1,0 +1,1402 @@
+[
+  {
+    "episode": 0,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7796
+  },
+  {
+    "episode": 1,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7867
+  },
+  {
+    "episode": 2,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.784
+  },
+  {
+    "episode": 3,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7637
+  },
+  {
+    "episode": 4,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7862
+  },
+  {
+    "episode": 5,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7684
+  },
+  {
+    "episode": 6,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8005
+  },
+  {
+    "episode": 7,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.813
+  },
+  {
+    "episode": 8,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7873
+  },
+  {
+    "episode": 9,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8005
+  },
+  {
+    "episode": 10,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7586
+  },
+  {
+    "episode": 11,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7761
+  },
+  {
+    "episode": 12,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7553
+  },
+  {
+    "episode": 13,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7797
+  },
+  {
+    "episode": 14,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8033
+  },
+  {
+    "episode": 15,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7895
+  },
+  {
+    "episode": 16,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7974
+  },
+  {
+    "episode": 17,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8246
+  },
+  {
+    "episode": 18,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7647
+  },
+  {
+    "episode": 19,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7883
+  },
+  {
+    "episode": 20,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7813
+  },
+  {
+    "episode": 21,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7556
+  },
+  {
+    "episode": 22,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8104
+  },
+  {
+    "episode": 23,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.785
+  },
+  {
+    "episode": 24,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8176
+  },
+  {
+    "episode": 25,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8052
+  },
+  {
+    "episode": 26,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7951
+  },
+  {
+    "episode": 27,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7794
+  },
+  {
+    "episode": 28,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7797
+  },
+  {
+    "episode": 29,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.813
+  },
+  {
+    "episode": 30,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7803
+  },
+  {
+    "episode": 31,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7637
+  },
+  {
+    "episode": 32,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7963
+  },
+  {
+    "episode": 33,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.777
+  },
+  {
+    "episode": 34,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7972
+  },
+  {
+    "episode": 35,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7698
+  },
+  {
+    "episode": 36,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7588
+  },
+  {
+    "episode": 37,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8036
+  },
+  {
+    "episode": 38,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7645
+  },
+  {
+    "episode": 39,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7747
+  },
+  {
+    "episode": 40,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7658
+  },
+  {
+    "episode": 41,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7893
+  },
+  {
+    "episode": 42,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7642
+  },
+  {
+    "episode": 43,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7885
+  },
+  {
+    "episode": 44,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7958
+  },
+  {
+    "episode": 45,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7857
+  },
+  {
+    "episode": 46,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7731
+  },
+  {
+    "episode": 47,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7933
+  },
+  {
+    "episode": 48,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7704
+  },
+  {
+    "episode": 49,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7658
+  },
+  {
+    "episode": 50,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.788
+  },
+  {
+    "episode": 51,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8098
+  },
+  {
+    "episode": 52,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7878
+  },
+  {
+    "episode": 53,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7658
+  },
+  {
+    "episode": 54,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.766
+  },
+  {
+    "episode": 55,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7878
+  },
+  {
+    "episode": 56,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7628
+  },
+  {
+    "episode": 57,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7886
+  },
+  {
+    "episode": 58,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7628
+  },
+  {
+    "episode": 59,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7885
+  },
+  {
+    "episode": 60,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8003
+  },
+  {
+    "episode": 61,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7651
+  },
+  {
+    "episode": 62,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7956
+  },
+  {
+    "episode": 63,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7649
+  },
+  {
+    "episode": 64,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7733
+  },
+  {
+    "episode": 65,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8033
+  },
+  {
+    "episode": 66,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7731
+  },
+  {
+    "episode": 67,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8033
+  },
+  {
+    "episode": 68,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7873
+  },
+  {
+    "episode": 69,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8105
+  },
+  {
+    "episode": 70,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7902
+  },
+  {
+    "episode": 71,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.777
+  },
+  {
+    "episode": 72,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8033
+  },
+  {
+    "episode": 73,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7793
+  },
+  {
+    "episode": 74,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7797
+  },
+  {
+    "episode": 75,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7722
+  },
+  {
+    "episode": 76,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7644
+  },
+  {
+    "episode": 77,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7747
+  },
+  {
+    "episode": 78,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7626
+  },
+  {
+    "episode": 79,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7878
+  },
+  {
+    "episode": 80,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7956
+  },
+  {
+    "episode": 81,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7935
+  },
+  {
+    "episode": 82,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7862
+  },
+  {
+    "episode": 83,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7745
+  },
+  {
+    "episode": 84,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.794
+  },
+  {
+    "episode": 85,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8028
+  },
+  {
+    "episode": 86,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7963
+  },
+  {
+    "episode": 87,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7862
+  },
+  {
+    "episode": 88,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.798
+  },
+  {
+    "episode": 89,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8111
+  },
+  {
+    "episode": 90,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7696
+  },
+  {
+    "episode": 91,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7626
+  },
+  {
+    "episode": 92,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7902
+  },
+  {
+    "episode": 93,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7555
+  },
+  {
+    "episode": 94,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.784
+  },
+  {
+    "episode": 95,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.766
+  },
+  {
+    "episode": 96,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7902
+  },
+  {
+    "episode": 97,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7728
+  },
+  {
+    "episode": 98,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7808
+  },
+  {
+    "episode": 99,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7664
+  },
+  {
+    "episode": 100,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7673
+  },
+  {
+    "episode": 101,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7626
+  },
+  {
+    "episode": 102,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7754
+  },
+  {
+    "episode": 103,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7651
+  },
+  {
+    "episode": 104,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7656
+  },
+  {
+    "episode": 105,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7752
+  },
+  {
+    "episode": 106,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7731
+  },
+  {
+    "episode": 107,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8033
+  },
+  {
+    "episode": 108,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7649
+  },
+  {
+    "episode": 109,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7722
+  },
+  {
+    "episode": 110,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8075
+  },
+  {
+    "episode": 111,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7754
+  },
+  {
+    "episode": 112,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.768
+  },
+  {
+    "episode": 113,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7895
+  },
+  {
+    "episode": 114,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7893
+  },
+  {
+    "episode": 115,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7794
+  },
+  {
+    "episode": 116,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.782
+  },
+  {
+    "episode": 117,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7675
+  },
+  {
+    "episode": 118,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8181
+  },
+  {
+    "episode": 119,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7745
+  },
+  {
+    "episode": 120,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7893
+  },
+  {
+    "episode": 121,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.782
+  },
+  {
+    "episode": 122,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7874
+  },
+  {
+    "episode": 123,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7722
+  },
+  {
+    "episode": 124,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7798
+  },
+  {
+    "episode": 125,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7682
+  },
+  {
+    "episode": 126,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7721
+  },
+  {
+    "episode": 127,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7893
+  },
+  {
+    "episode": 128,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7675
+  },
+  {
+    "episode": 129,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7731
+  },
+  {
+    "episode": 130,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7652
+  },
+  {
+    "episode": 131,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7829
+  },
+  {
+    "episode": 132,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7733
+  },
+  {
+    "episode": 133,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7649
+  },
+  {
+    "episode": 134,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7981
+  },
+  {
+    "episode": 135,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7956
+  },
+  {
+    "episode": 136,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7959
+  },
+  {
+    "episode": 137,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7658
+  },
+  {
+    "episode": 138,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7822
+  },
+  {
+    "episode": 139,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7628
+  },
+  {
+    "episode": 140,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7649
+  },
+  {
+    "episode": 141,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8033
+  },
+  {
+    "episode": 142,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8026
+  },
+  {
+    "episode": 143,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7768
+  },
+  {
+    "episode": 144,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7799
+  },
+  {
+    "episode": 145,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7754
+  },
+  {
+    "episode": 146,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8005
+  },
+  {
+    "episode": 147,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7806
+  },
+  {
+    "episode": 148,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7553
+  },
+  {
+    "episode": 149,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7799
+  },
+  {
+    "episode": 150,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7863
+  },
+  {
+    "episode": 151,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7628
+  },
+  {
+    "episode": 152,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8028
+  },
+  {
+    "episode": 153,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7533
+  },
+  {
+    "episode": 154,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7745
+  },
+  {
+    "episode": 155,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7869
+  },
+  {
+    "episode": 156,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7705
+  },
+  {
+    "episode": 157,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7951
+  },
+  {
+    "episode": 158,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7953
+  },
+  {
+    "episode": 159,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7808
+  },
+  {
+    "episode": 160,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7628
+  },
+  {
+    "episode": 161,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7883
+  },
+  {
+    "episode": 162,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.773
+  },
+  {
+    "episode": 163,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7651
+  },
+  {
+    "episode": 164,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7658
+  },
+  {
+    "episode": 165,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7731
+  },
+  {
+    "episode": 166,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7555
+  },
+  {
+    "episode": 167,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7822
+  },
+  {
+    "episode": 168,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8055
+  },
+  {
+    "episode": 169,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7733
+  },
+  {
+    "episode": 170,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8057
+  },
+  {
+    "episode": 171,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7987
+  },
+  {
+    "episode": 172,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7682
+  },
+  {
+    "episode": 173,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7724
+  },
+  {
+    "episode": 174,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7867
+  },
+  {
+    "episode": 175,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7883
+  },
+  {
+    "episode": 176,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7966
+  },
+  {
+    "episode": 177,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7945
+  },
+  {
+    "episode": 178,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7649
+  },
+  {
+    "episode": 179,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7558
+  },
+  {
+    "episode": 180,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7736
+  },
+  {
+    "episode": 181,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7555
+  },
+  {
+    "episode": 182,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.782
+  },
+  {
+    "episode": 183,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7721
+  },
+  {
+    "episode": 184,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7745
+  },
+  {
+    "episode": 185,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7675
+  },
+  {
+    "episode": 186,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7878
+  },
+  {
+    "episode": 187,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7626
+  },
+  {
+    "episode": 188,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7974
+  },
+  {
+    "episode": 189,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7817
+  },
+  {
+    "episode": 190,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7687
+  },
+  {
+    "episode": 191,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7661
+  },
+  {
+    "episode": 192,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.778
+  },
+  {
+    "episode": 193,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7761
+  },
+  {
+    "episode": 194,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.782
+  },
+  {
+    "episode": 195,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7808
+  },
+  {
+    "episode": 196,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.774
+  },
+  {
+    "episode": 197,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7747
+  },
+  {
+    "episode": 198,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.8011
+  },
+  {
+    "episode": 199,
+    "total_reward": -14.1,
+    "steps": 15,
+    "detected": 14,
+    "mean_anomaly": 0.7951
+  }
+]

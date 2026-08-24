@@ -7,6 +7,7 @@ space and ActionFeatureEncoder so results are directly comparable.
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -125,3 +126,10 @@ class AEAnomalyDefence(Defence):
             for ev in self._evasive_cache
         )
         return max(0.0, (max_sim - 0.9) * 5.0) * (1.0 - self._detector.score(feat))
+
+
+def load_evasive_cache(defence: AEAnomalyDefence, path: Path) -> int:
+    """Load saved evasive vectors into defence._evasive_cache. Returns count loaded."""
+    vectors = np.load(path)
+    defence._evasive_cache = [vectors[i] for i in range(len(vectors))]
+    return len(vectors)

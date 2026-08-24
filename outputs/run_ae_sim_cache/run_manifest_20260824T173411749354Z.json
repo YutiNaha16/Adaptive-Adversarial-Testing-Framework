@@ -1,0 +1,54 @@
+{
+  "seed": 42,
+  "python_version": "3.12.3",
+  "packages": {
+    "pip-tools": "7.5.3",
+    "pytest": "9.1.1",
+    "ruff": "0.15.20",
+    "pydantic": "2.13.4",
+    "pyyaml": "6.0.3",
+    "numpy": "2.5.0"
+  },
+  "suricata_version": "unknown",
+  "ruleset_version": "unknown",
+  "git_commit": "6cd82e51562fa23f41688d13104ca46e0bb9f75d-dirty",
+  "config_snapshot": {
+    "episodes": 200,
+    "seed": 42,
+    "output_dir": "outputs/run_ae_sim_cache",
+    "ruleset_path": "/etc/suricata/rules",
+    "detection_threshold": 0.63,
+    "attacker_class": "ParameterizedDQNAttacker",
+    "anomaly_lambda": 0.5,
+    "lab_target_ip": "172.28.0.2",
+    "detector": "ae"
+  },
+  "timestamp": "2026-08-24T17:34:11Z",
+  "detection_rate": 0.9333333333333333,
+  "robustness_score": 0.9333333333333333,
+  "cae": 11.719390482154235,
+  "phase1_gate": {
+    "passed": true,
+    "summary": "Phase 1 PASSED (2/2 criteria met)",
+    "criteria": [
+      {
+        "name": "detection_rate",
+        "passed": true,
+        "value": 0.9333333333333333,
+        "threshold": 0.0
+      },
+      {
+        "name": "blind_spot_precision",
+        "passed": true,
+        "value": 0.0,
+        "threshold": 0.8
+      },
+      {
+        "name": "robustness_score",
+        "passed": true,
+        "value": 0.9333333333333333,
+        "threshold": 0.0
+      }
+    ]
+  }
+}

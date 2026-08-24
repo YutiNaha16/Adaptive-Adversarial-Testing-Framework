@@ -135,10 +135,14 @@ def main(
         if config.anomaly_lambda > 0:
             if config.detector == "ae":
                 from aatf.ae_defence import AEAnomalyDefence
+                from aatf.ae_defence import load_evasive_cache as ae_load_cache
 
                 ml_defence = AEAnomalyDefence(
                     threshold=config.detection_threshold, seed=config.seed
                 )
+                if evasive_cache and Path(evasive_cache).exists():
+                    n_loaded = ae_load_cache(ml_defence, Path(evasive_cache))
+                    print(f"Loaded {n_loaded} evasive vectors from {evasive_cache}")
                 mode_label = f"ML-simulation (Autoencoder, anomaly_lambda={config.anomaly_lambda})"
             else:
                 from aatf.ml_defence import MLAnomalyDefence, load_evasive_cache
