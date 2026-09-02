@@ -1,0 +1,7 @@
+episodes: 200
+seed: 0
+output_dir: outputs/run_tau061
+ruleset_path: /etc/suricata/rules
+detection_threshold: 0.61
+attacker_class: ParameterizedDQNAttacker
+anomaly_lambda: 0.5

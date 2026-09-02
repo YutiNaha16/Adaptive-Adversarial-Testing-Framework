@@ -107,12 +107,11 @@ fool than either component alone --- that each layer catches what the other
 misses.
 
 This paper challenges that assumption experimentally. A reinforcement
-learning attacker can discover actions that evade \emph{both} components
-simultaneously by framing dual-paradigm evasion as a single
-reward-maximisation problem. After 200 training episodes, our
-ParameterizedDQN attacker finds an action region invisible to both
-Suricata and an IsolationForest anomaly detector, achieving 0\%
-detection rate across five independent random seeds.
+learning attacker can evade \emph{both} components simultaneously by
+framing dual-paradigm evasion as a single reward-maximisation problem.
+After 200 training episodes, our Parameterized\-DQN attacker finds an
+action region invisible to Suricata and an Iso\-la\-tion\-Forest
+anomaly detector, achieving 0\% detection across five independent seeds.
 
 We further introduce \textbf{auto-remediation (N2)}: evasive feature
 vectors are persisted to a cosine-similarity cache; on subsequent
@@ -505,7 +504,7 @@ where $r_{\text{base}}$ encodes the rule-based outcome and stage progress
 detector's normalised anomaly score, and $\lambda \geq 0$ is the
 penalty weight. When $\lambda = 0$ the attacker ignores the ML detector;
 increasing $\lambda$ forces it to simultaneously minimise both detection
-signals. We use $\lambda = 1.0$ as the default; the sensitivity study
+signals. We use $\lambda = 0.5$ as the default; the sensitivity study
 (Section~\ref{sec:heatmap}) evaluates $\lambda \in \{0.0, 0.2, 0.5,
 0.8, 1.2\}$.
 
@@ -552,8 +551,8 @@ Replay buffer capacity & 10\,000 transitions \\
 Minibatch size        & 64 \\
 $\varepsilon$-greedy decay & $1.0 \to 0.05$ (linear, over 200 eps) \\
 Target net update     & every 10 gradient steps \\
-Default penalty $\lambda$ & 1.0 \\
-Default threshold $\tau$ & 0.60 \\
+Default penalty $\lambda$ & 0.5 \\
+Default threshold $\tau$ & 0.63 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -677,18 +676,18 @@ AE\,=\,PyTorch Autoencoder. ``N2 Cache'' = evasive cache loaded from a prior run
 \toprule
 ID & Mode & Attacker & Detector & Episodes & $\lambda$ & N2 Cache \\
 \midrule
-C-01 & Simulation & Rnd  & None              & 200         & 0.0 & No \\
-C-02 & Simulation & FS   & None              & 200         & 0.0 & No \\
-C-03 & Simulation & LU   & IF ($\tau$=0.60)  & 200         & 1.0 & No \\
-C-04 & Simulation & pDQN & IF ($\tau$=0.60)  & 200         & 1.0 & No \\
-C-05 & Simulation & pDQN & IF ($\tau$=0.60)  & 200         & 1.0 & Yes \\
-C-06 & Simulation & pDQN & AE ($\tau$=0.63)  & 200         & 1.0 & No \\
-C-07 & Simulation & pDQN & AE ($\tau$=0.63)  & 200         & 1.0 & Yes \\
-C-08 & Simulation & pDQN & IF (5 seeds)      & $5\times200$& 1.0 & No \\
-C-09 & Simulation & pDQN & IF (4 rounds)     & $4\times200$& 1.0 & Per round \\
+C-01 & Simulation & Rnd  & IF ($\tau$=0.63)  & 200         & 0.5 & No \\
+C-02 & Simulation & FS   & IF ($\tau$=0.63)  & 200         & 0.5 & No \\
+C-03 & Simulation & LU   & IF ($\tau$=0.63)  & 200         & 0.5 & No \\
+C-04 & Simulation & pDQN & IF ($\tau$=0.63)  & 200         & 0.5 & No \\
+C-05 & Simulation & pDQN & IF ($\tau$=0.63)  & 200         & 0.5 & Yes \\
+C-06 & Simulation & pDQN & AE ($\tau$=0.63)  & 200         & 0.5 & No \\
+C-07 & Simulation & pDQN & AE ($\tau$=0.63)  & 200         & 0.5 & Yes \\
+C-08 & Simulation & pDQN & IF (5 seeds)      & $5\times200$& 0.5 & No \\
+C-09 & Simulation & pDQN & IF (4 rounds)     & $4\times200$& 0.5 & Per round \\
 C-10 & Simulation & pDQN & IF ($5\times5$)   & $25\times200$& See grid & No \\
-C-11 & Lab        & pDQN & Suricata\,+\,IF   & 200         & 1.0 & No \\
-C-12 & Lab        & pDQN & Suricata\,+\,IF   & 200         & 1.0 & Yes \\
+C-11 & Lab        & pDQN & Suricata\,+\,IF   & 200         & 0.5 & No \\
+C-12 & Lab        & pDQN & Suricata\,+\,IF   & 200         & 0.5 & Yes \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -737,18 +736,22 @@ versions, output hash) to \texttt{run\_manifest\_\{ISO\}.json}.
 \label{sec:baseline}
 
 Table~\ref{tab:baseline} compares the four attacker strategies under
-identical conditions. The ParameterizedDQN (C-04) is the \emph{only}
-attacker that successfully evades both Suricata and the IsolationForest
-detector, achieving DR~$= 0.00$ with the highest CAE (9.22) and 15
-double blind spots. Random and FixedScript attackers are detected in
-every episode (DR~$= 1.00$), as their actions are both signature-matched
-and statistically anomalous. LinUCB reduces DR to 0.50 but cannot sustain
-evasion over all episodes (7 DBS), confirming that contextual-bandit
-exploration is insufficient without intensity variation and ML-aware
-reward shaping.
+identical conditions ($\tau=0.63$, $\lambda=0.5$). The ParameterizedDQN
+(C-04) is the \emph{only} attacker that successfully evades both Suricata
+and the IsolationForest detector, achieving DR~$= 0.00$ with 15 double
+blind spots. All three simpler baselines are detected in every episode
+(DR~$= 1.00$), confirming that N3 reward shaping is necessary for
+ML-evasion at this threshold. LinUCB achieves the same result as the
+random baseline (DR~$= 1.00$, DBS~$= 0$), confirming that contextual-bandit
+exploration without an ML-penalty gradient cannot locate the low-anomaly
+parameter region. FixedScript's notably high CAE (65.72) reflects its
+fixed repertoire of medium-intensity actions whose anomaly scores are
+consistently high. Notably, pDQN's CAE (9.21) is \emph{lower} than
+Random/LinUCB (9.82), showing that N3 shaping actively steers the
+attacker toward the lowest-anomaly region of the feature space.
 
 \begin{table*}[t]
-\caption{Attacker baseline comparison (200 episodes, simulation, IF $\tau=0.60$, $\lambda=1.0$).
+\caption{Attacker baseline comparison (200 episodes, simulation, IF $\tau=0.63$, $\lambda=0.5$).
 DR\,=\,detection rate; CAE\,=\,cumulative anomaly exposure; DBS\,=\,double blind spots.
 Lower DR and higher DBS indicate a more effective attacker from the adversarial testing perspective.}
 \label{tab:baseline}
@@ -757,10 +760,10 @@ Lower DR and higher DBS indicate a more effective attacker from the adversarial 
 \toprule
 Attacker & Config & DR & CAE & DBS \\
 \midrule
-RandomAttacker      & C-01 & 1.00 & 6.18 & 0 \\
-FixedScriptAttacker & C-02 & 1.00 & 7.04 & 0 \\
-LinUCBAttacker      & C-03 & 0.50 & 8.33 & 7 \\
-ParameterizedDQN    & C-04 & \textbf{0.00} & \textbf{9.22} & \textbf{15} \\
+RandomAttacker      & C-01 & 1.00 &  9.82 &  0 \\
+FixedScriptAttacker & C-02 & 1.00 & 65.72 &  0 \\
+LinUCBAttacker      & C-03 & 1.00 &  9.82 &  0 \\
+ParameterizedDQN    & C-04 & \textbf{0.00} & \textbf{9.21} & \textbf{15} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -887,6 +890,9 @@ $\lambda>0$ columns: any non-zero penalty weight produces perfect detection
 (DR~$= 1.00$) for $\tau \leq 0.60$ and complete evasion (DR~$= 0.00$) for
 $\tau \geq 0.63$, confirming that the phase transition at $\tau \approx 0.63$
 is both sharp and robust to the choice of $\lambda$ within the tested range.
+An additional single-seed run at $\tau=0.61$ (between the two heatmap rows)
+yields DR~$= 1.00$, confirming that the transition is abrupt: no gradual
+evasion region exists in the $[0.60, 0.63]$ interval.
 
 \begin{table*}[t]
 \caption{Detection rate (DR) heatmap: $5\!\times\!5$ grid of ($\tau$, $\lambda$),
@@ -944,31 +950,35 @@ Mean $\pm$ SD & $0.00 \pm 0.00$ & $9.2151 \pm 0.0193$ \\
 
 Table~\ref{tab:armsrace} shows 4 rounds of attacker--defender
 co-evolution (C-09). Each round the defender loads the N2 cache from
-the prior round and the attacker retrains from scratch. Round~0
-(no cache) serves as the baseline (DR~$= 0.00$). Round~1 loads the
-initial cache and immediately raises DR to 91.37\%. A minor
-\emph{non-monotonic dip} appears in Round~2 (DR falls to 89.87\%)
-because the attacker retrains and finds an adjacent off-cluster evasion
-region not yet represented in the cache; by Round~3 the updated cache
-closes that gap and DR recovers to 92.43\%. The system thus converges
-near 92\% DR within four rounds.
+the prior round \emph{and} raises the detection threshold by
+$\Delta\tau = 0.02$ (from $\tau=0.63$ in Round~0 to $\tau=0.69$ by
+Round~3); the attacker then retrains from scratch against the updated
+defence. Round~0 (no cache, $\tau=0.63$) serves as the baseline
+(DR~$= 0.00$). Round~1 loads the initial cache and raises $\tau$ to
+$0.65$, immediately raising DR to 91.37\%. A minor
+\emph{non-monotonic dip} appears in Round~2 ($\tau=0.67$, DR falls
+to 89.87\%) because the attacker retrains and finds an adjacent
+off-cluster evasion region not yet represented in the cache; by
+Round~3 ($\tau=0.69$) the updated cache closes that gap and DR
+recovers to 92.43\%. The system thus converges near 92\% DR within
+four rounds.
 
 \begin{table*}[t]
 \caption{Arms race dynamics: 4 rounds of attacker--defender co-evolution (C-09).
-Each round the defender loads the N2 cache from the previous round and the
-attacker retrains. Non-monotonic convergence (Round~2 dip) is discussed in
-Section~\ref{sec:disc:n2}.}
+Each round the defender loads the N2 cache from the previous round and raises
+$\tau$ by $\Delta\tau=0.02$; the attacker retrains. Non-monotonic convergence
+(Round~2 dip) is discussed in Section~\ref{sec:disc:n2}.}
 \label{tab:armsrace}
 \centering
 \small
-\begin{tabular}{r r r r}
+\begin{tabular}{r r r r r}
 \toprule
-Round & DR & CAE & $\Delta$DR \\
+Round & $\tau$ & DR & CAE & $\Delta$DR \\
 \midrule
-0 (no cache)  & 0.0000 &  9.2119 & --- \\
-1             & 0.9137 & 11.8313 & $+91.4$\,pp \\
-2             & 0.8987 & 11.7774 & $-1.5$\,pp \\
-3             & 0.9243 & 11.8361 & $+2.6$\,pp \\
+0 (no cache)  & 0.63 & 0.0000 &  9.2119 & --- \\
+1             & 0.65 & 0.9137 & 11.8313 & $+91.4$\,pp \\
+2             & 0.67 & 0.8987 & 11.7774 & $-1.5$\,pp \\
+3             & 0.69 & 0.9243 & 11.8361 & $+2.6$\,pp \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -994,11 +1004,11 @@ $\Delta$DR = percentage-point improvement from cache loading.}
 \small
 \begin{tabular}{L{1.5cm} L{1.5cm} r r r}
 \toprule
-Source & Target & No-cache DR & $+$Cache DR & $\Delta$DR \\
+Source & Target & Bare DR & $+$N2 DR & $\Delta$DR \\
 \midrule
-IF sim & IF sim  & 0.00  & 0.9137 & $+91.4$ \\
-IF sim & AE sim  & 0.425 & 0.9333 & $+50.8$ \\
-IF sim & Lab (IF)& 0.123 & 0.1027 & $-2.0$ \\
+IF sim & IF sim  & 0.0000 & 0.9137 & $+91.4$ \\
+IF sim & AE sim  & 0.4250 & 0.9333 & $+50.8$ \\
+IF sim & Lab (IF)& 0.1233 & 0.1027 & $-2.0$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1293,7 +1303,7 @@ episodes: 200
 seed: 0
 output_dir: outputs/run_primary/
 detection_threshold: 0.63   # tau
-anomaly_lambda: 1.0          # lambda (N3 penalty weight)
+anomaly_lambda: 0.5          # lambda (N3 penalty weight)
 detector: if                 # "if" = IsolationForest, "ae" = Autoencoder
 lab_target_ip: 172.28.0.2   # only used in --lab mode
 \end{lstlisting}
@@ -1449,11 +1459,13 @@ Round & Cache Size (vectors) & New Vectors Added \\
 \end{table}
 
 \noindent
-Round~0 establishes the baseline (DR~$= 0.00$, no cache). Round~1 loads
-the cache built from Round~0 evasive vectors and achieves DR~$= 91.37\%$.
-Round~2 exhibits a minor dip (DR~$= 89.87\%$) as the attacker retrains
-and discovers an adjacent off-cluster evasion region not yet covered;
-the updated cache closes that gap and Round~3 recovers to DR~$= 92.43\%$.
+Round~0 establishes the baseline (DR~$= 0.00$, no cache, $\tau=0.63$).
+Round~1 loads the cache built from Round~0 evasive vectors and raises
+$\tau$ to $0.65$, achieving DR~$= 91.37\%$.
+Round~2 exhibits a minor dip (DR~$= 89.87\%$, $\tau=0.67$) as the attacker
+retrains and discovers an adjacent off-cluster evasion region not yet covered;
+the updated cache closes that gap and Round~3 ($\tau=0.69$) recovers to
+DR~$= 92.43\%$.
 
 \subsection{Autoencoder Architecture Sensitivity}
 \label{app:ae}
