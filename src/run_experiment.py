@@ -132,13 +132,17 @@ def main(
         mode_label = "LAB (Suricata + ML)"
     else:
         execute_fn = lambda _: None  # noqa: E731
-        if config.anomaly_lambda > 0:
+        use_ml = config.anomaly_lambda > 0 or config.use_ml_defence
+        if use_ml:
             if config.detector == "ae":
                 from aatf.ae_defence import AEAnomalyDefence
                 from aatf.ae_defence import load_evasive_cache as ae_load_cache
 
                 ml_defence = AEAnomalyDefence(
-                    threshold=config.detection_threshold, seed=config.seed
+                    threshold=config.detection_threshold,
+                    seed=config.seed,
+                    hidden=config.ae_hidden,
+                    latent=config.ae_latent,
                 )
                 if evasive_cache and Path(evasive_cache).exists():
                     n_loaded = ae_load_cache(ml_defence, Path(evasive_cache))

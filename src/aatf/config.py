@@ -16,6 +16,9 @@ class ExperimentConfig(BaseModel):
     anomaly_lambda: float = Field(ge=0.0, default=0.0)
     lab_target_ip: str = "172.28.0.2"
     detector: str = "isolation_forest"  # "isolation_forest" or "ae"
+    use_ml_defence: bool = False  # if True, ML detector active even when anomaly_lambda=0
+    ae_hidden: int = Field(default=4, gt=0)  # AE encoder hidden dim
+    ae_latent: int = Field(default=2, gt=0)  # AE bottleneck dim
 
 
 def load_config(path: Path | str = "config.yaml") -> ExperimentConfig:

@@ -49,9 +49,9 @@ class _AEModel(nn.Module):
 class AutoencoderDetector:
     """Train on normal-traffic vectors; score = normalised reconstruction MSE."""
 
-    def __init__(self, seed: int = 42) -> None:
+    def __init__(self, seed: int = 42, hidden: int = _HIDDEN, latent: int = _LATENT) -> None:
         seed_everything(seed)
-        self._model = _AEModel()
+        self._model = _AEModel(hidden=hidden, latent=latent)
         self._fitted = False
         self._scale: float = 1.0  # 95th-percentile MSE on training data
 
@@ -94,11 +94,13 @@ class AEAnomalyDefence(Defence):
         threshold: float = 0.6,
         seed: int = 42,
         n_baseline: int = 500,
+        hidden: int = _HIDDEN,
+        latent: int = _LATENT,
     ) -> None:
         self._encoder = ActionFeatureEncoder()
         self._threshold = threshold
         self._seed = seed
-        self._detector = AutoencoderDetector(seed=seed)
+        self._detector = AutoencoderDetector(seed=seed, hidden=hidden, latent=latent)
         X_normal = collect_normal_baseline(n_baseline, seed)
         self._detector.fit(X_normal)
         self._evasive_cache: list[np.ndarray] = []

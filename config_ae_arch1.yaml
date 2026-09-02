@@ -1,0 +1,10 @@
+episodes: 200
+seed: 0
+output_dir: outputs/ae_arch1
+ruleset_path: /etc/suricata/rules
+detection_threshold: 0.63
+attacker_class: ParameterizedDQNAttacker
+anomaly_lambda: 1.0
+detector: ae
+ae_hidden: 4
+ae_latent: 2

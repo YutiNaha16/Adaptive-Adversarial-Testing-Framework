@@ -1,0 +1,9 @@
+episodes: 200
+seed: 0
+output_dir: outputs/n3_ablation_proper
+ruleset_path: /etc/suricata/rules
+detection_threshold: 0.63
+attacker_class: ParameterizedDQNAttacker
+anomaly_lambda: 0.0
+use_ml_defence: true
+detector: isolation_forest
