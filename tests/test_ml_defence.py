@@ -12,10 +12,12 @@ from aatf.contracts import Action, DetectionResult
 from aatf.ml_defence import (
     FEATURE_DIM,
     ActionFeatureEncoder,
+    CategoricalFeatureEncoder,
     IsolationForestDetector,
     MLAnomalyDefence,
     collect_normal_baseline,
     evaluate_roc_auc,
+    synthetic_normal_actions,
 )
 
 
@@ -126,6 +128,96 @@ def test_c010_roc_auc_gt_0_5() -> None:
     det = IsolationForestDetector(seed=42)
     det.fit(X_normal)
     enc = ActionFeatureEncoder()
+    now = datetime.now(UTC)
+    X_attack = np.array(
+        [
+            enc.encode(
+                Action(
+                    action_id=adef.action_id,
+                    category=adef.category,
+                    parameters=adef.default_parameters,
+                    timestamp=now,
+                )
+            )
+            for adef in REGISTRY.list_actions()
+        ]
+    )
+    auc = evaluate_roc_auc(det, X_normal[:50], X_attack)
+    assert isinstance(auc, float)
+    assert auc > 0.5, f"ROC-AUC {auc:.4f} not > 0.5"
+
+
+# ---------------------------------------------------------------------------
+# F29 feedback point 2: CategoricalFeatureEncoder sensitivity check
+# ---------------------------------------------------------------------------
+
+
+def test_c011_categorical_encoder_dim():
+    enc = CategoricalFeatureEncoder()
+    n_actions = len(REGISTRY.list_actions())
+    assert enc.dim == 6 + n_actions + 5
+
+
+def test_c012_categorical_encoder_one_hot_blocks_sum_to_one():
+    enc = CategoricalFeatureEncoder()
+    baseline = synthetic_normal_actions(50, seed=1)
+    enc.fit_scaler(baseline)
+    x = enc.encode(_make_action())
+    n_actions = len(REGISTRY.list_actions())
+    cat_block = x[:6]
+    act_block = x[6 : 6 + n_actions]
+    assert cat_block.sum() == pytest.approx(1.0)
+    # _make_action uses action_id="port_scan", not in REGISTRY — block stays all-zero
+    assert act_block.sum() in (0.0, 1.0)
+
+
+def test_c013_categorical_encoder_known_action_one_hot():
+    enc = CategoricalFeatureEncoder()
+    baseline = synthetic_normal_actions(50, seed=1)
+    enc.fit_scaler(baseline)
+    defn = REGISTRY.list_actions()[0]
+    action = Action(
+        action_id=defn.action_id,
+        category=defn.category,
+        parameters=defn.default_parameters,
+        timestamp=datetime.now(UTC),
+    )
+    x = enc.encode(action)
+    n_actions = len(REGISTRY.list_actions())
+    act_block = x[6 : 6 + n_actions]
+    assert act_block.sum() == pytest.approx(1.0)
+
+
+def test_c014_synthetic_normal_actions_deterministic():
+    a1 = synthetic_normal_actions(20, seed=7)
+    a2 = synthetic_normal_actions(20, seed=7)
+    assert [a.action_id for a in a1] == [a.action_id for a in a2]
+    assert [a.parameters for a in a1] == [a.parameters for a in a2]
+
+
+def test_c015_mlanomalydefence_with_categorical_encoder():
+    defence = MLAnomalyDefence(seed=42, n_baseline=100, encoder=CategoricalFeatureEncoder())
+    result = defence.observe(_make_action())
+    assert isinstance(result, DetectionResult)
+    assert 0.0 <= result.anomaly_score <= 1.0
+
+
+def test_c016_categorical_encoder_roc_auc_gt_0_5():
+    # Mirrors C-010 for the one-hot/standardized encoder: registry default-
+    # parameter actions (as a population) should separate from synthetic
+    # benign traffic. A single-action pairwise comparison isn't guaranteed to
+    # hold here — with a 15-way one-hot action block, isolation forest can
+    # saturate the score on action identity alone before the continuous
+    # (attempts/timing) dimensions get to matter for that one sample — but
+    # aggregate separability across the whole action set is the property that
+    # matters for detection quality.
+    enc = CategoricalFeatureEncoder()
+    baseline_actions = synthetic_normal_actions(500, 42)
+    enc.fit_scaler(baseline_actions)
+    X_normal = np.vstack([enc.encode(a) for a in baseline_actions])
+    det = IsolationForestDetector(seed=42)
+    det.fit(X_normal)
+
     now = datetime.now(UTC)
     X_attack = np.array(
         [

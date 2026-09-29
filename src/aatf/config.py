@@ -19,6 +19,8 @@ class ExperimentConfig(BaseModel):
     use_ml_defence: bool = False  # if True, ML detector active even when anomaly_lambda=0
     ae_hidden: int = Field(default=4, gt=0)  # AE encoder hidden dim
     ae_latent: int = Field(default=2, gt=0)  # AE bottleneck dim
+    # "md5" (default) or "categorical" (one-hot + standardized, F29 sensitivity check)
+    encoder: str = "md5"
 
 
 def load_config(path: Path | str = "config.yaml") -> ExperimentConfig:

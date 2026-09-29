@@ -70,17 +70,18 @@ action type; (N2)~automated blind-spot remediation, which encodes
 evasive feature vectors into a cosine-similarity cache that boosts
 future anomaly scores without model retraining; and (N3)~dual-paradigm
 reward shaping, which simultaneously penalises both Suricata rule-based
-alerts and IsolationForest anomaly flags. Our ParameterizedDQN attacker
-achieves 0\% detection rate across five independent seeds
+alerts and IsolationForest anomaly flags. Our Joint Action-Intensity DQN
+attacker achieves 0\% detection rate across five independent seeds
 (DR~$= 0 \pm 0$, 95\%~CI~$= [0,\,0]$) while all simpler baselines are
 detected in every episode. Auto-remediation recovers detection from 0\%
-to 91.37\% without any model retraining. An ablation study confirms
-each mechanism is individually necessary. A $5\!\times\!5$ hyperparameter
-sweep reveals a sharp phase transition at threshold $\tau \approx 0.63$.
-A 4-round arms race demonstrates convergence near 92\% DR. Real-traffic
-validation using Suricata~7.0.5 inside an isolated Docker lab achieves
-100\% blind-spot precision and confirms simulation fidelity
-(CAE: sim~$= 9.21$, lab~$= 9.24$). A detector architecture comparison
+to 91.37\% without any model retraining. An ablation study shows N1 and
+N3 jointly enable full evasion, though neither mechanism alone is shown
+to be independently necessary at $\tau=0.63$. A $5\!\times\!5$ hyperparameter
+sweep reveals a sharp threshold-sensitivity boundary at $\tau \approx 0.63$.
+A 4-round arms race demonstrates convergence near 92\% DR. Live-execution
+validation against a real Suricata~7.0.5 instance inside an isolated
+Docker lab confirms simulation fidelity (CAE: sim~$= 9.21$, lab~$= 9.20$)
+and reports zero double blind spots. A detector architecture comparison
 confirms the N2 mechanism generalises across IsolationForest and PyTorch
 autoencoder backends. All code, configurations, and Docker images are
 released for full reproducibility.
@@ -118,17 +119,31 @@ vectors are persisted to a cosine-similarity cache; on subsequent
 episodes, similarity to cached vectors triggers a score boost that closes
 the detector's structural blind spot without any model retraining or
 labelled attack data. A $5\!\times\!5$ hyperparameter sweep reveals a
-sharp phase transition at $\tau \approx 0.63$: for any penalty weight
-$\lambda > 0$, detection is perfect for $\tau \leq 0.60$ and completely
-fails for $\tau \geq 0.63$.
+sharp threshold-sensitivity boundary at $\tau \approx 0.63$: detection
+is perfect for $\tau \leq 0.60$ and fails for $\tau \geq 0.63$,
+\emph{regardless of the reward-shaping penalty weight $\lambda$},
+including $\lambda=0$. This is a threshold-crossing effect --- the
+attacker's anomaly score concentrates near $0.61$--$0.62$ whether or
+not N3 shaping is active (Section~\ref{sec:heatmap}), so moving $\tau$
+past that concentration flips detection outcome sharply; we do not
+intend this to imply an emergent phenomenon beyond that concentration
+effect, and we do not claim $\lambda$ determines the boundary location.
 
 Our primary contributions are:
 \begin{itemize}
-  \item \textbf{ParameterizedDQN}: a DQN variant outputting
-    $15 \times 3 = 45$ Q-values that selects attack type and intensity
-    in a single forward pass, jointly optimising over action type and
-    intensity for NIDS evasion --- to our knowledge, the first
-    published system to do so.
+  \item \textbf{Joint Action-Intensity DQN}: a DQN over the Cartesian
+    product of 15 discrete action types and 3 discrete intensity levels,
+    encoded as $15 \times 3 = 45$ discrete actions and output as one
+    joint Q-value vector per forward pass, so a single argmax selects
+    attack type and intensity together for NIDS evasion --- to our
+    knowledge, the first published system to do so. We avoid the term
+    ``parameterized-action DQN'' from the RL literature, which typically
+    denotes a discrete action paired with a \emph{continuous} learned
+    parameter; our intensity is one of three discrete levels, so this is
+    a discrete-action DQN over an expanded action space rather than a
+    parameterized-action method. The implementation class is named
+    \texttt{ParameterizedDQNAttacker} for historical reasons; we use
+    ``Joint Action-Intensity DQN'' in prose from here on.
   \item \textbf{N1 --- Action parameter variation}: intensity level
     (low\,/\,medium\,/\,high) is selected alongside action type,
     expanding the effective action space from 15 to 45 and enabling
@@ -141,9 +156,9 @@ Our primary contributions are:
     $r' = r_{\text{base}} - \lambda \cdot s_{\text{anomaly}}$ penalises
     both rule-based and ML detectors in a single training loop, enabling
     simultaneous evasion.
-  \item \textbf{Real-traffic lab validation}: an isolated Docker lab with
-    live Suricata~7.0.5 and the ET~Open rule set confirms simulation
-    fidelity and yields 100\% blind-spot precision.
+  \item \textbf{Live-execution lab validation}: an isolated Docker lab
+    with live Suricata~7.0.5 and the ET~Open rule set confirms simulation
+    fidelity and reports zero double blind spots.
   \item \textbf{Open-source release}: all code, Docker configurations,
     trained caches, and experimental artefacts are publicly available.
 \end{itemize}
@@ -218,8 +233,9 @@ which satisfies these conditions when the observation model is accurate.
 
 Table~\ref{tab:related} positions AATF against six representative prior
 systems. AATF is the first to combine an RL attacker with a hybrid NIDS,
-online defender adaptation, real-traffic validation, and open-source
-release in a single framework. The key differentiator is the
+online defender adaptation, live-execution lab validation against a
+real Suricata instance, and open-source release in a single framework.
+The key differentiator is the
 \emph{dual-evasion} column: no prior system simultaneously optimises
 against rule-based and ML detectors as part of the reward signal.
 
@@ -227,7 +243,11 @@ against rule-based and ML detectors as part of the reward signal.
 \caption{Comparison with related automated pen-testing and NIDS evasion systems.
 ``Dual evasion'' = simultaneously evades rule-based and ML components.
 ``Online defence'' = defender adapts at runtime without full retraining.
-Yes entries denote feature is supported; ``---'' denotes it is absent.}
+Yes entries denote feature is supported; ``---'' denotes it is absent.
+$\dagger$AATF's rule-based (Suricata) half inspects real packets in the
+lab; the ML anomaly detector scores the same action-metadata feature
+vector in both simulation and lab (Section~\ref{sec:context}) rather
+than features extracted from live traffic --- see Section~\ref{sec:lab50}.}
 \label{tab:related}
 \centering
 \small
@@ -242,7 +262,7 @@ AutoPentest-DRL~\cite{chaudhary2022autopentest}  & Yes & ---  & ---  & ---  & --
 Kitsune~\cite{mirsky2018kitsune}                 & --- & Yes  & ---  & ---  & Yes  & --- \\
 Alhajjar et~al.~\cite{alhajjar2021adversarial}   & --- & Yes  & ---  & ---  & ---  & --- \\
 \midrule
-\textbf{AATF (this work)} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} \\
+\textbf{AATF (this work)} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{Yes} & \textbf{Partial$^\dagger$} & \textbf{Yes} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -299,7 +319,7 @@ an environment with no real user data.
 \label{sec:arch}
 
 Figure~\ref{fig:arch} shows the AATF episode pipeline. At each step,
-the ParameterizedDQN selects a combined index $k = a \times 3 + i$
+the Joint Action-Intensity DQN selects a combined index $k = a \times 3 + i$
 where $a \in [0,14]$ is the action type and $i \in \{0,1,2\}$ is the
 intensity (low\,/\,medium\,/\,high). The action is executed (lab) or
 simulated, and the CompositeDefence returns a \texttt{DetectionResult}
@@ -321,8 +341,8 @@ stored; the model updates via experience replay.
 ]
 % Main pipeline boxes
 \node[box] (dqn)
-  {\textbf{ParameterizedDQN} ($\theta$)\\
-   $s_t \!\in\! \mathbb{R}^7 \xrightarrow{\;\mathrm{FC}_{7\to64\to64}\;} Q \!\in\! \mathbb{R}^{45}$};
+  {\textbf{Joint Action-Intensity DQN} ($\theta$)\\
+   $s_t \!\in\! \mathbb{R}^{50} \xrightarrow{\;\mathrm{FC}_{50\to64\to64}\;} Q \!\in\! \mathbb{R}^{45}$};
 
 \node[box, below=of dqn] (sel)
   {$k^* = \arg\max_k Q_\theta(s_t,k)$\\
@@ -405,33 +425,37 @@ C2       & \texttt{http\_c2\_beacon}, \texttt{dns\_c2}, \texttt{raw\_tcp\_c2} \\
 \end{tabular}
 \end{table}
 
-\subsection{Context Vector (7-Dimensional)}
+\subsection{Context Vector (50-Dimensional)}
 \label{sec:context}
 
-At each step a 7-dimensional state vector captures the current action's
-parameters (Table~\ref{tab:context}). All values are normalised to $[0,1]$
-to stabilise gradient magnitudes. The same vector is used as input to the
-DQN, LinUCB, and both ML detectors, ensuring direct comparability.
+At each step a 50-dimensional episode-state vector (Table~\ref{tab:context})
+is the input to the \textbf{DQN and LinUCB} policies. It is distinct
+from the ML detectors' 7-dimensional \emph{per-action} feature vector
+(Section~\ref{sec:features}): the context vector summarises the
+episode's history up to the current step (recent alerts, which actions
+have been completed, per-action detection rates so far, elapsed
+time/steps, and which Suricata rule categories have fired), giving the
+policy a Markov-ish state to act on, whereas the ML detectors score only
+the single action about to be taken. All components are normalised to
+$[0,1]$.
 
-\begin{table}[t]
-\caption{Context vector features ($d = 7$, all normalised to $[0,1]$).}
+\begin{table*}[t]
+\caption{Context vector components ($d = 50$, all normalised to $[0,1]$).}
 \label{tab:context}
 \centering
 \small
 \begin{tabular}{r l l}
 \toprule
-Idx & Feature & Normalisation \\
+Dims & Component & Description \\
 \midrule
-0 & Action category & category\_id / 5 \\
-1 & Action MD5 fingerprint & md5(action\_id) \% 1000 / 1000 \\
-2 & Port range start & port\_start / 65535 \\
-3 & Port range end   & port\_end / 65535 \\
-4 & Attempt count    & attempts / 100 \\
-5 & Timing gap (ms)  & timing\_ms / 10\,000 \\
-6 & Wordlist size    & wordlist / 100 \\
+10 & Alert history & last 10 steps' detected flags (0/1, zero-padded) \\
+15 & Attack progress & one flag per action type: completed this episode \\
+15 & Technique history & per-action-type detection rate so far this episode \\
+2  & Timing & step count / max steps; elapsed time / max seconds \\
+8  & Rule categories fired & one flag per ET category observed this episode \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \subsection{N1: Action Parameter Variation}
 \label{sec:n1}
@@ -491,6 +515,15 @@ ReLU\,+\,Sigmoid, Adam, $\mathrm{lr} = 10^{-3}$, 500 epochs) whose
 reconstruction MSE is $z$-score normalised and passed through a sigmoid.
 Both detectors flag an action when their score $\geq \tau$.
 
+\texttt{action.category} and the MD5 fingerprint above are nominal
+variables encoded as ordered scalars, which imposes an arbitrary
+geometric ordering the cosine-similarity cache (N2) then operates
+over. Appendix~\ref{app:encoding} re-runs C-04--C-07 with a one-hot
+categorical encoding in place of this ordinal one and reports a
+non-trivial effect on the attacker's \emph{bare} (pre-N2) detection
+rate --- the headline results in Section~\ref{sec:results} should be
+read as holding for this specific encoding, not as encoding-invariant.
+
 \subsection{N3: Dual-Paradigm Reward Shaping}
 \label{sec:n3}
 
@@ -525,7 +558,7 @@ Episode completion (all stages)    & $+5.0$ \\
 \end{tabular}
 \end{table}
 
-\subsection{ParameterizedDQN Architecture and Training}
+\subsection{Joint Action-Intensity DQN Architecture and Training}
 \label{sec:dqn}
 
 We implement a double DQN~\cite{mnih2015human} with a fully-connected
@@ -535,7 +568,7 @@ decision time the argmax index is decomposed:
 $a = k^* \div 3$,~$i = k^* \bmod 3$.
 
 \begin{table}[t]
-\caption{ParameterizedDQN architecture and training hyperparameters.}
+\caption{Joint Action-Intensity DQN architecture and training hyperparameters.}
 \label{tab:dqn}
 \centering
 \small
@@ -543,7 +576,7 @@ $a = k^* \div 3$,~$i = k^* \bmod 3$.
 \toprule
 Hyperparameter & Value \\
 \midrule
-Network topology      & $7 \to 64 \to 64 \to 45$ (ReLU activations) \\
+Network topology      & $50\!\to\!64\!\to\!64\!\to\!45$ (ReLU) \\
 Output neurons        & 45 \; ($15$ actions $\times$ 3 intensities) \\
 Optimiser             & Adam, $\mathrm{lr} = 1\!\times\!10^{-3}$ \\
 Discount factor $\gamma$ & 0.90 \\
@@ -565,7 +598,7 @@ Algorithm~\ref{alg:aatf} provides the complete AATF training loop.
 \label{alg:aatf}
 \begin{algorithmic}[1]
 \Require episodes $N$, penalty $\lambda$, threshold $\tau$, decay
-\State Initialise ParameterizedDQN($\theta, \hat\theta$), replay buffer $\mathcal{B}$
+\State Initialise Joint Action-Intensity DQN($\theta, \hat\theta$), replay buffer $\mathcal{B}$
 \State Load evasive cache $\mathcal{C}$ from previous run (empty if first run)
 \State Fit ML detector on 500 synthetic normal-traffic vectors
 \For{$e = 1, \ldots, N$}
@@ -652,23 +685,32 @@ process alerts.
 
 All simulation experiments ran on a single Linux workstation (Ubuntu
 22.04, Intel Core i7-12th gen, 16\,GB RAM, no GPU). The
-ParameterizedDQN runs on CPU; wall-clock time for a 200-episode
+Joint Action-Intensity DQN runs on CPU; wall-clock time for a 200-episode
 simulation run is approximately 45\,s. Lab experiments additionally
-require Docker Engine ($\geq$\,20.10) and take approximately 15\,minutes
-per 200-episode lab run due to real-network latency ($\approx$\,1.5\,s/step). Experiments are
+require Docker Engine ($\geq$\,20.10); with 15 steps per episode and a
+mandatory 1.5\,s inter-step sleep for Suricata alert processing
+(Section~\ref{sec:lab}), a 200-episode lab run has a floor of
+$200 \times 15 \times 1.5\text{s} = 75$\,minutes, plus action-execution
+and training overhead, and takes approximately 80\,minutes in practice.
+Experiments are
 fully reproducible from a single seed via the \texttt{seed\_every\-thing()}
 utility, which sets Python, NumPy, PyTorch, and OS random states.
 
 \subsection{Configurations Evaluated}
 \label{sec:configs}
 
-Table~\ref{tab:configs} lists all 12 experiment configurations. Each
+Table~\ref{tab:configs} lists all 16 experiment configurations. Each
 is identified by an ID used throughout Section~\ref{sec:results}.
+C-13--C-15 (Appendix~\ref{app:encoding}) use an alternative one-hot,
+standardized feature encoder in place of the default MD5/ordinal one;
+C-16 (Appendix~\ref{app:unmodified}) uses an unmodified ET~Open rule
+set with no SIDs disabled.
 
 \begin{table*}[t]
 \caption{Experiment configurations. Rnd\,=\,RandomAttacker, FS\,=\,FixedScriptAttacker,
 LU\,=\,LinUCBAttacker, pDQN\,=\,ParameterizedDQNAttacker, IF\,=\,IsolationForest,
-AE\,=\,PyTorch Autoencoder. ``N2 Cache'' = evasive cache loaded from a prior run.}
+AE\,=\,PyTorch Autoencoder. ``N2 Cache'' = evasive cache loaded from a prior run.
+``Cat.\ enc.'' = CategoricalFeatureEncoder (Appendix~\ref{app:encoding}).}
 \label{tab:configs}
 \centering
 \small
@@ -688,6 +730,10 @@ C-09 & Simulation & pDQN & IF (4 rounds)     & $4\times200$& 0.5 & Per round \\
 C-10 & Simulation & pDQN & IF ($5\times5$)   & $25\times200$& See grid & No \\
 C-11 & Lab        & pDQN & Suricata\,+\,IF   & 200         & 0.5 & No \\
 C-12 & Lab        & pDQN & Suricata\,+\,IF   & 200         & 0.5 & Yes \\
+C-13 & Simulation & pDQN & IF, cat.\ enc.\ ($\tau$=0.63) & 200 & 0.5 & No \\
+C-14 & Simulation & pDQN & IF, cat.\ enc.\ ($\tau$=0.63) & 200 & 0.5 & Yes \\
+C-15 & Simulation & pDQN & AE, cat.\ enc.\ ($\tau$=0.63) & 200 & 0.5 & No \\
+C-16 & Lab        & pDQN & Suricata (unmodified ET Open)\,+\,IF & 200 & 0.5 & No \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -736,8 +782,8 @@ versions, output hash) to \texttt{run\_manifest\_\{ISO\}.json}.
 \label{sec:baseline}
 
 Table~\ref{tab:baseline} compares the four attacker strategies under
-identical conditions ($\tau=0.63$, $\lambda=0.5$). The ParameterizedDQN
-(C-04) is the \emph{only} attacker that successfully evades both Suricata
+identical conditions ($\tau=0.63$, $\lambda=0.5$). The Joint
+Action-Intensity DQN (C-04) is the \emph{only} attacker that successfully evades both Suricata
 and the IsolationForest detector, achieving DR~$= 0.00$ with 15 double
 blind spots. All three simpler baselines are detected in every episode
 (DR~$= 1.00$), confirming that N3 reward shaping is necessary for
@@ -763,7 +809,7 @@ Attacker & Config & DR & CAE & DBS \\
 RandomAttacker      & C-01 & 1.00 &  9.82 &  0 \\
 FixedScriptAttacker & C-02 & 1.00 & 65.72 &  0 \\
 LinUCBAttacker      & C-03 & 1.00 &  9.82 &  0 \\
-ParameterizedDQN    & C-04 & \textbf{0.00} & \textbf{9.21} & \textbf{15} \\
+ParameterizedDQNAttacker & C-04 & \textbf{0.00} & \textbf{9.21} & \textbf{15} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -771,8 +817,8 @@ ParameterizedDQN    & C-04 & \textbf{0.00} & \textbf{9.21} & \textbf{15} \\
 \subsection{Core Scenario: Dual-Paradigm Evasion (C-04)}
 \label{sec:core}
 
-Over 200 episodes, the ParameterizedDQN (C-04) converges to an action
-policy that simultaneously avoids both Suricata signatures and the
+Over 200 episodes, the Joint Action-Intensity DQN (C-04) converges to an
+action policy that simultaneously avoids both Suricata signatures and the
 IsolationForest detector. Figure~\ref{fig:curve} shows the expected
 learning trajectory: DR is high during early $\varepsilon$-greedy
 exploration, then falls as the policy concentrates on low-intensity
@@ -828,7 +874,7 @@ CAE of 9.21 reflects the stable per-episode anomaly exposure over all
   {stable\\evasion};
 \end{axis}
 \end{tikzpicture}
-\caption{Illustrative ParameterizedDQN learning trajectory (10-episode
+\caption{Illustrative Joint Action-Intensity DQN learning trajectory (10-episode
 rolling mean). DR falls from $\approx\!1.0$ during $\varepsilon$-greedy
 exploration to 0.00 as the policy converges to a low-anomaly action cluster.
 In C-04 ($\tau=0.63$, seed~0), the attacker's initial anomaly scores
@@ -840,73 +886,99 @@ this trajectory applies when $\tau$ lies above the attacker's natural score.}
 \subsection{Ablation Study}
 \label{sec:ablation}
 
-Table~\ref{tab:ablation} quantifies the individual contribution of each
-AATF mechanism. Removing N1 (intensity selection, fixed to medium)
-raises DR from 0.00 to 1.00, confirming that intensity variation is
-necessary for fine-grained evasion: without it, the attacker's
-fixed-intensity vectors are consistently above $\tau$ and detected
-in every episode. For the N3 ablation we set $\lambda=0$ while
-keeping the IsolationForest active (preventing the
-NullDefence shortcut), so the attacker optimises for Suricata evasion
-only and receives no ML-penalty gradient. DR rises to 1.00
-(CAE~$= 9.79$): the ML detector catches every episode, confirming that
-N3 reward shaping is the mechanism that steers the attacker into the
-low-anomaly evasive cluster.
-Each mechanism is individually necessary; no single mechanism is sufficient.
+Table~\ref{tab:ablation} reports the individual contribution of each
+AATF mechanism, each averaged over the same five seeds used for the
+multi-seed validation (Section~\ref{sec:multiseed}). Removing N1
+(intensity selection; the attacker uses \texttt{DQNAttacker}, which
+selects an action type only and always executes it at the registry's
+default parameters, with N3 reward shaping still active) does
+\emph{not} restore detection: DR~$= 0.00 \pm 0.00$ across all five
+seeds, statistically indistinguishable from the full system. For the
+N3 ablation we set $\lambda=0$ while keeping the IsolationForest active
+(preventing the NullDefence shortcut), so the attacker optimises for
+Suricata evasion only and receives no ML-penalty gradient, with N1
+intensity search still active; this also fails to restore detection
+(DR~$= 0.00 \pm 0.00$ across all five seeds). CAE is likewise
+statistically indistinguishable across all three configurations
+($9.20$--$9.24$, overlapping the full system's own 5-seed range of
+$[9.19,\,9.24]$ from Table~\ref{tab:multiseed}).
 
-\begin{table}[t]
-\caption{Ablation study (200 episodes, simulation, IF $\tau=0.63$, seed~0).
-``Full'' = N1+N3 both active. N2 (auto-remediation) is a post-run defender
-mechanism and does not affect attacker training.
-N3 ablation keeps IF active ($\lambda=0$) to isolate the reward-shaping effect.}
+We do not read this as showing N1 and N3 are unnecessary: Table~\ref{tab:baseline}
+shows that attackers lacking both mechanisms entirely (Random, FixedScript,
+LinUCB) are detected in every episode, so \emph{some} combination of
+parameter-space search and reward awareness is required to reach the
+evasive region at all. What the data do not support is the stronger,
+single-mechanism claim we originally made: at $\tau=0.63$, neither N1
+nor N3 is \emph{individually} necessary once the other is present. A
+plausible explanation is the same one behind the $\tau$-sensitivity
+result (Section~\ref{sec:heatmap}): this action registry's default and
+N1-varied parameters both tend to produce anomaly scores concentrated
+just below $\tau=0.63$, so either mechanism alone already lands the
+attacker in the evasive region for this specific threshold; a
+sufficiently different registry or threshold could plausibly separate
+their individual contributions. We report this as a corrected,
+weaker claim rather than retract the ablation study, since the
+underlying data (now 5-seed, not single-seed) are more rigorous than
+what motivated the original claim.
+
+\begin{table*}[t]
+\caption{Ablation study (200 episodes $\times$ 5 seeds each, simulation,
+IF $\tau=0.63$). ``Full'' = N1+N3 both active (Table~\ref{tab:multiseed}).
+N2 (auto-remediation) is a post-run defender mechanism and does not
+affect attacker training. N3 ablation keeps IF active ($\lambda=0$) to
+isolate the reward-shaping effect.}
 \label{tab:ablation}
 \centering
 \small
 \begin{tabular}{l r r}
 \toprule
-Configuration & DR & CAE \\
+Configuration & DR (mean $\pm$ SD) & CAE (mean $\pm$ SD) \\
 \midrule
-Full (N1\,+\,N3, no cache) & 0.00 & 9.21 \\
-Without N1 (fixed intensity) & 1.00 & 12.13 \\
-Without N3 ($\lambda=0$, IF active) & 1.00 & 9.79 \\
+Full (N1\,+\,N3, no cache) & $0.00 \pm 0.00$ & $9.22 \pm 0.02$ \\
+Without N1 (fixed intensity) & $0.00 \pm 0.00$ & $9.24 \pm 0.01$ \\
+Without N3 ($\lambda=0$, IF active) & $0.00 \pm 0.00$ & $9.21 \pm 0.01$ \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \subsection{Hyperparameter Sensitivity: $5\!\times\!5$ Sweep (C-10)}
 \label{sec:heatmap}
 
 Table~\ref{tab:heatmap} shows detection rate across a $5\!\times\!5$ grid
-of ($\tau$, $\lambda$) values (25 independent 200-episode runs, C-10).
-The results reveal a sharp \emph{phase transition}: for any $\lambda > 0$,
-DR~$= 1.00$ for $\tau \leq 0.60$ (the defender catches every episode) and
-DR~$= 0.00$ for $\tau \geq 0.63$ (the attacker evades every episode) ---
-a clean two-region partition with no intermediate boundary row.
-The $\lambda=0.0$ column uniformly shows DR~$= 0.00$ across all thresholds:
-when $\lambda=0$ the reward shaping term is disabled and the framework falls
-back to a null ML defence, so the ML detector never fires regardless of
-$\tau$.  The decisive role of N3 reward shaping is thus visible in the
-$\lambda>0$ columns: any non-zero penalty weight produces perfect detection
-(DR~$= 1.00$) for $\tau \leq 0.60$ and complete evasion (DR~$= 0.00$) for
-$\tau \geq 0.63$, confirming that the phase transition at $\tau \approx 0.63$
-is both sharp and robust to the choice of $\lambda$ within the tested range.
-An additional single-seed run at $\tau=0.61$ (between the two heatmap rows)
-yields DR~$= 1.00$, confirming that the transition is abrupt: no gradual
-evasion region exists in the $[0.60, 0.63]$ interval.
+of ($\tau$, $\lambda$) values (25 independent 200-episode runs, C-10,
+seed~42). DR~$= 1.00$ for $\tau \leq 0.60$ (the defender catches every
+episode) and DR~$= 0.00$ for $\tau \geq 0.63$ (the attacker evades every
+episode) --- and this pattern is \emph{identical across every tested
+$\lambda$, including $\lambda=0$}: with the ML detector kept active at
+every cell, reward-shaping strength has no
+visible effect on detection outcome anywhere in this grid. This is
+consistent with, and reinforces, the ablation finding
+(Section~\ref{sec:ablation}): at $\tau=0.63$, N3 is not independently
+responsible for the boundary location. A follow-up single-seed run at
+$\tau=0.61$ (strictly between the two heatmap rows) yields
+DR~$\approx 0.67$--$0.69$ across two seeds (0 and 42) rather than a
+clean 0 or 1 --- so the crossing is not a literal step function; there
+is a narrow ($\tau \in [0.60, 0.63]$) region where detection is
+partial. We revise the ``abrupt, no intermediate region'' language
+from an earlier draft accordingly: the boundary is sharp (a 0.03 change
+in $\tau$ takes DR from 100\% to 0\%) but not discontinuous.
 
 \begin{table*}[t]
 \caption{Detection rate (DR) heatmap: $5\!\times\!5$ grid of ($\tau$, $\lambda$),
-200 episodes per cell (C-10). Each cell is the fraction of episodes with at least
-one detected step. $\lambda=0.0$ uses NullDefence (DR\,=\,0.00 by design).
-Bold row marks the phase-transition threshold $\tau = 0.63$.}
+200 episodes per cell (C-10, seed~42). Each cell is the fraction of episodes with
+at least one detected step. The ML detector (IsolationForest) is kept
+active at every $\lambda$, including $\lambda=0$, so this grid isolates
+the effect of reward-shaping strength on outcome, holding detector
+activity fixed. Bold row marks the primary operating threshold
+$\tau = 0.63$.}
 \label{tab:heatmap}
 \centering
 \begin{tabular}{c | c c c c c}
 \toprule
 $\tau \;\backslash\; \lambda$ & 0.00 & 0.20 & 0.50 & 0.80 & 1.20 \\
 \midrule
-0.55 & 0.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
-0.60 & 0.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+0.55 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+0.60 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
 \textbf{0.63} & \textbf{0.00} & \textbf{0.00} & \textbf{0.00} & \textbf{0.00} & \textbf{0.00} \\
 0.68 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
 0.73 & 0.00 & 0.00 & 0.00 & 0.00 & 0.00 \\
@@ -991,10 +1063,15 @@ cache. The cache trained against IsolationForest transfers partially to
 the autoencoder (DR rises from 42.5\% to 93.33\%, a gain of $+51\,$pp)
 because both detectors share the same 7-dimensional feature space; the
 cosine-similarity cache identifies the same evasive region regardless of
-detector architecture. Simulation-to-lab transfer shows that lab DR with
-cache (10.27\%) is lower than simulation (91.37\%), primarily because
-Suricata's live rule set covers some low-intensity actions that the
-simulated rule model excludes.
+detector architecture. Simulation-to-lab transfer of the N2 cache is
+essentially flat (8.33\%~$\to$~8.63\%, $+0.3\,$pp): unlike the
+simulation-only transfers above, the cache trained in simulation
+neither meaningfully helps nor hurts detection once deployed against
+the live Suricata rule set. Lab DR itself (8--9\%) is far below
+simulation's cache-loaded DR (91.37\%), primarily because Suricata's
+live rule set covers some low-intensity actions that the simulated
+rule model excludes, so most of the lab's detection comes from
+Suricata catching the residual overlap regardless of the ML cache.
 
 \begin{table}[t]
 \caption{Transfer study: N2 cache trained in one setting applied to another.
@@ -1008,7 +1085,7 @@ Source & Target & Bare DR & $+$N2 DR & $\Delta$DR \\
 \midrule
 IF sim & IF sim  & 0.0000 & 0.9137 & $+91.4$ \\
 IF sim & AE sim  & 0.4250 & 0.9333 & $+50.8$ \\
-IF sim & Lab (IF)& 0.1233 & 0.1027 & $-2.0$ \\
+IF sim & Lab (IF)& 0.0833 & 0.0863 & $+0.3$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1019,23 +1096,39 @@ the simulation cache contains evasive vectors for actions that Suricata
 in the lab \emph{does} flag, so the boosted scores slightly reduce
 episodes that would otherwise complete without any detection event.
 
-\subsection{Real-Traffic Lab Validation (C-11, 200 Episodes)}
+\subsection{Live Suricata Validation with Real Execution of Attack Primitives (C-11, 200 Episodes)}
 \label{sec:lab50}
 
 Table~\ref{tab:lab50} shows results from 200 lab episodes without an
-N2 cache pre-loaded (C-11).
-DR~$= 12.33\%$ reflects residual Suricata matches for
-low-intensity C2 actions covered by ET~Open rules. Blind-spot precision
-(BSP) is 100\%: all reported double blind spots correspond to Suricata
-SIDs explicitly listed in \texttt{lab/rules/disabled.conf}, confirming
-that the simulation's rule model accurately represents the live rule set.
-The CAE (9.24) is remarkably close to the simulation value (9.21) ---
-a gap of just 0.03 (0.3\%) --- providing strong quantitative evidence
-that the simulation's feature encoder faithfully captures the
-anomaly-score distribution of real network traffic. This close match
-was not assumed but measured, and it holds despite the simulation
-using synthetic normal-traffic vectors while the lab uses actual packet
-captures from Docker bridge traffic.
+N2 cache pre-loaded (C-11). We are explicit about what this validates and
+what it does not: the \texttt{SuricataDefence} half genuinely inspects
+real packets generated by live execution of attack primitives against a
+real target over the Docker bridge network, so Suricata's alerting
+behaviour is validated against real traffic. The ML anomaly detector,
+however, scores the \emph{same} 7-dimensional action-metadata feature
+vector (Section~\ref{sec:context}) in both simulation and lab --- it
+never sees packet- or flow-level features extracted from the real
+traffic. Consequently the close CAE match below is evidence of
+\emph{attacker-behaviour and encoder-pipeline reproducibility} between
+simulation and lab, not evidence that the ML feature encoding captures
+real network traffic; we do not claim the latter.
+DR~$= 8.33\%$ reflects residual Suricata matches for low-intensity C2
+actions covered by ET~Open rules. Double Blind Spots (DBS, the strict
+$\neg$detected~AND~anomaly~$<0.30$ definition from
+Section~\ref{sec:metrics}) is 0: the attacker's undetected steps have
+anomaly scores concentrated around $0.61$ --- below $\tau=0.63$ but
+well above the $0.30$ DBS threshold, so none of them are true double
+blind spots. Blind-Spot Precision is consequently \textbf{not
+applicable} (0 reported, so the precision ratio is undefined rather
+than a meaningful percentage); we report N/A rather than the 0/0
+convention some implementations default to
+(Section~\ref{app:repro}). The CAE (9.20) is close to the simulation
+value (9.21, Table~\ref{tab:baseline}) --- providing evidence that the
+simulation's action-execution and feature-encoding pipeline reproduces
+the lab pipeline faithfully. This close match was not assumed but
+measured, and it holds despite the simulation using synthetic
+normal-traffic vectors while the lab uses actual packet captures from
+Docker bridge traffic.
 
 \begin{table}[t]
 \caption{Lab validation: 200 episodes, no N2 cache pre-loaded (C-11).
@@ -1047,11 +1140,11 @@ Lab mode uses real Suricata alerts and live network traffic.}
 \toprule
 Metric & Value \\
 \midrule
-Detection Rate (DR)        & 12.33\% \\
-CAE                        & 9.24 \\
+Detection Rate (DR)        & 8.33\% \\
+CAE                        & 9.20 \\
 Double Blind Spots (DBS)   & 0 \\
-Blind-Spot Precision (BSP) & 100\% \\
-Robustness Score           & 0.92 \\
+Blind-Spot Precision (BSP) & N/A (0 reported) \\
+Robustness Score           & 0.09 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1059,13 +1152,13 @@ Robustness Score           & 0.92 \\
 \subsection{Extended Lab Run (C-12, 200 Episodes)}
 \label{sec:lab200}
 
-Over 200 lab episodes with the N2 cache pre-loaded, DR is 10.27\% and
-CAE rises to 12.27 (Table~\ref{tab:lab200}). The higher CAE relative
-to simulation (9.21 no-cache, 12.27 with N2 cache) reflects genuine
+Over 200 lab episodes with the N2 cache pre-loaded, DR is 8.63\% and
+CAE rises to 12.04 (Table~\ref{tab:lab200}). The higher CAE relative
+to simulation (9.21 no-cache, 12.04 with N2 cache) reflects genuine
 network variability raising baseline anomaly scores over time.
-BSP remains 100\%. Double blind spots collapse to zero: the N2 cache
-closes all previously-identified evasion gaps within the first 30
-episodes of the extended run.
+As in C-11, Double Blind Spots remain 0 under the strict definition,
+so Blind-Spot Precision is again N/A rather than a computed
+percentage.
 
 \begin{table}[t]
 \caption{Extended lab run: 200 episodes with N2 cache pre-loaded (C-12).}
@@ -1076,21 +1169,21 @@ episodes of the extended run.
 \toprule
 Metric & Value \\
 \midrule
-Detection Rate (DR)        & 10.27\% \\
-CAE                        & 12.27 \\
+Detection Rate (DR)        & 8.63\% \\
+CAE                        & 12.04 \\
 Double Blind Spots (DBS)   & 0 \\
-Blind-Spot Precision (BSP) & 100\% \\
+Blind-Spot Precision (BSP) & N/A (0 reported) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{ParameterizedDQN in Lab Mode}
+\subsection{Joint Action-Intensity DQN in Lab Mode}
 \label{sec:dqn_lab}
 
-The ParameterizedDQN converges to a stable lab policy within 30 episodes
+The Joint Action-Intensity DQN converges to a stable lab policy within 30 episodes
 despite real-network latency ($\approx 1.5$\,s per step). The agent
 predominantly selects low-intensity recon and C2 actions, matching the
-simulation policy. DR of 12.33\% is higher than the simulation's 0\%
+simulation policy. DR of 8.33\% is higher than the simulation's 0\%
 primarily because Suricata's live rule set covers some low-intensity
 actions that the simulated rule model excludes (specifically, two
 \texttt{raw\_tcp\_c2} SIDs that are enabled by default in ET~Open but
@@ -1134,20 +1227,30 @@ Autoencoder (AE) & Yes & 0.9333 & 11.72 \\
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Why Does the ParameterizedDQN Evade Both Detectors?}
+\subsection{Why Does the Joint Action-Intensity DQN Evade Both Detectors?}
 \label{sec:disc:evasion}
 
 The feature space contains a narrow region of low-intensity recon
 and C2 actions that simultaneously (a)~fall outside the ET~Open
-signature coverage for the disabled SIDs in our lab setup, and
+signature coverage for the SIDs we disable to construct a controlled
+coverage gap (Appendix~\ref{app:sids}), and
 (b)~lie within the training distribution of both the IsolationForest
 and the autoencoder (trained on 500 synthetic normal-traffic vectors).
 Because these are real, executable actions, the evasion is
-problem-space valid in the sense of~\cite{pierazzi2020intriguing}.
-The ParameterizedDQN discovers this region through reward maximisation
-with N3 shaping; simpler baselines do not because they lack either
-the (action, intensity) exploration (N1) or the ML-aware reward
-gradient (N3).
+problem-space valid in the sense of~\cite{pierazzi2020intriguing}. We
+are explicit that condition (a) is partly experimenter-injected rather
+than a gap RL discovered unaided: the interesting result is not that RL
+defeats Suricata outright, but that given signature-coverage gaps of the
+kind that realistically arise from configuration drift or locally
+disabled noisy rules, RL can jointly search for actions that both fall
+in such a gap \emph{and} remain inside the anomaly detector's normal
+region --- a joint-evasion search a rule- or score-based defender
+evaluating each signal independently would not surface. Section~\ref{sec:disc:limits}
+reports how much of the lab's evasion this coverage gap accounts for.
+The Joint Action-Intensity DQN discovers this region through reward
+maximisation with N3 shaping; simpler baselines do not because they
+lack either the (action, intensity) exploration (N1) or the ML-aware
+reward gradient (N3).
 
 \subsection{Why Does Auto-Remediation (N2) Work?}
 \label{sec:disc:n2}
@@ -1167,11 +1270,20 @@ cluster's surface area is small relative to the cache coverage radius.
 \label{sec:disc:limits}
 
 \begin{itemize}
-  \item \textbf{Feature dimensionality}: the simulation feature model
-    uses 7~dimensions derived from action parameters; real network
-    traffic contains hundreds of low-level packet features. Results
-    may not generalise to high-dimensional feature extractors without
-    re-evaluating the evasive cluster structure.
+  \item \textbf{Feature dimensionality and representation}: the
+    simulation feature model uses 7~dimensions derived from action
+    parameters, not features extracted from real packet or flow data;
+    real network traffic contains hundreds of low-level packet
+    features, and Section~\ref{sec:lab50} does not claim otherwise ---
+    the lab's real Suricata half is not evidence that the ML feature
+    encoding itself generalises to live traffic. Separately, two
+    nominal variables in that encoding (action category, action
+    identity) are represented as ordered scalars rather than one-hot;
+    Appendix~\ref{app:encoding} shows this is not encoding-neutral ---
+    switching to a one-hot/standardized encoding raises bare detection
+    from 0\% to 13.3\% (IF) and 42.5\% to 100\% (AE) against the
+    identical trained policy, though the N2 cache's recovery to
+    $>$90\% detection holds under both encodings.
   \item \textbf{Training set size}: the ML detectors are trained on
     500 synthetic normal-traffic samples, which may not capture seasonal
     or application-level variability in production networks.
@@ -1182,7 +1294,11 @@ cluster's surface area is small relative to the cache coverage radius.
     learning may converge faster or slower.
   \item \textbf{Rule-set gap}: two \texttt{raw\_tcp\_c2} SIDs enabled
     by default in live ET~Open are absent from the simulation rule model,
-    causing a 12\% DR discrepancy between simulation and lab.
+    causing an 8\% DR discrepancy between simulation and lab.
+  \item \textbf{Experimenter-injected coverage gap}: the lab's disabled
+    SIDs (Appendix~\ref{app:sids}) are a controlled gap for ground-truth
+    validation, not one RL discovered unaided; Appendix~\ref{app:unmodified}
+    reports what happens under an unmodified ET~Open rule set.
 \end{itemize}
 
 \subsection{Ethical Considerations and Responsible Disclosure}
@@ -1212,7 +1328,8 @@ applies DQN to network privilege escalation but does not model an ML
 anomaly detector as part of the environment reward, leaving the
 dual-evasion problem unaddressed. AATF extends this line by integrating
 the ML anomaly score into the reward signal (N3) and providing a
-real-traffic Docker lab for fidelity validation.
+live-execution Docker lab, with real Suricata packet inspection, for
+attacker-behaviour fidelity validation.
 
 \paragraph{Evasion of ML-Based NIDS.}
 Alhajjar et~al.~\cite{alhajjar2021adversarial} survey adversarial
@@ -1236,11 +1353,15 @@ vectors produced during the current run, and can be composed with any
 underlying anomaly detector that exposes a scalar score.
 
 \paragraph{Reward Shaping.}
-Ng et~al.~\cite{ng1999policy} prove that potential-based shaping is
-policy-invariant; our N3 linear penalty satisfies the potential-based
-condition when anomaly scores are an accurate proxy for detection
-probability, which we verify empirically via the ablation study
-(Table~\ref{tab:ablation}).
+Ng et~al.~\cite{ng1999policy} prove that shaping of the form
+$F(s,a,s') = \gamma\Phi(s') - \Phi(s)$ is policy-invariant. Our N3
+penalty, $-\lambda s_{\mathrm{anomaly}}$, is not of this form and we make
+no policy-invariance claim for it: it is a hand-designed, ML-aware
+reward penalty intended to bias the attacker toward low-anomaly
+trajectories, not a potential-based shaping term. Its effect on the
+learned policy is instead characterised empirically via the N3 ablation
+study (Table~\ref{tab:ablation}) and the $5\!\times\!5$ hyperparameter
+sweep (Section~\ref{sec:heatmap}).
 
 %%% ─────────────────────────────────────────────────────────────────
 \section{Conclusion}
@@ -1251,17 +1372,19 @@ for stress-testing hybrid NIDS deployments using a RL attacker that
 jointly optimises evasion against rule-based and ML anomaly detection.
 Three mechanisms --- action parameter variation (N1), auto-remediation
 cache (N2), and dual-paradigm reward shaping (N3) --- enable the
-ParameterizedDQN to achieve 0\% detection rate across five independent
-seeds while all simpler baselines are detected universally. N2 recovers
-detection to 91.37\% without any model retraining. A phase transition at
-$\tau \approx 0.63$, confirmed by a $5\!\times\!5$ hyperparameter sweep
+Joint Action-Intensity DQN to achieve 0\% detection rate across five
+independent seeds while all simpler baselines are detected universally.
+N2 recovers detection to 91.37\% without any model retraining. A sharp
+threshold-sensitivity boundary at $\tau \approx 0.63$, confirmed by a
+$5\!\times\!5$ hyperparameter sweep
 (25~independent runs), suggests that realistic deployments near this
 threshold boundary are structurally vulnerable to dual-paradigm evasion.
 A 4-round arms race confirms iterative convergence near 92\% DR.
-Real-traffic validation in a Docker lab with live Suricata~7.0.5 confirms
-simulation fidelity (CAE sim~$= 9.21$, lab~$= 9.24$) and achieves 100\%
-blind-spot precision against real ET~Open rules. The N2 mechanism
-generalises across both IsolationForest and PyTorch autoencoder backends.
+Live-execution validation in a Docker lab against a real Suricata~7.0.5
+instance confirms simulation fidelity (CAE sim~$= 9.21$, lab~$= 9.20$)
+and reports zero double blind spots against real ET~Open rules. The N2
+mechanism generalises across both IsolationForest and PyTorch autoencoder
+backends.
 
 Future work will extend AATF to multi-host network topologies with lateral
 movement, online attacker retraining (continuous rather than episodic
@@ -1291,13 +1414,13 @@ rule set and the Suricata open-source project.
 \label{app:config}
 
 Listing~\ref{lst:config} shows the \texttt{config.yaml} that reproduces
-the primary result (C-04: ParameterizedDQN, IsolationForest, 200 episodes,
-seed~0). All configurable parameters are exposed; default values match
-those reported in Table~\ref{tab:dqn}.
+the primary result (C-04: Joint Action-Intensity DQN, IsolationForest,
+200 episodes, seed~0). All configurable parameters are exposed; default
+values match those reported in Table~\ref{tab:dqn}.
 
 \begin{lstlisting}[language=Python, caption={config.yaml for the primary experiment (C-04).}, label={lst:config}]
 # AATF Primary Experiment Configuration (C-04)
-# Reproduces ParameterizedDQN vs IsolationForest, 200 episodes
+# Reproduces Joint Action-Intensity DQN vs IsolationForest, 200 episodes
 attacker_class: ParameterizedDQNAttacker
 episodes: 200
 seed: 0
@@ -1326,11 +1449,14 @@ python src/run_experiment.py --config config.yaml \
 
 Table~\ref{tab:sids} lists the Suricata SIDs disabled in
 \texttt{lab/\allowbreak rules/\allowbreak disabled.conf}
-for all lab experiments. Disabling these SIDs creates the blind spot
-that allows low-intensity C2 and recon actions to pass signature
-detection. The BSP of 100\% (Section~\ref{sec:lab50}) confirms that
-all 0 double-blind-spot actions in C-11 correspond to actions matching
-one of these disabled SIDs.
+for all lab experiments. Disabling these SIDs creates a Suricata
+coverage gap for low-intensity C2 and recon actions; whether an action
+falling in that gap is also a true \emph{double} blind spot depends
+separately on its ML anomaly score (Section~\ref{sec:lab50}). C-11
+reports zero true double blind spots (DBS~$=0$), so
+Blind-Spot Precision is not applicable rather than 100\%
+(Appendix~\ref{app:unmodified} checks whether this coverage gap is
+load-bearing for the lab's residual evasion at all).
 
 \begin{table}[H]
 \caption{Suricata SIDs disabled in \texttt{lab/rules/disabled.conf}. ET Open
@@ -1497,5 +1623,129 @@ $7\!\to\!8\!\to\!4\!\to\!8\!\to\!7$            & 0.4127 & 8.50 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Feature Encoding Sensitivity (C-13--C-15)}
+\label{app:encoding}
+
+Section~\ref{sec:features} encodes two nominal variables --- action
+category and action identity (via an MD5 hash mod 1000) --- as ordered
+scalars. A reviewer flagged that this imposes an arbitrary geometric
+ordering over categorical values, and that the N2 cosine-similarity
+cache operates directly on that geometry, so part of the headline
+evasion result could be an artifact of the encoding rather than a
+structural property of ML anomaly detection. We built an alternative
+\texttt{CategoricalFeatureEncoder} that one-hot encodes category (6
+dims) and action identity (15 dims) and standardizes the five
+continuous parameters (port range, attempts, timing, wordlist size) by
+$z$-score against the same synthetic normal-traffic baseline, giving a
+26-dimensional feature vector, and re-ran C-04--C-07 under it (seed~42,
+$\tau=0.63$, $\lambda=0.5$, identical attacker policy and training
+procedure) as C-13--C-15.
+
+\begin{table}[t]
+\caption{Feature-encoding sensitivity: same attacker/training setup,
+default (MD5/ordinal) vs.\ categorical (one-hot/standardized) encoding.}
+\label{tab:encoding}
+\centering
+\small
+\begin{tabular}{l l r r}
+\toprule
+Detector & Encoding & DR & CAE \\
+\midrule
+IF (no cache)  & MD5/ordinal (C-04)  & 0.0000 &  9.21 \\
+IF (no cache)  & Categorical (C-13)  & 0.1333 &  9.38 \\
+IF (+N2 cache) & MD5/ordinal (C-05)  & 0.9137 & 11.83 \\
+IF (+N2 cache) & Categorical (C-14)  & 0.9380 & 11.73 \\
+AE (no cache)  & MD5/ordinal (C-06)  & 0.4250 &  8.54 \\
+AE (no cache)  & Categorical (C-15)  & 1.0000 & 14.83 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The effect is real and non-trivial, particularly for the autoencoder:
+under the categorical encoding, AE detection rises from 42.5\% to
+\textbf{100\%} against the identical trained policy, and IF's bare
+detection rises from 0\% to 13.3\% (13 double blind spots instead of
+15). We read this as confirming the reviewer's concern --- the
+MD5/ordinal encoding does make the trained policy's evasive region
+somewhat easier to occupy than a properly-encoded feature space would,
+most visibly for the autoencoder. At the same time, the paper's central
+N2 claim is not an artifact of the encoding: with the cache loaded,
+IF's detection recovers to a comparable level under both encodings
+(91.37\% vs.\ 93.80\%), and the recovery pattern --- near-total
+evasion collapsing to near-total detection after one remediation pass
+--- holds under the categorical encoding too (13 blind spots found, 13
+closed). An aggregate ROC-AUC check (500 baseline vectors vs.\ all 15
+actions at default parameters) corroborates this directly rather than
+complicating it: the MD5/ordinal encoding separates attack from normal
+traffic only marginally above chance (ROC-AUC~$= 0.576$), while the
+categorical encoding separates them cleanly (ROC-AUC~$= 0.972$). The
+ordinal encoding of \texttt{category} and the MD5 fingerprint is not
+merely exploitable by an adversarial policy --- it is a weaker detector
+in aggregate, full stop; the one-hot/standardized encoding is better
+by both measures we checked. One caveat remains: we did not retrain
+the attacker against the categorical encoding from scratch (C-13--C-15
+use the policy trained under the default encoder); an attacker trained
+directly against the categorical-encoded detector may close some of
+this gap, so 13.3\%/100\% should be read as a lower bound on how
+evasive a categorical-aware policy could be, not as the ceiling. We
+recommend one-hot encoding of nominal variables as the more principled
+default for future work, and flag the current MD5/ordinal encoder as
+the source of some of this paper's headline evasion numbers rather
+than as an encoding-independent finding.
+
+\subsection{Unmodified ET Open Control (C-16)}
+\label{app:unmodified}
+
+Appendix~\ref{app:sids} lists the ten Suricata SIDs we disable to
+construct a controlled, known coverage gap for ground-truth validation
+of the blind-spot metrics. A reviewer noted that this is partly
+experimenter-injected: the interesting scientific question is not
+whether RL can evade a rule set with rules turned off, but whether RL
+can jointly find actions that fall in a \emph{realistic} coverage gap
+(the kind that arises from configuration drift or locally-disabled
+noisy rules) while also remaining inside the ML detector's normal
+region. C-16 reruns the C-11 lab setup with all ET~Open SIDs enabled
+(empty \texttt{disabled.conf}) to check whether any such gap exists
+without our injecting one.
+
+\begin{table*}[t]
+\caption{Unmodified ET Open control (C-16) vs.\ C-11 (10 SIDs disabled).
+Both: 200 lab episodes, no N2 cache, seed~42, $\tau=0.63$.}
+\label{tab:unmodified}
+\centering
+\small
+\begin{tabular}{l r r}
+\toprule
+Metric & C-11 (disabled) & C-16 (unmodified) \\
+\midrule
+Detection Rate (DR)        & 8.33\%  & 7.83\%  \\
+CAE                        & 9.20    & 9.24    \\
+Double Blind Spots (DBS)   & 0       & 0       \\
+Blind-Spot Precision (BSP) & N/A     & N/A     \\
+Robustness Score           & 0.09    & 0.07    \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The result answers the reviewer's question directly: with the full,
+unmodified ET~Open ruleset active --- no SIDs disabled, no
+experimenter-injected coverage gap --- the attacker still achieves
+DR~$= 7.83\%$, statistically indistinguishable from C-11's 8.33\% with
+ten SIDs disabled. Auto-remediation finds the same 15 actions evading
+Suricata in both configurations. This means the coverage gap our
+disabled-SID setup was built to isolate is not, in practice, doing the
+load-bearing work in the lab's evasion result: the low-intensity
+recon/C2 action set this framework executes falls outside ET~Open's
+effective coverage \emph{as shipped}, at least against the traffic
+patterns our \texttt{ActionExecutor} generates. We read this as
+strengthening rather than merely qualifying the original claim ---
+Section~\ref{sec:disc:evasion}'s reframing (a realistic, not
+manufactured, coverage gap) is confirmed empirically rather than only
+argued for. We still recommend the qualified framing there, since a
+different, less permissive ET~Open configuration or a differently
+tuned target service could plausibly close this natural gap; C-16
+establishes that it is not closed \emph{by default} for this action
+set, which is the narrower and more defensible claim.
 
 \end{document}

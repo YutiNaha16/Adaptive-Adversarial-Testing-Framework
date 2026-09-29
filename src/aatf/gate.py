@@ -39,7 +39,7 @@ def phase1_gate(
             name="blind_spot_precision",
             threshold=0.8,
             value=validation_result.blind_spot_precision,
-            passed=validation_result.blind_spot_precision >= 0.8,
+            passed=validation_result.meets_gate,
         )
     else:
         bsp = CriterionResult(

@@ -1,0 +1,53 @@
+{
+  "config": "config_ablation_no_n1.yaml",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "attacker_class": "DQNAttacker",
+  "episodes_per_seed": 200,
+  "metrics": {
+    "detection_rate": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "robustness_score": {
+      "mean": 0.0,
+      "std": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "cae": {
+      "mean": 9.2381,
+      "std": 0.005,
+      "ci_low": 9.2343,
+      "ci_high": 9.2419,
+      "values": [
+        9.235,
+        9.2443,
+        9.2416,
+        9.2379,
+        9.2318
+      ]
+    }
+  }
+}

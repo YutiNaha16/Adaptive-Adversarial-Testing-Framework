@@ -15,7 +15,12 @@ import torch.nn as nn
 
 from aatf.contracts import Action, DetectionResult
 from aatf.defence import Defence
-from aatf.ml_defence import ActionFeatureEncoder, collect_normal_baseline
+from aatf.ml_defence import (
+    ActionFeatureEncoder,
+    CategoricalFeatureEncoder,
+    collect_normal_baseline,
+    synthetic_normal_actions,
+)
 from aatf.seeding import seed_everything
 
 FEATURE_DIM: int = 7
@@ -49,9 +54,15 @@ class _AEModel(nn.Module):
 class AutoencoderDetector:
     """Train on normal-traffic vectors; score = normalised reconstruction MSE."""
 
-    def __init__(self, seed: int = 42, hidden: int = _HIDDEN, latent: int = _LATENT) -> None:
+    def __init__(
+        self,
+        seed: int = 42,
+        hidden: int = _HIDDEN,
+        latent: int = _LATENT,
+        input_dim: int = FEATURE_DIM,
+    ) -> None:
         seed_everything(seed)
-        self._model = _AEModel(hidden=hidden, latent=latent)
+        self._model = _AEModel(input_dim=input_dim, hidden=hidden, latent=latent)
         self._fitted = False
         self._scale: float = 1.0  # 95th-percentile MSE on training data
 
@@ -96,12 +107,20 @@ class AEAnomalyDefence(Defence):
         n_baseline: int = 500,
         hidden: int = _HIDDEN,
         latent: int = _LATENT,
+        encoder: ActionFeatureEncoder | CategoricalFeatureEncoder | None = None,
     ) -> None:
-        self._encoder = ActionFeatureEncoder()
+        self._encoder = encoder or ActionFeatureEncoder()
         self._threshold = threshold
         self._seed = seed
-        self._detector = AutoencoderDetector(seed=seed, hidden=hidden, latent=latent)
-        X_normal = collect_normal_baseline(n_baseline, seed)
+        self._detector = AutoencoderDetector(
+            seed=seed, hidden=hidden, latent=latent, input_dim=self._encoder.dim
+        )
+        if isinstance(self._encoder, CategoricalFeatureEncoder):
+            baseline_actions = synthetic_normal_actions(n_baseline, seed)
+            self._encoder.fit_scaler(baseline_actions)
+            X_normal = np.vstack([self._encoder.encode(a) for a in baseline_actions])
+        else:
+            X_normal = collect_normal_baseline(n_baseline, seed)
         self._detector.fit(X_normal)
         self._evasive_cache: list[np.ndarray] = []
 

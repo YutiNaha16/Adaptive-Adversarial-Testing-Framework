@@ -35,6 +35,8 @@ def _norm(val: int | float | str, divisor: float) -> float:
 
 
 class ActionFeatureEncoder:
+    dim: int = FEATURE_DIM
+
     def encode(self, action: Action) -> np.ndarray:
         feat = np.zeros(FEATURE_DIM, dtype=np.float64)
         feat[0] = CATEGORY_MAP.get(action.category, 0) / 5.0
@@ -50,6 +52,118 @@ class ActionFeatureEncoder:
         feat[5] = min(_norm(p.get("timing_ms", 0), 10000), 1.0)
         feat[6] = min(_norm(p.get("wordlist_size", 0), 100), 1.0)
         return feat
+
+
+# ---------------------------------------------------------------------------
+# F29 feedback point 2: sensitivity check against arbitrary categorical
+# encoding. ActionFeatureEncoder treats `category` as a raw ordinal and
+# MD5(action_id) as a scalar — nearby hash values don't imply similar
+# attacks, and the cosine-similarity cache (N2) operates directly on this
+# geometry. CategoricalFeatureEncoder one-hot encodes both nominal variables
+# and standardizes the continuous ones, removing that arbitrary ordering.
+# Opt-in via ExperimentConfig.encoder="categorical" — default behaviour and
+# all primary results are unaffected.
+# ---------------------------------------------------------------------------
+
+_CATEGORIES: list[str] = sorted(CATEGORY_MAP, key=CATEGORY_MAP.get)
+_CATEGORY_INDEX: dict[str, int] = {c: i for i, c in enumerate(_CATEGORIES)}
+N_CATEGORIES: int = len(_CATEGORIES)
+N_CONTINUOUS: int = 5
+
+
+def _action_ids() -> list[str]:
+    from aatf.action_library import REGISTRY
+
+    return sorted(d.action_id for d in REGISTRY.list_actions())
+
+
+def _raw_continuous(action: Action) -> np.ndarray:
+    p = action.parameters or {}
+
+    def _f(key: str) -> float:
+        try:
+            return float(p.get(key, 0) or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    return np.array(
+        [
+            _f("port_range_start"),
+            _f("port_range_end"),
+            _f("attempts"),
+            _f("timing_ms"),
+            _f("wordlist_size"),
+        ],
+        dtype=np.float64,
+    )
+
+
+class CategoricalFeatureEncoder:
+    """One-hot category + one-hot action-identity + standardized continuous
+    features. See module-level note above for motivation."""
+
+    def __init__(self) -> None:
+        self._action_ids = _action_ids()
+        self._action_index = {aid: i for i, aid in enumerate(self._action_ids)}
+        self._n_actions = len(self._action_ids)
+        self.dim = N_CATEGORIES + self._n_actions + N_CONTINUOUS
+        self._cont_mean = np.zeros(N_CONTINUOUS)
+        self._cont_std = np.ones(N_CONTINUOUS)
+
+    def fit_scaler(self, baseline_actions: list[Action]) -> None:
+        X = np.vstack([_raw_continuous(a) for a in baseline_actions])
+        self._cont_mean = X.mean(axis=0)
+        self._cont_std = X.std(axis=0) + 1e-9
+
+    def encode(self, action: Action) -> np.ndarray:
+        cat = np.zeros(N_CATEGORIES, dtype=np.float64)
+        cat[_CATEGORY_INDEX.get(action.category, 0)] = 1.0
+        act = np.zeros(self._n_actions, dtype=np.float64)
+        idx = self._action_index.get(action.action_id)
+        if idx is not None:
+            act[idx] = 1.0
+        cont = (_raw_continuous(action) - self._cont_mean) / self._cont_std
+        return np.concatenate([cat, act, cont])
+
+
+def synthetic_normal_actions(n_samples: int, seed: int = 42) -> list[Action]:
+    """Raw-unit synthetic benign actions for fitting CategoricalFeatureEncoder's
+    scaler and the IF/AE baseline — same benign-traffic assumptions as
+    _synthetic_baseline (low ports, few attempts, human-paced timing, no
+    wordlist), just not yet folded into a fixed-divisor [0,1] encoding."""
+    from datetime import UTC, datetime
+
+    from aatf.action_library import REGISTRY
+
+    rng = np.random.default_rng(seed)
+    by_category: dict[str, list[str]] = {}
+    for defn in REGISTRY.list_actions():
+        by_category.setdefault(defn.category, []).append(defn.action_id)
+    categories = sorted(by_category)
+    all_ids = _action_ids()
+
+    actions = []
+    for _ in range(n_samples):
+        cat = categories[rng.integers(0, len(categories))]
+        candidates = by_category.get(cat) or all_ids
+        action_id = candidates[rng.integers(0, len(candidates))]
+        port = float(rng.integers(0, 1025))
+        params = {
+            "port_range_start": port,
+            "port_range_end": port,
+            "attempts": float(rng.integers(0, 3)),
+            "timing_ms": float(rng.uniform(500, 5000)),
+            "wordlist_size": 0.0,
+        }
+        actions.append(
+            Action(
+                action_id=action_id,
+                category=cat,
+                parameters=params,
+                timestamp=datetime.now(UTC),
+            )
+        )
+    return actions
 
 
 _BASELINE_CACHE = Path("lab/baselines/normal_baseline.npy")
@@ -154,13 +268,19 @@ class MLAnomalyDefence(Defence):
         contamination: float = 0.1,
         seed: int = 42,
         n_baseline: int = 500,
+        encoder: ActionFeatureEncoder | CategoricalFeatureEncoder | None = None,
     ) -> None:
-        self._encoder = ActionFeatureEncoder()
+        self._encoder = encoder or ActionFeatureEncoder()
         self._seed = seed
         self._n_baseline = n_baseline
         self._threshold = threshold
         self._contamination = contamination
-        X_normal = collect_normal_baseline(n_baseline, seed)
+        if isinstance(self._encoder, CategoricalFeatureEncoder):
+            baseline_actions = synthetic_normal_actions(n_baseline, seed)
+            self._encoder.fit_scaler(baseline_actions)
+            X_normal = np.vstack([self._encoder.encode(a) for a in baseline_actions])
+        else:
+            X_normal = collect_normal_baseline(n_baseline, seed)
         self._detector = IsolationForestDetector(contamination, seed)
         self._detector.fit(X_normal)
         # Known-evasive cache: feature vectors of attacks that previously evaded the detector.
@@ -245,7 +365,11 @@ def auto_remediate(
 
     from aatf.action_library import REGISTRY
 
-    encoder = ActionFeatureEncoder()
+    # Use the defence's own encoder (not a fresh default) so cached vectors
+    # live in the same feature space the defence scores against — otherwise
+    # a non-default encoder (e.g. CategoricalFeatureEncoder) would get its
+    # evasive cache populated with wrong-dimension MD5-encoded vectors.
+    encoder = defence._encoder
 
     # Collect (action_id, feature_vector, original_score) for each evaded step
     evaded: list[tuple[str, np.ndarray, float]] = []

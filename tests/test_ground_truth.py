@@ -6,12 +6,37 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
+from aatf.action_library import REGISTRY
+from aatf.episode import StepRecord
 from aatf.explainability import ActionExplanation
 from aatf.ground_truth import (
     SURICATA_SID_CATEGORIES,
     ValidationResult,
+    explain_double_blind_spots,
     validate_blind_spots,
 )
+from aatf.metrics import EpisodeRecord
+
+
+def _step(action_id: str, detected: bool, anomaly_score: float = 0.0) -> StepRecord:
+    return StepRecord(
+        action_id=action_id,
+        detected=detected,
+        stage_progress=0,
+        reward=0.0,
+        anomaly_score=anomaly_score,
+    )
+
+
+def _ep(*steps: StepRecord) -> EpisodeRecord:
+    return EpisodeRecord(
+        attacker_class="test",
+        seed=0,
+        steps=list(steps),
+        total_reward=0.0,
+        completed=False,
+        episode_index=0,
+    )
 
 
 def _expl(action_id: str, suricata_category: str) -> ActionExplanation:
@@ -153,3 +178,75 @@ def test_c012_sid_categories_covers_all_phase1():
         "ET WEB_SERVER",
     }
     assert required <= set(SURICATA_SID_CATEGORIES.values())
+
+
+def test_c013_meets_gate_vacuous_pass_when_nothing_reported():
+    r = ValidationResult(
+        blind_spot_precision=0.0,
+        true_positives=0,
+        false_positives=0,
+        total_reported=0,
+        disabled_sid_count=3,
+    )
+    assert r.meets_gate is True
+
+
+def test_c014_meets_gate_still_fails_with_reported_false_claims():
+    r = ValidationResult(
+        blind_spot_precision=0.5,
+        true_positives=1,
+        false_positives=1,
+        total_reported=2,
+        disabled_sid_count=1,
+    )
+    assert r.meets_gate is False
+
+
+def test_c015_explain_double_blind_spots_excludes_detected_steps():
+    action_id = REGISTRY.list_actions()[0].action_id
+    records = [_ep(_step(action_id, detected=True, anomaly_score=0.0))]
+    assert explain_double_blind_spots(records, REGISTRY) == []
+
+
+def test_c016_explain_double_blind_spots_excludes_high_anomaly_evasions():
+    action_id = REGISTRY.list_actions()[0].action_id
+    records = [_ep(_step(action_id, detected=False, anomaly_score=0.61))]
+    assert explain_double_blind_spots(records, REGISTRY) == []
+
+
+def test_c017_explain_double_blind_spots_includes_true_dbs():
+    action_id = REGISTRY.list_actions()[0].action_id
+    records = [_ep(_step(action_id, detected=False, anomaly_score=0.1))]
+    result = explain_double_blind_spots(records, REGISTRY)
+    assert len(result) == 1
+    assert result[0].action_id == action_id
+    assert result[0].evasion_count == 1
+    assert result[0].total_count == 1
+
+
+def test_c018_explain_double_blind_spots_mixed_steps_only_counts_dbs():
+    action_id = REGISTRY.list_actions()[0].action_id
+    records = [
+        _ep(
+            _step(action_id, detected=False, anomaly_score=0.1),  # true DBS
+            _step(action_id, detected=True, anomaly_score=0.0),  # detected, not DBS
+            _step(action_id, detected=False, anomaly_score=0.9),  # evaded but high anomaly
+        )
+    ]
+    result = explain_double_blind_spots(records, REGISTRY)
+    assert len(result) == 1
+    assert result[0].evasion_count == 1
+    assert result[0].total_count == 1
+
+
+def test_c019_ground_truth_uses_dbs_not_raw_evasions_end_to_end():
+    """Regression test for the BSP/DBS mismatch: an action that evades Suricata
+    with a high anomaly score (not a true double blind spot) must not count
+    toward blind-spot-precision validation."""
+    action_id = REGISTRY.list_actions()[0].action_id
+    records = [_ep(_step(action_id, detected=False, anomaly_score=0.9))]
+    explanations = explain_double_blind_spots(records, REGISTRY)
+    result = validate_blind_spots(explanations, {"2001219"})
+    assert result.total_reported == 0
+    assert result.blind_spot_precision == 0.0
+    assert result.meets_gate is True

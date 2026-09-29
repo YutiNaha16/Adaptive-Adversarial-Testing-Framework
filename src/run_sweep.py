@@ -30,6 +30,12 @@ def _run_cell(base_cfg: dict, lam: float, thresh: float, sweep_dir: Path) -> dic
     cfg["anomaly_lambda"] = lam
     cfg["detection_threshold"] = thresh
     cfg["output_dir"] = str(out_dir)
+    # Keep the ML detector active at every lambda, including 0.0 — lambda must
+    # control only the reward-shaping penalty, never whether the detector runs.
+    # Otherwise lambda=0.0 silently falls back to NullDefence (see
+    # run_experiment.py's `use_ml = anomaly_lambda > 0 or use_ml_defence`),
+    # which is a different experiment than "attacker ignores the ML penalty."
+    cfg["use_ml_defence"] = True
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False, dir=out_dir) as fh:
         yaml.dump(cfg, fh)

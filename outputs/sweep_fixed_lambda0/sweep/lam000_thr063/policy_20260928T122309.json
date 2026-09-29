@@ -1,0 +1,77 @@
+{
+  "dns_exfil": {
+    "low": 694189.4375,
+    "medium": 626212.5,
+    "high": 407425.1875
+  },
+  "dns_subdomain_enum": {
+    "low": 478375.78125,
+    "medium": 748923.75,
+    "high": 452160.28125
+  },
+  "dns_zone_transfer": {
+    "low": 654471.5,
+    "medium": 776171.0625,
+    "high": 476365.4375
+  },
+  "ftp_brute_force": {
+    "low": 668413.625,
+    "medium": 779949.5625,
+    "high": 512131.75
+  },
+  "http_basic_brute": {
+    "low": 424197.40625,
+    "medium": 464990.0,
+    "high": 338767.59375
+  },
+  "http_dir_scan": {
+    "low": 695526.375,
+    "medium": 766326.5,
+    "high": 543379.3125
+  },
+  "http_exfil": {
+    "low": 177104.125,
+    "medium": 175445.609375,
+    "high": 175159.3125
+  },
+  "http_sqli_probe": {
+    "low": 685890.375,
+    "medium": 756696.8125,
+    "high": 534806.375
+  },
+  "http_xss_probe": {
+    "low": 449648.90625,
+    "medium": 592828.0625,
+    "high": 392593.375
+  },
+  "icmp_ping_sweep": {
+    "low": 644489.625,
+    "medium": 770755.625,
+    "high": 481862.5625
+  },
+  "ssh_brute_force": {
+    "low": 528701.25,
+    "medium": 622369.1875,
+    "high": 526832.4375
+  },
+  "ssh_user_enum": {
+    "low": 680472.875,
+    "medium": 777716.5625,
+    "high": 489511.0
+  },
+  "ssh_version_probe": {
+    "low": 673223.75,
+    "medium": 777409.5625,
+    "high": 542734.3125
+  },
+  "tcp_port_scan": {
+    "low": 675086.0625,
+    "medium": 767966.3125,
+    "high": 464738.28125
+  },
+  "udp_sweep": {
+    "low": 569858.125,
+    "medium": 768496.9375,
+    "high": 424257.5625
+  }
+}

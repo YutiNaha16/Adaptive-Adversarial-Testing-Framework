@@ -16,9 +16,8 @@ from aatf.contracts import Action
 from aatf.defence import NullDefence
 from aatf.dqn_attacker import DQNAttacker, DQNModel, ParameterizedDQNAttacker, ParameterizedDQNModel
 from aatf.episode import run_episode
-from aatf.explainability import explain_evasions
 from aatf.gate import phase1_gate
-from aatf.ground_truth import ValidationResult, validate_blind_spots
+from aatf.ground_truth import ValidationResult, explain_double_blind_spots, validate_blind_spots
 from aatf.linucb import LinUCBModel
 from aatf.manifest import write_manifest
 from aatf.metrics import (
@@ -134,6 +133,11 @@ def main(
         execute_fn = lambda _: None  # noqa: E731
         use_ml = config.anomaly_lambda > 0 or config.use_ml_defence
         if use_ml:
+            encoder = None
+            if config.encoder == "categorical":
+                from aatf.ml_defence import CategoricalFeatureEncoder
+
+                encoder = CategoricalFeatureEncoder()
             if config.detector == "ae":
                 from aatf.ae_defence import AEAnomalyDefence
                 from aatf.ae_defence import load_evasive_cache as ae_load_cache
@@ -143,22 +147,27 @@ def main(
                     seed=config.seed,
                     hidden=config.ae_hidden,
                     latent=config.ae_latent,
+                    encoder=encoder,
                 )
                 if evasive_cache and Path(evasive_cache).exists():
                     n_loaded = ae_load_cache(ml_defence, Path(evasive_cache))
                     print(f"Loaded {n_loaded} evasive vectors from {evasive_cache}")
-                mode_label = f"ML-simulation (Autoencoder, anomaly_lambda={config.anomaly_lambda})"
+                mode_label = (
+                    f"ML-simulation (Autoencoder, encoder={config.encoder}, "
+                    f"anomaly_lambda={config.anomaly_lambda})"
+                )
             else:
                 from aatf.ml_defence import MLAnomalyDefence, load_evasive_cache
 
                 ml_defence = MLAnomalyDefence(
-                    threshold=config.detection_threshold, seed=config.seed
+                    threshold=config.detection_threshold, seed=config.seed, encoder=encoder
                 )
                 if evasive_cache and Path(evasive_cache).exists():
                     n_loaded = load_evasive_cache(ml_defence, Path(evasive_cache))
                     print(f"Loaded {n_loaded} evasive vectors from {evasive_cache}")
                 mode_label = (
-                    f"ML-simulation (IsolationForest, anomaly_lambda={config.anomaly_lambda})"
+                    f"ML-simulation (IsolationForest, encoder={config.encoder}, "
+                    f"anomaly_lambda={config.anomaly_lambda})"
                 )
             defence = ml_defence
         else:
@@ -239,8 +248,8 @@ def main(
 
     if lab:
         disabled_sids = _load_disabled_sids(Path(disabled_conf))
-        explanations = explain_evasions(records, REGISTRY)
-        validation_result = validate_blind_spots(explanations, disabled_sids)
+        dbs_explanations = explain_double_blind_spots(records, REGISTRY)
+        validation_result = validate_blind_spots(dbs_explanations, disabled_sids)
     else:
         validation_result = ValidationResult(
             blind_spot_precision=0.0,
