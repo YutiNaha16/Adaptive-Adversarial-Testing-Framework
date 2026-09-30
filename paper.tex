@@ -786,10 +786,16 @@ identical conditions ($\tau=0.63$, $\lambda=0.5$). The Joint
 Action-Intensity DQN (C-04) is the \emph{only} attacker that successfully evades both Suricata
 and the IsolationForest detector, achieving DR~$= 0.00$ with 15 double
 blind spots. All three simpler baselines are detected in every episode
-(DR~$= 1.00$), confirming that N3 reward shaping is necessary for
-ML-evasion at this threshold. LinUCB achieves the same result as the
-random baseline (DR~$= 1.00$, DBS~$= 0$), confirming that contextual-bandit
-exploration without an ML-penalty gradient cannot locate the low-anomaly
+(DR~$= 1.00$): none combine the (action, intensity) exploration and
+ML-score awareness that N1 and N3 together provide. This baseline
+comparison shows the full N1\,+\,N3 system outperforms attackers with
+neither mechanism; it does not by itself isolate which of the two is
+responsible, a question the ablation study
+(Section~\ref{sec:ablation}) addresses directly and for which neither
+mechanism alone is shown to be necessary at this threshold. LinUCB
+achieves the same result as the random baseline (DR~$= 1.00$,
+DBS~$= 0$): contextual-bandit exploration alone, without the full
+system's combination of mechanisms, does not locate the low-anomaly
 parameter region. FixedScript's notably high CAE (65.72) reflects its
 fixed repertoire of medium-intensity actions whose anomaly scores are
 consistently high. Notably, pDQN's CAE (9.21) is \emph{lower} than
@@ -823,7 +829,7 @@ IsolationForest detector. Figure~\ref{fig:curve} shows the expected
 learning trajectory: DR is high during early $\varepsilon$-greedy
 exploration, then falls as the policy concentrates on low-intensity
 actions whose feature vectors lie within the normal-traffic region of
-the detector's feature space. In the reported C-04 run (seed~0, $\tau=0.63$),
+the detector's feature space. In the reported C-04 run (seed~42, $\tau=0.63$),
 the attacker's natural Suricata-evasion policy already produced anomaly
 scores ($\approx\!0.61$) below the detection threshold from episode~1,
 achieving DR~$= 0.00$ throughout; the illustrated convergence trajectory
@@ -877,7 +883,7 @@ CAE of 9.21 reflects the stable per-episode anomaly exposure over all
 \caption{Illustrative Joint Action-Intensity DQN learning trajectory (10-episode
 rolling mean). DR falls from $\approx\!1.0$ during $\varepsilon$-greedy
 exploration to 0.00 as the policy converges to a low-anomaly action cluster.
-In C-04 ($\tau=0.63$, seed~0), the attacker's initial anomaly scores
+In C-04 ($\tau=0.63$, seed~42), the attacker's initial anomaly scores
 ($\approx\!0.61$) are already below $\tau$, so DR~$= 0.00$ from episode~1;
 this trajectory applies when $\tau$ lies above the attacker's natural score.}
 \label{fig:curve}
@@ -1089,12 +1095,6 @@ IF sim & Lab (IF)& 0.0833 & 0.0863 & $+0.3$ \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\noindent
-The negative transfer to the lab ($\Delta$DR~$= -2.0\,$pp) reflects that
-the simulation cache contains evasive vectors for actions that Suricata
-in the lab \emph{does} flag, so the boosted scores slightly reduce
-episodes that would otherwise complete without any detection event.
 
 \subsection{Live Suricata Validation with Real Execution of Attack Primitives (C-11, 200 Episodes)}
 \label{sec:lab50}
@@ -1416,7 +1416,7 @@ rule set and the Suricata open-source project.
 
 Listing~\ref{lst:config} shows the \texttt{config.yaml} that reproduces
 the primary result (C-04: Joint Action-Intensity DQN, IsolationForest,
-200 episodes, seed~0). All configurable parameters are exposed; default
+200 episodes, seed~42). All configurable parameters are exposed; default
 values match those reported in Table~\ref{tab:dqn}.
 
 \begin{lstlisting}[language=Python, caption={config.yaml for the primary experiment (C-04).}, label={lst:config}]
@@ -1424,7 +1424,7 @@ values match those reported in Table~\ref{tab:dqn}.
 # Reproduces Joint Action-Intensity DQN vs IsolationForest, 200 episodes
 attacker_class: ParameterizedDQNAttacker
 episodes: 200
-seed: 0
+seed: 42
 output_dir: outputs/run_primary/
 detection_threshold: 0.63   # tau
 anomaly_lambda: 0.5          # lambda (N3 penalty weight)
