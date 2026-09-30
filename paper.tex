@@ -110,7 +110,7 @@ misses.
 This paper challenges that assumption experimentally. A reinforcement
 learning attacker can evade \emph{both} components simultaneously by
 framing dual-paradigm evasion as a single reward-maximisation problem.
-After 200 training episodes, our Parameterized\-DQN attacker finds an
+After 200 training episodes, our Joint Action-Intensity DQN attacker finds an
 action region invisible to Suricata and an Iso\-la\-tion\-Forest
 anomaly detector, achieving 0\% detection across five independent seeds.
 
@@ -1120,9 +1120,8 @@ anomaly scores concentrated around $0.61$ --- below $\tau=0.63$ but
 well above the $0.30$ DBS threshold, so none of them are true double
 blind spots. Blind-Spot Precision is consequently \textbf{not
 applicable} (0 reported, so the precision ratio is undefined rather
-than a meaningful percentage); we report N/A rather than the 0/0
-convention some implementations default to
-(Section~\ref{app:repro}). The CAE (9.20) is close to the simulation
+than a meaningful percentage); we report N/A rather than defaulting
+an undefined 0/0 ratio to a specific value. The CAE (9.20) is close to the simulation
 value (9.21, Table~\ref{tab:baseline}) --- providing evidence that the
 simulation's action-execution and feature-encoding pipeline reproduces
 the lab pipeline faithfully. This close match was not assumed but
