@@ -1280,10 +1280,11 @@ cluster's surface area is small relative to the cache coverage radius.
     nominal variables in that encoding (action category, action
     identity) are represented as ordered scalars rather than one-hot;
     Appendix~\ref{app:encoding} shows this is not encoding-neutral ---
-    switching to a one-hot/standardized encoding raises bare detection
-    from 0\% to 13.3\% (IF) and 42.5\% to 100\% (AE) against the
-    identical trained policy, though the N2 cache's recovery to
-    $>$90\% detection holds under both encodings.
+    a policy trained from scratch directly against the one-hot/
+    standardized encoding still converges to 13.3\% (IF) / 100\% (AE)
+    detection, vs.\ 0\% / 42.5\% under the default MD5/ordinal
+    encoding, though the N2 cache's recovery to $>$90\% detection
+    holds under both encodings.
   \item \textbf{Training set size}: the ML detectors are trained on
     500 synthetic normal-traffic samples, which may not capture seasonal
     or application-level variability in production networks.
@@ -1683,16 +1684,24 @@ categorical encoding separates them cleanly (ROC-AUC~$= 0.972$). The
 ordinal encoding of \texttt{category} and the MD5 fingerprint is not
 merely exploitable by an adversarial policy --- it is a weaker detector
 in aggregate, full stop; the one-hot/standardized encoding is better
-by both measures we checked. One caveat remains: we did not retrain
-the attacker against the categorical encoding from scratch (C-13--C-15
-use the policy trained under the default encoder); an attacker trained
-directly against the categorical-encoded detector may close some of
-this gap, so 13.3\%/100\% should be read as a lower bound on how
-evasive a categorical-aware policy could be, not as the ceiling. We
-recommend one-hot encoding of nominal variables as the more principled
-default for future work, and flag the current MD5/ordinal encoder as
-the source of some of this paper's headline evasion numbers rather
-than as an encoding-independent finding.
+by both measures we checked. C-13--C-15 already reflect a policy
+trained \emph{from scratch, directly against} the categorical-encoded
+detector for the same 200-episode budget as every other run in this
+paper (every \texttt{run\_experiment.py} invocation initialises a fresh
+policy and trains online; there is no cross-run checkpoint reuse), so
+this is not a stale-policy artifact. The per-episode learning curves
+confirm convergence rather than insufficient training: against the
+categorical AE, the attacker is detected on all 15 steps of \emph{every}
+episode from episode 1 through 200 --- flat from the first,
+still-random-exploration episode --- and against the categorical IF it
+converges immediately to a stable 2-of-15 detected-steps floor with no
+downward drift across training. We therefore read 13.3\%/100\% as a
+genuine, converged result for this training budget, not a lower bound
+awaiting more training. We recommend one-hot encoding of nominal
+variables as the more principled default for future work, and flag the
+current MD5/ordinal encoder as the source of some of this paper's
+headline evasion numbers rather than as an encoding-independent
+finding.
 
 \subsection{Unmodified ET Open Control (C-16)}
 \label{app:unmodified}
